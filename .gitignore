@@ -1,0 +1,57 @@
+# Node.js 
+node_modules/
+dist/
+build/
+.env
+.env.local
+npm-debug.log*
+
+# Python 
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+*.log
+
+# Java / Maven / Gradle 
+target/
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+build/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# VS Code settings 
+.vscode/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Git files
+*.orig
+*.rej
+
+# Testing / Coverage
+coverage/
+htmlcov/
+*.cover
+*.lcov
+
+# Local database / dev artifacts
+*.sqlite3
+*.db
+*.pid
+*.seed
+
+# Frontend tools 
+.cache/
+.parcel-cache/
+.next/
+out/
