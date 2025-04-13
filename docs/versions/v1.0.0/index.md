@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-1. [SRS (Software Requirement Specification)](docs/versions/v1.0.0/SRS.md)
+1. [SRS (Software Requirement Specification)](SRS.md)
 2. [As-Is Analysis](docs/versions/v1.0.0/As_is.md)
 3. [User Stories](docs/versions/v1.0.0/User_stories.md)
 4. [Architecture](docs/versions/v1.0.0/Architecture.md)
