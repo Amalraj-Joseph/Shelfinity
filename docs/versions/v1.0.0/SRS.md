@@ -1,26 +1,30 @@
 # Software Requirement Specification (SRS) for Library Management System
 
-## 1. Introduction
+## 📘 1. Introduction
 
-### 1.1 Purpose
+### 📌 1.1 Purpose
 This document provides a detailed Software Requirements Specification (SRS) for the Library Management Application. It defines the system's functional and non-functional requirements and provides details about the architecture, user interfaces, and external systems it will interact with. The intended audience includes developers, testers, and stakeholders.
 
-### 1.2 Scope
+---
+
+### 🌐 1.2 Scope
 The Library Management Application allows users to register, browse books, borrow and return books, and manage their accounts. Admins can approve or reject user registrations and book borrowing/return requests. The system will also send email notifications to users and admins when a request status changes.
 
 This document covers the backend API and does not include UI design or implementation, which will be handled in a separate phase.
 
-### 1.3 Definitions, Acronyms, and Abbreviations
+---
+
+### 🧠 1.3 Definitions, Acronyms, and Abbreviations
 
 | **Acronym/Term**        | **Definition/Description**                                                                                              |
 |-------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| **API**                 | Application Programming Interface, a set of rules that allow different software components to communicate with each other. |
-| **SRS**                 | Software Requirements Specification, a document that outlines the system’s functionalities, design, and constraints.       |
+| **API**                 | Application Programming Interface, a set of rules that allow different software components to communicate with each other.|
+| **SRS**                 | Software Requirements Specification, a document that outlines the system’s functionalities, design, and constraints.      |
 | **Admin**               | A user with higher privileges, responsible for approving/denying requests, managing users, and generating reports.          |
 | **User**                | A customer using the library management system to borrow, return, or reserve books, and manage their account information.    |
 | **Request Queue**       | A list of pending requests (user registration, borrow/return books) waiting for admin approval or action.                  |
 | **Book Borrowing**      | The process where a user requests to borrow a book from the library, subject to admin approval.                            |
-| **Book Returning**      | The process where a user returns a borrowed book to the library, subject to admin review.                                 |
+| **Book Returning**      | The process where a user returns a borrowed book to the library, subject to admin review.                                  |
 | **Book Reservation**    | The functionality that allows users to reserve books that are currently unavailable, to be notified when the book is available. |
 | **Authentication**      | The process of verifying a user’s identity, typically through a username and password, to grant access to their account.    |
 | **Authorization**       | The process of determining what actions a user is permitted to perform within the system once authenticated.              |
@@ -49,7 +53,9 @@ This document covers the backend API and does not include UI design or implement
 | **Audit Log**           | A record of all significant actions performed by users or admins in the system, often used for security or troubleshooting. |
 | **Load Balancing**      | The method of distributing incoming network traffic across multiple servers to ensure the system remains responsive and efficient under high demand. |
 
-### 1.4 References
+---
+
+### 📚 1.4 References
 | Document Title                   | Description                                                                      | Link     |
 |----------------------------------|----------------------------------------------------------------------------------|----------|
 | **User Manual**                      | Instructions for end users on how to use the system                             | Coming soon |
@@ -62,14 +68,16 @@ This document covers the backend API and does not include UI design or implement
 | **Swagger / OpenAPI Specification**  | Format for defining RESTful API contracts                                       | [Docs](https://swagger.io/docs/) |
 | **Markdown Style Guide**             | Basic syntax and formatting tips for writing markdown docs                      | [Docs](https://www.markdownguide.org/basic-syntax/) |
 | **SMTP Protocol Reference**          | Reference for how email is sent (for notifications)                             | [Docs](https://datatracker.ietf.org/doc/html/rfc5321) |
+| **Apache Kafka Documentation**       | Official documentation for Apache Kafka, a distributed event streaming platform | [Docs](https://kafka.apache.org/documentation/) |
 | **Git Versioning Workflow**          | Guide for versioning and branching documentation or source code                 | [Docs](https://nvie.com/posts/a-successful-git-branching-model/) |
 | **OWASP Authentication Cheat Sheet** | Security best practices for login and password management                       | [Docs](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) |
 | **JSON Schema Specification**        | Specification for validating JSON API request and response structures           | [Docs](https://json-schema.org/learn/getting-started-step-by-step.html) |
 | **Ansible Documentation**            | Official docs for automating deployments and infrastructure                     | [Docs](https://docs.ansible.com/ansible/latest/index.html) |
 | **REST API Best Practices**          | Microsoft's guide on designing good RESTful APIs                                | [Docs](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design) |
 
+---
 
-### 1.5 Overview
+### 🗺️ 1.5 Overview
 
 This document outlines:
 1. The functional requirements of the system
@@ -78,12 +86,16 @@ This document outlines:
 4. External interfaces and data flows (high level)
 5. Assumptions and dependencies
 
-## 2. Overall Description
+---
 
-### 2.1 Product Perspective
+## 🧩 2. Overall Description
+
+### 🖼️ 2.1 Product Perspective
 The Library Management Application is a standalone web-based solution to manage library operations. It will interact with the PostgreSQL database for storage and will provide APIs to facilitate various operations like user registration, book borrowing, and returning.
 
-### 2.2 Product Features
+---
+
+### ✨ 2.2 Product Features
 
 The Library Management System will provide the following key features:
 | Feature                     | Description** |
@@ -102,7 +114,9 @@ The Library Management System will provide the following key features:
 | **User Profile Management** | Users can view and update their profile information. |
 | **Book Management (Admin only)** | Admins can add new books (individually or in bulk), update existing book information, or remove books from the system. |
 
-### 2.3 User Classes and Characteristics
+---
+
+### 👥 2.3 User Classes and Characteristics
 
  **i. Admin**
 
@@ -116,7 +130,9 @@ The Library Management System will provide the following key features:
 - **Actions:** Users can search for books, borrow or return books, and reserve books if needed. They will also receive notifications about overdue books and can update their personal information through their profile settings.
 - **Characteristics:** Users are typically patrons of the library, including individuals who seek to browse or borrow books. They are expected to be comfortable using web-based applications but may not have deep technical knowledge of the backend operations.
 
-### 2.4 Operating Environment
+---
+
+### 🖥️ 2.4 Operating Environment
 
 **i. Hardware**
 
@@ -134,7 +150,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - **Database:** The system will use PostgreSQL as the relational database management system (RDBMS). PostgreSQL is known for its robustness, scalability, and compliance with ACID properties. It will store user data, book details, borrowing history, and transaction logs.
 - **Frontend:** While not the focus at the moment, the system is expected to expose RESTful APIs that can be consumed by any frontend client (e.g., a web application). The API will be built using Jakarta EE for consistency and scalability.
 
-### 2.5 Assumptions and Dependencies
+---
+
+### 🧾 2.5 Assumptions and Dependencies
 
 **i. User Access**
 
@@ -154,9 +172,11 @@ The system is designed to be run on a variety of hardware environments. Since th
 
 - The application will rely on PostgreSQL’s reliability, scalability, and support for complex queries to maintain system performance even with an expanding dataset over time.
 
-## 3. System Features (Functional Requirements)
+---
 
-### 3.1 User Registration
+## ⚙️ 3. System Features (Functional Requirements)
+
+### 📝 3.1 User Registration
 **Description:** Users can register by providing their personal details. The request goes into the admin’s approval queue.
 
 - **Inputs:** Name, Address, Occupation, Phone Number, Email
@@ -168,7 +188,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Store the registration as a pending request.
 - Notify the admin via email when a new registration is submitted.
 
-### 3.2 User Login
+---
+
+### 🔐 3.2 User Login
 **Description:** Registered users can log in using their email and password.
 
 - **Inputs:** Email, Password
@@ -179,7 +201,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Authenticate credentials against stored user data.
 - Restrict access for unapproved or inactive accounts.
 
-### 3.3 Password Management
+---
+
+### 🔁 3.3 Password Management
 **Description:** Users can securely change their password.
 
 - **Inputs:** Old Password, New Password
@@ -190,7 +214,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Validate the old password before applying the change.
 - Notify the user via email upon successful password change.
 
-### 3.4 Admin Queue Management
+---
+
+### 📥 3.4 Admin Queue Management
 **Description:** Admins manage incoming requests including registrations, borrow/return actions, and reservations.
 
 - **Inputs:** Queue of pending requests
@@ -202,7 +228,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Request status is updated upon admin action.
 - Users are notified via email when requests are approved or rejected.
 
-### 3.5 Book Browsing and Search
+---
+
+### 🔍 3.5 Book Browsing and Search
 **Description:** Users can explore available books and apply search filters.
 
 - **Inputs:** Filter parameters (e.g., title, author, category, ISBN)
@@ -213,7 +241,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Allow browsing by category, author, or title.
 - Enable filtering and searching by metadata.
 
-### 3.6 Book Borrowing and Returning
+---
+
+### 📚 3.6 Book Borrowing and Returning
 **Description:** Users may request to borrow or return books. Admins must approve these requests.
 
 - **Inputs:** Book ID, User ID, Request Type
@@ -225,7 +255,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Admins review and update request status.
 - Users are notified once the request is processed.
 
-### 3.7 Book Reservations
+---
+
+### 🕒 3.7 Book Reservations
 **Description:** Users can reserve unavailable books.
 
 - **Inputs:** Book ID
@@ -237,7 +269,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Queue reservations based on book availability.
 - Notify users when a reserved book becomes available.
 
-### 3.8 Overdue Book Alerts
+---
+
+### ⏰ 3.8 Overdue Book Alerts
 **Description:** Users are automatically notified of overdue books.
 
 **Functional Requirements:**
@@ -245,7 +279,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Detect and track overdue status based on due dates.
 - Send automated email reminders to affected users.
 
-### 3.9 Book Management (Admin only)
+---
+
+### 📦 3.9 Book Management (Admin only)
 **Description:** Admins can manage book inventory in the system.
 
 - **Inputs:** Book details (title, author, ISBN, quantity, etc.)
@@ -258,7 +294,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Edit or delete existing book records.
 - Validate input data before making changes.
 
-### 3.10 Admin Reports
+---
+
+### 📊 3.10 Admin Reports
 **Description:** Admins can generate reports on key metrics.
 
 - **Inputs:** Report parameters (e.g., date range, user activity, overdue status)
@@ -269,7 +307,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Generate reports for book availability, user activity, and overdue status.
 - Provide exportable/downloadable format for reports.
 
-### 3.11 User Profile Management
+---
+
+### 🙍‍♂️ 3.11 User Profile Management
 **Description:** Users can view and update their profile.
 
 - **Inputs:** Updated profile fields
@@ -280,7 +320,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Allow users to update address, phone number, and other non-sensitive details.
 - Require email verification for email address updates.
 
-### 3.12 Email Server Configuration
+---
+
+### 📤 3.12 Email Server Configuration
 **Description:** Administrators can register and dynamically update email server configuration settings for the system's email notifications.
 
 - **Inputs:** Email server configuration parameters (SMTP host, port, authentication, encryption type, sender address, retry policy, etc.)
@@ -294,7 +336,9 @@ The system is designed to be run on a variety of hardware environments. Since th
 - The system must store email configurations securely and apply them for email notification triggers such as registration approval, password changes, and borrow requests.
 - All email-related actions should be asynchronous to prevent delays in the user request processing flow.
 
-### 3.13 Email Notifications
+---
+
+### ✉️ 3.13 Email Notifications
 **Description:** Automatic notifications for all major events.
 
 **Functional Requirements:**
@@ -303,8 +347,10 @@ The system is designed to be run on a variety of hardware environments. Since th
 - Notify users when their registration, borrow, return, or reservation request is processed.
 - Send reminders for overdue books and confirmations for profile/password updates.
 
-## 4. External Interface Requirements
-### 4.1 User Interfaces
+---
+
+## 🌐 4. External Interface Requirements
+### 🖥️ 4.1 User Interfaces
 The system will provide a responsive web interface accessible via modern browsers. It will offer distinct user experiences based on the user role (Admin or Regular User):
 
 **i. User Dashboard:**
@@ -324,7 +370,9 @@ The system will provide a responsive web interface accessible via modern browser
 - Notification center for new incoming requests.
 - User experience will be kept minimal, clean, and intuitive to cater to all types of users.
 
-### 4.2 Hardware Interfaces
+---
+
+### 🖧 4.2 Hardware Interfaces
 The system is designed to be hardware-agnostic and will function on any standard computing device capable of running a Java backend. Key details:
 
 **i. Server Requirements:**
@@ -336,7 +384,9 @@ The system is designed to be hardware-agnostic and will function on any standard
 - PostgreSQL will be hosted either locally or on a remote server.
 - The application will communicate with the database via JDBC or JPA-compatible ORM (e.g., EclipseLink or Hibernate).
 
-### 4.3 Software Interfaces
+---
+
+### 💻 4.3 Software Interfaces
 
 **i. Application Server Compatibility:** 
 - The backend will be a Jakarta EE-compliant application designed to run on both IBM Liberty and Payara Server, supporting deployment flexibility.
@@ -357,7 +407,9 @@ The system is designed to be hardware-agnostic and will function on any standard
 - For bulk book uploads, the admin UI will allow uploading a CSV or Excel file.
 - The backend will parse and validate this file before adding entries to the database.
 
-### 4.4 Communication Interfaces
+---
+
+### 📡 4.4 Communication Interfaces
 All communication between the frontend and backend will happen over HTTPS using RESTful APIs. The backend will expose the following endpoints:
 
 **i. User APIs:**
@@ -389,8 +441,10 @@ All communication between the frontend and backend will happen over HTTPS using 
 - Upon password or profile changes.
 - Periodic job for overdue email alerts.
 
-## 5. System Architecture
-### 5.1 High-Level Architecture
+---
+
+## 🏗️ 5. System Architecture
+### 🌍 5.1 High-Level Architecture
 The Library Management System follows a modular, layered architecture designed for scalability and ease of deployment.
 
 **i. Frontend:**
@@ -405,7 +459,9 @@ PostgreSQL is used as the relational database to store persistent data such as u
 **iv. Email Service:**
 Integration with an SMTP server (e.g., SendGrid, Gmail, or enterprise mail service) enables the system to send automated notifications related to registration approvals, request statuses, overdue alerts, and password changes.
 
-### 5.2 Detailed Architecture
+---
+
+### 🔧 5.2 Detailed Architecture
 The backend is composed of multiple loosely-coupled modules, each responsible for a specific domain within the system:
 
 **i. User Management Module**
@@ -472,7 +528,9 @@ The backend is composed of multiple loosely-coupled modules, each responsible fo
   - Overdue books
 - Provides downloadable formats (e.g., CSV, PDF) for admin use.
 
-### 5.3 Deployment and Compatibility
+---
+
+### 🚀 5.3 Deployment and Compatibility
 - **i. Application Server:** Jakarta EE application packaged as a .war file, deployable on:
   - IBM Liberty
   - Payara Server (for flexibility and vendor neutrality)
@@ -486,37 +544,40 @@ The backend is composed of multiple loosely-coupled modules, each responsible fo
 - Stateless REST APIs allow horizontal scaling of the backend.
 - Database indexing and caching strategies (e.g., using Redis or in-memory caching) can be considered for large datasets.
 
+---
 
-## 6. Non-Functional Requirements
-### 6.1. Performance
+## ⚙️ 6. Non-Functional Requirements
+### 🚄 6.1. Performance
 The system shall support up to 1,000 simultaneous users without performance degradation. All API responses shall be returned within 3 seconds under normal load conditions. Operations involving bulk processing, such as bulk book uploads or mass email notifications, shall be handled asynchronously to maintain responsiveness.
 
-### 6.2. Scalability
+### 📈 6.2. Scalability
 The system shall support horizontal scalability by allowing multiple instances of the application to run concurrently. The database and associated backend services shall support vertical scaling to accommodate growth in data volume and user activity.
 
-### 6.3. Security
+### 🔒 6.3. Security
 All user passwords shall be stored using a secure hashing algorithm (bcrypt) with salting. Communication between clients and the server shall be conducted over HTTPS to ensure encryption in transit. Role-Based Access Control (RBAC) shall be enforced to restrict access to admin-only features. Sessions shall have expiration timeouts, and users shall be able to log out explicitly. The system shall be protected against common web vulnerabilities, including SQL Injection, Cross-Site Scripting (XSS), and Cross-Site Request Forgery (CSRF).
 
-### 6.4. Availability
+### 🌐 6.4. Availability
 The system shall be available 24 hours a day, 7 days a week, with a minimum uptime of 99.9% per calendar month. Maintenance periods shall be scheduled during off-peak hours and announced in advance. Automated health checks shall be implemented to ensure system components are operating correctly.
 
-### 6.5. Backup and Disaster Recovery
+### 💾 6.5. Backup and Disaster Recovery
 The system shall perform automated backups of all user, book, and transaction data every 24 hours. Backup files shall be securely stored and retained for a minimum of 30 days. A disaster recovery process shall be in place to restore the system from the latest backup within 2 hours of failure detection.
 
-### 6.6. Usability
+### 👩‍💻 6.6. Usability
 The web interface shall be user-friendly and responsive, supporting modern desktop and mobile browsers. All user actions shall be accompanied by appropriate feedback messages. Admins shall have access to intuitive tools for managing users, books, and request queues.
 
-### 6.7. Maintainability
+### 🛠️ 6.7. Maintainability
 The application shall follow Jakarta EE coding best practices to ensure modularity and ease of maintenance. All logs shall be centralized and formatted for structured analysis. Configuration parameters shall be externalized to allow updates without code changes or redeployment.
 
-### 6.8. Portability
+### 🖥️ 6.8. Portability
 The backend application shall be compatible with both IBM Liberty and Payara Jakarta EE runtimes. It shall be deployable as a Docker container image.
 
-### 6.9. Compliance
+### 📜 6.9. Compliance
 The system shall comply with relevant data protection requirements in India, including ensuring user data is securely stored and only accessible to authorized personnel. Users shall be able to request account deletion, and their personal data shall be removed from the system upon request.
 
-## 7. Other Requirements
-### 7.1 Backup and Recovery
+---
+
+## 🔧 7. Other Requirements
+### 💾 7.1 Backup and Recovery
 - **Backup Frequency:** The system shall perform automated daily backups of the entire database, including user data, book records, transaction logs, and any other critical system data. Backups shall be scheduled at off-peak hours to minimize system load.
 - **Backup Storage:** Backups shall be securely stored in a separate, geographically-distributed location, such as a cloud storage solution or offsite server. The backup storage should be encrypted to ensure data confidentiality.
 - **Backup Retention:** Backups shall be retained for a minimum of 30 days. Older backups shall be automatically archived or deleted according to the retention policy.
@@ -526,43 +587,59 @@ The system shall comply with relevant data protection requirements in India, inc
 - **Disaster Recovery:** In the event of a catastrophic failure (e.g., hardware malfunction, natural disaster), the system shall have a disaster recovery plan in place. This plan should include procedures for recovery from backups, as well as the identification of roles and responsibilities for the recovery team.
 - **Data Encryption:** Backup files shall be encrypted both in transit (when being transferred to backup storage) and at rest (when stored in backup locations) to prevent unauthorized access.
 
-### 7.2 Logging and Monitoring
+---
+
+### 📊 7.2 Logging and Monitoring
 - **System Logging:** The system shall maintain comprehensive logs of user activities, administrative actions, errors, and system events. Logs shall include timestamps, user IDs, IP addresses, and details of the action performed.
 - **Log Retention:** Logs shall be retained for a minimum of 90 days. After this period, logs shall be archived or deleted according to the organization’s data retention policy.
 - **Log Access:** Logs shall be accessible only to authorized personnel, and access to logs should be audited regularly to ensure compliance with security policies.
 - **Real-Time Monitoring:** The system shall be monitored in real-time for any performance or security issues. Alerts shall be configured to notify administrators in the event of critical errors, high server load, or unauthorized access attempts.
 
-### 7.3 Audit Trail
+---
+
+### 🕵️‍♂️ 7.3 Audit Trail
 - **Audit Logging:** All sensitive system activities, including user registration approvals, book borrowing/return requests, and administrative actions, shall be logged in an audit trail. This audit trail will help ensure accountability and traceability of all actions performed within the system.
 - **Audit Retention:** The audit trail shall be retained for a minimum of 180 days and should be stored separately from regular application logs to ensure integrity.
 
-### 7.4 User Data Privacy and Compliance
+---
+
+### 🛡️ 7.4 User Data Privacy and Compliance
 - **Data Protection:** The system shall comply with relevant data protection regulations, including GDPR (General Data Protection Regulation) and the Indian Data Protection Law, ensuring the proper handling of personal data.
 - **Right to Access:** Users shall be able to access their personal data upon request, including the right to download their data in a portable format.
 - **Right to Deletion:** Users shall be able to request the deletion of their account and associated data. The system shall ensure that all personal data is removed from the database once the deletion request is confirmed.
 - **Data Minimization:** Only the minimum amount of personal data necessary for the operation of the system shall be collected and stored. No unnecessary data shall be retained beyond the scope of the system's requirements.
 
-### 7.5 Data Integrity
+---
+
+### 🗃️ 7.5 Data Integrity
 - **Data Validation:** The system shall implement validation checks to ensure that user data (such as name, email address, and phone number) is correctly formatted and adheres to business rules.
 - **Consistency Checks:** Regular data consistency checks shall be performed to ensure that all relationships between data entities (e.g., user-book interactions, borrow/return records) are consistent.
 - **Error Handling:** The system shall handle data errors (such as database connection failures or invalid data input) gracefully, logging them for later review without exposing sensitive information to the user.
 
-### 7.6 System Documentation
+---
+
+### 📚 7.6 System Documentation
 - **User Documentation:** Comprehensive user documentation shall be provided, including how to register, log in, search for books, and manage book borrowing/return requests. Documentation should be clear, concise, and include screenshots or step-by-step instructions.
 - **Admin Documentation:** Admins shall have access to system administration documentation detailing how to approve/reject registration requests, manage books, generate reports, and handle system recovery in the event of failure.
 - **API Documentation:** A full set of API documentation shall be provided for developers, including endpoint descriptions, request/response formats, authentication details, and examples of use cases.
 
-### 7.7 Environmental Requirements
+---
+
+### 🌱 7.7 Environmental Requirements
 - **Cross-Platform Compatibility:** The system shall be deployable on major operating systems including Linux, macOS, and Windows.
 - **Browser Compatibility:** The user interface shall be compatible with the latest versions of popular web browsers, including Chrome, Firefox, Safari, and Edge.
 - **Mobile Responsiveness:** The user interface shall be responsive and accessible on mobile devices, providing an optimal user experience on both smartphones and tablets.
 
-### 7.8 Training and Support
+---
+
+### 🧑‍🏫 7.8 Training and Support
 - **Training Materials:** Training materials shall be provided for both users and administrators. These materials shall cover how to use the system, troubleshoot common issues, and understand key features like book search, borrowing, and profile management.
 - **Customer Support:** A customer support system shall be in place, providing users and admins with access to support via email, chat, or phone during business hours. Critical issues shall be handled with a higher priority.
 
-## 8. Appendices
-### A1: Glossary of Terms, Concepts, and Comparisons
+---
+
+## 📚 8. Appendices
+### 📖 A1: Glossary of Terms, Concepts, and Comparisons
 This section goes beyond listing abbreviations. It provides clear definitions and practical comparisons that clarify important distinctions and design decisions in the system.
 **Definitions**
 - The system shall define "Functional Requirements" as the specific features and behaviors that the application must implement.
@@ -571,6 +648,8 @@ This section goes beyond listing abbreviations. It provides clear definitions an
 - A "Request" is any user-initiated action such as borrow, return, reserve, or register.
 - A "Notification" is any system-generated message sent to the user or admin upon relevant events (e.g., approvals, reminders).
 - The system shall distinguish between a "Borrow" action (for available books) and a "Reserve" action (for unavailable books).
+
+---
 
 **Comparison Tables**
 
@@ -656,7 +735,9 @@ This section goes beyond listing abbreviations. It provides clear definitions an
 | Admin      | All user permissions + approve/decline requests, manage books, generate reports        |
 | Guest¹     | (Planned) May be allowed to browse books before registration in future phases         |
 
-### A2: Email Notification Templates and Examples
+---
+
+### 📧 A2: Email Notification Templates and Examples
 
 This section defines the standardized email notifications sent by the system in response to various key events. These emails are essential for keeping both users and administrators informed about important actions and statuses, ensuring clear and consistent communication. The templates are designed to fulfill specific purposes, such as confirming account creation, acknowledging requests, notifying about approval or decline of requests, and reminding users about overdue items.
 
@@ -675,6 +756,8 @@ The following email types are covered in this section:
 - **User Registration Request:** Sent to admins when a new user registration request is submitted.
 
 The purpose of these notifications is to provide clear and actionable communication to all relevant parties, ensuring smooth interactions between users and administrators in the system.
+
+---
 
 **i. Registration Confirmation**
 
@@ -712,6 +795,8 @@ Best regards,
 City Library Team
 ```
 
+---
+
 **ii. Borrow Request Acknowledgment**
 
 Template:
@@ -748,6 +833,8 @@ Best regards,
 City Library Team
 ```
 
+---
+
 **iii. Borrow Request Approval**
 
 Template:
@@ -779,6 +866,8 @@ Thank you for using City Library. We hope you enjoy reading!
 Best regards,  
 City Library Team
 ```
+
+---
 
 **iv. Borrow Request Decline**
 
@@ -812,6 +901,8 @@ Best regards,
 City Library Team
 ```
 
+---
+
 **v. Book Return Confirmation**
 
 Template:
@@ -844,6 +935,8 @@ Best regards,
 City Library Team
 ```
 
+---
+
 **vi. Overdue Reminder**
 
 Template:
@@ -875,6 +968,8 @@ You can return the book at your convenience or contact us for any assistance.
 Best regards,  
 City Library Team
 ```
+
+---
 
 **vii. Admin Request Queue Alert**
 
@@ -920,6 +1015,8 @@ Best regards,
 City Library Team
 ```
 
+---
+
 **viii. Profile Update Notification**
 
 Template:
@@ -951,6 +1048,8 @@ Thank you for using City Library.
 Best regards,  
 City Library Team
 ```
+---
+
 **xi. Password Change Notification**
 
 Template:
@@ -979,6 +1078,8 @@ Thank you for using City Library.
 Best regards,
 City Library Team
 ```
+
+---
 
 **x. User Registration Request**
 
@@ -1024,7 +1125,9 @@ Best regards,
 City Library Team
 ```
 
-### A3: API Requests and Responses
+---
+
+### 📝 A3: API Requests and Responses
 
 Note: This section provides examples of key API endpoints that support the system’s functionality. While detailed API contracts should be documented separately, this summary offers essential request/response structures for clarity.
 
@@ -1061,6 +1164,8 @@ Response Body (201 Created):
 }
 ```
 
+---
+
 **b. POST `/login` – Authenticate a user.**
 
 Request Headers:
@@ -1089,6 +1194,8 @@ Response Body (200 OK):
 }
 
 ```
+
+---
 
 **c. POST `/password/change` – Change user password.**
 
@@ -1120,6 +1227,8 @@ Response Body (200 OK):
 }
 ```
 
+---
+
 **d. GET `/profile` – Retrieve user profile information.**
 
 Request Headers:
@@ -1143,6 +1252,8 @@ Response Body (200 OK):
   "full_name": "John Doe"
 }
 ```
+
+---
 
 **e. PUT `/profile` – Update user profile.**
 
@@ -1172,6 +1283,8 @@ Response Body (200 OK):
   "message": "Profile successfully updated."
 }
 ```
+
+---
 
 **ii. Admin APIs**
 
@@ -1209,6 +1322,8 @@ Response Body (200 OK):
 ]
 ```
 
+---
+
 **b. POST '/requests/approve' – Approve a pending request.**
 
 Request Headers:
@@ -1237,6 +1352,8 @@ Response Body (200 OK):
   "message": "Request successfully approved."
 }
 ```
+
+---
 
 **c. POST `/requests/decline` – Decline a pending request.**
 
@@ -1267,6 +1384,8 @@ Response Body (200 OK):
 }
 ```
 
+---
+
 **d. POST `/books/upload` – Bulk upload books from file.**
 
 Request Headers:
@@ -1293,6 +1412,8 @@ Response Body (200 OK):
   "uploaded_books_count": 10
 }
 ```
+
+---
 
 **e. POST `/books` – Add a new book.**
 
@@ -1326,6 +1447,8 @@ Response Body (201 Created):
 }
 ```
 
+---
+
 **f. PUT `/books/{id}` – Update book details.**
 
 Request Headers:
@@ -1358,6 +1481,8 @@ Response Body (200 OK):
 }
 ```
 
+---
+
 **g. DELETE `/books/{id}` – Remove a book.**
 
 Request Headers:
@@ -1380,6 +1505,8 @@ Response Body (200 OK):
   "message": "Book successfully removed."
 }
 ```
+
+---
 
 **h. GET `/reports` – Generate reports for activity, availability, etc.**
 
@@ -1413,6 +1540,8 @@ Response Body (200 OK):
 }
 ```
 
+---
+
 **i. POST `/email/config` – Register or update the email server configuration.**
 
 Request Headers:
@@ -1445,6 +1574,8 @@ Response Body (200 OK):
   "message": "Email server configuration updated."
 }
 ```
+
+---
 
 **iii. Book APIs**
 
@@ -1480,6 +1611,8 @@ Response Body (200 OK):
 ]
 ```
 
+---
+
 **b. POST `/borrow` – Submit a borrow request.**
 
 Request Headers:
@@ -1511,6 +1644,8 @@ Response Body (200 OK):
 }
 ```
 
+---
+
 **c. POST `/return` – Submit a return request.**
 
 Request Headers:
@@ -1539,6 +1674,8 @@ Response Body (200 OK):
   "message": "Book successfully returned."
 }
 ```
+
+---
 
 **d. POST `/reserve` – Reserve a currently unavailable book.**
 
