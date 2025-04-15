@@ -13,6 +13,7 @@
 
 ## Library Management System : Layered Architecture
 
-<img width="1328" alt="Screenshot 2025-04-15 at 4 53 53 PM" src="https://github.com/user-attachments/assets/6519c73e-d4fe-42d6-844a-bacbfb5ef512" />
+<img width="1323" alt="Screenshot 2025-04-15 at 5 15 12 PM" src="https://github.com/user-attachments/assets/c830c49a-cc0b-4313-858d-d06ddb04b855" />
+
 
 
