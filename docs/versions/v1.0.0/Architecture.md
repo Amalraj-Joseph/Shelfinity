@@ -1932,129 +1932,843 @@ Database constraints are used to maintain data integrity, enforce business rules
 
 When a **user** is deleted, any **requests** or **reservations** made by that user will also be deleted automatically. This helps maintain data integrity by preventing orphaned records that no longer correspond to valid users.
 
+---
 
-<!--
+**Key Considerations**
 
-9. Security Design
+- **Data Integrity:**
+  - The database is structured to ensure referential integrity. All foreign keys guarantee that records in child tables (e.g., requests, reservations) always refer to valid records in parent tables (e.g., users, books).
 
-9.1 Authentication
+- **Optimizing Queries:**
+  - The relationships defined in the schema are meant to allow for optimized queries when retrieving data. For instance, fetching all requests for a specific user or book can be done efficiently by leveraging the user_id and book_id foreign keys in the requests table.
 
-JWT-based login
+- **Extending the Schema:**
+  - Additional features like book genres, user roles (admin, regular user), or user preferences can be incorporated into the schema by adding new tables or fields without affecting the integrity of the existing relationships.
 
-Token validation middleware
+---
 
-9.2 Authorization
+**🔸 ER Diagram Representation**
 
-@RolesAllowed annotations
+<img width="433" alt="Screenshot 2025-04-15 at 1 08 21 PM" src="https://github.com/user-attachments/assets/5b6858fa-2a89-4d38-a14f-81616cd48b56" />
 
-User vs Admin endpoint segregation
+---
 
-9.3 Secure Input & Transport
+## 9. Security Design
 
-HTTPS enforced
+A multi-layered security approach is applied to protect system access, user data, and infrastructure. It includes authentication, authorization, transport security, input validation, and runtime protection mechanisms.
 
-Input sanitization and validation
+### 9.1 Authentication
 
-10. Scalability and Performance
+Authentication is powered by **JWT-based login** with optional **refresh token** support for session persistence.
 
-10.1 Stateless Services
+- **Login Flow:** Users authenticate via `POST /login`, providing valid credentials. On success:
+  - A **JWT access token** (short-lived, e.g., 15–60 mins)
+  - A **refresh token** (long-lived, e.g., 7–30 days) is optionally issued
+- Token Storage:
+  - Access token: usually stored in memory (e.g., browser `Authorization` header)
+  - Refresh token: stored in an `HttpOnly` cookie to prevent XSS exposure
+- **Token Refresh Flow:** On expiry of the access token, clients can call `/token/refresh` with a valid refresh token to get a new access token.
+- **Logout & Revocation:** On logout, refresh tokens are invalidated in the server (if server-stored), preventing reuse.
 
-Horizontally scalable API layer
+---
 
-10.2 Kafka
+## 9.2 Authorization
 
-Decoupled email handling
+**Role-Based Access Control (RBAC)** is used to differentiate user and admin capabilities:
 
-Enables retry and fault-tolerance
+- Protected endpoints are annotated using:
+```
+@RolesAllowed("admin")
+```
+- Sensitive actions such as modifying book metadata, approving requests, and managing users are **admin-only**.
+- Regular users are restricted to their own data and public resources.
 
-10.3 Database Performance
+Access control logic is centralized in the middleware to maintain a consistent authorization policy.
 
-PostgreSQL indexing
+---
 
-Query optimization for search and reporting
+### 9.3 Secure Input & Transport
 
-11. Deployment and Configuration
+- **HTTPS** is enforced across all environments (dev, staging, prod), ensuring encrypted data-in-transit.
+- **CORS configuration** is explicitly defined to avoid unwanted cross-origin access.
+- **Validation & Sanitization** are implemented at both:
+  - Field-level (e.g., `@Email`, `@Size`, etc.)
+  - Request-body level using schema-based validators
+- All file inputs and structured data are validated for type, size, and content safety.
 
-11.1 Local Environment
+---
 
-Docker Compose: Liberty, Kafka, PostgreSQL
+### 9.4 Refresh Token Handling
 
-11.2 Runtime Profiles
+To support long-running sessions securely:
 
-application-dev.yml
+- **Token Lifecycle:**
+  - Access token: expires quickly (stateless)
+  - Refresh token: stored securely, revocable, mapped to a user in DB or memory store (e.g., Redis)
+- **Rotation:** Optionally, refresh tokens are rotated per use, issuing a new one each time.
+- **Revocation:** On password change or suspicious activity, refresh tokens are invalidated.
 
-application-prod.yml
+---
 
-11.3 Config Management
+### 9.5 Account Lockout & Brute-Force Protection
 
-MicroProfile Config
+To prevent brute-force login attempts:
 
-DB-based dynamic config for email settings
+- **Login Failure Tracking:**
+  - Consecutive failed login attempts (e.g., 5) within a short window (e.g., 10 minutes) trigger temporary lockout (e.g., 15 mins).
 
-12. Project Directory Structure
+- **User Feedback:**
+  - Users are notified of the lockout with minimal info (e.g., “Too many attempts” without revealing what was wrong).
 
+- **Backend Mechanism:**
+  - Failed attempts count and timestamps are stored in memory cache or DB
+  - Auto-clear on successful login or after cooldown
+
+---
+
+### 9.6 Audit Logging for Security Events
+
+Critical security-related activities are logged:
+
+| 📌 Event Type               | Logged Details                                                  |
+|----------------------------|------------------------------------------------------------------|
+| Login attempt (success/fail) | User ID, IP address, timestamp                                  |
+| Password changes           | User ID, timestamp                                              |
+| Token refresh or revocation | Token ID, user ID, timestamp                                    |
+| Role changes               | Admin ID, target user ID, old/new roles, time                   |
+| Failed authz attempts      | Endpoint, user ID, IP                                           |
+
+Logs are:
+
+- Written to a central log stream (e.g., file, ELK, or monitoring stack)
+- Protected from tampering
+- Monitored for anomalies (e.g., spike in login failures)
+
+---
+
+### 9.7 Secure Cookie Configuration (For Web Clients)
+
+For browser-based clients using cookies (e.g., storing refresh tokens):
+
+- **HttpOnly:** Prevents JavaScript from accessing token
+- **Secure:** Ensures cookie is sent only over HTTPS
+- **SameSite=Strict or Lax:** Prevents CSRF by restricting cross-origin cookies
+- **Short lifespan:** Minimizes risk even if cookie is compromised
+
+Example cookie config:
+```
+{
+  "httpOnly": true,
+  "secure": true,
+  "sameSite": "Strict",
+  "maxAge": 7 * 24 * 60 * 60 * 1000
+}
+```
+
+---
+
+### 9.8 Security Checklist
+
+A quick-glance security checklist for developers, testers, and reviewers:
+
+| Area                 | Item                                                                 | Status |
+|----------------------|----------------------------------------------------------------------|--------|
+| 🔐 Authentication     | JWT access + refresh tokens implemented                             | ✅      |
+|                      | Token expiry and rotation handled securely                           | ✅      |
+|                      | Refresh token revocation on logout/password reset                    | ✅      |
+|                      | Account lockout after repeated failed logins                         | ✅      |
+|                      | Passwords hashed using secure algorithms (e.g., bcrypt/scrypt)       | ✅      |
+| 🔒 Authorization      | Role-based access control (@RolesAllowed) enforced                  | ✅      |
+|                      | Admin endpoints restricted from normal users                         | ✅      |
+| 📦 Secure Transport   | HTTPS enforced in all environments                                   | ✅      |
+|                      | CORS policy properly configured                                      | ✅      |
+|                      | Cookies marked as Secure, HttpOnly, SameSite                         | ✅      |
+| 🔍 Input Validation   | All user inputs validated and sanitized                             | ✅      |
+|                      | File uploads checked for size, type, and content                     | ✅      |
+| 🛡️ Runtime Protection | Brute-force detection and account lockout implemented               | ✅      |
+|                      | Rate limiting or CAPTCHA on sensitive endpoints                      | ☑️      |
+| 📜 Audit Logging      | All security events logged (logins, changes, failures, etc.)         | ✅      |
+|                      | Logs stored securely and monitored                                   | ✅      |
+
+---
+
+### 9.9 Flowchart: Auth + Token + Refresh Lifecycle
+
+<img width="591" alt="Screenshot 2025-04-15 at 1 32 42 PM" src="https://github.com/user-attachments/assets/64d2ebad-cadb-4387-bab8-ab2c9117b207" />
+
+---
+
+### 9.10 Enterprise OAuth2 / SAML Integration (Optional)
+
+For enterprise environments (SSO, federated identity):
+
+**i. 🔑 OAuth2 Integration**
+
+- **Use case:** Integration with identity providers like Google, Azure AD, Okta
+- **Flow:** Authorization Code Grant (browser-based flow with redirect)
+- **Components:**
+  - Redirect to identity provider login page
+  - Callback with authorization code
+  - Exchange code for access & ID tokens
+  - Optional: Map enterprise roles → system roles
+
+**ii. 📄 SAML Integration**
+
+- **Use case:** Legacy or enterprise identity systems (used by many corporations)
+- **Flow:** SAML assertions sent via browser POST after login
+- **Components:**
+  - SAML metadata exchange (IdP ↔ SP)
+  - Assertion consumption & signature verification
+  - Session creation or token generation after validation
+
+---
+
+**🔐 Jakarta Frameworks – OAuth2 & SAML Support**
+
+| Jakarta Framework | OAuth2 Support | SAML Support |
+|-------------------|----------------|--------------|
+| Jakarta Security  | ✅ via extension or integration with third-party libraries like Elytron or Keycloak | ⚠️ Native support limited; SAML needs integration (e.g., with PicketLink, Keycloak) |
+| Eclipse MicroProfile JWT Auth| ✅ Standard JWT/OAuth2 integration using MicroProfile JWT | ❌ No native SAML support |
+| Keycloak (Jakarta compatible)| ✅ Full OAuth2 & OpenID Connect support | ✅ Full SAML 2.0 support |
+| Payara / GlassFish           | ✅ OAuth2 via MicroProfile JWT or custom Realm | ⚠️ SAML via Keycloak or custom filters |
+| WildFly (Jakarta-based)      | ✅ OAuth2 & OIDC via Elytron & Keycloak integration | ✅ SAML via PicketLink or Keycloak |
+
+
+**✅ Best Options for Open Liberty**
+
+| Protocol             | Best Option                        | Description                                                                                      |
+|----------------------|-------------------------------------|--------------------------------------------------------------------------------------------------|
+| OAuth2 / OpenID Connect | Open Liberty's built-in OIDC feature | ✅ Native support via `oidc` feature – integrates easily with providers like Keycloak, Okta, etc. |
+| SAML 2.0             | External SAML gateway / Keycloak   | ⚠️ Not natively supported – use Keycloak with SAML support as an identity broker                 |
+
+
+---
+
+## 10. Scalability and Performance
+
+This section outlines how the system is designed to scale effectively while maintaining high performance under load. It leverages stateless services, asynchronous messaging via Kafka, and optimized database strategies.
+
+
+### 10.1 Stateless Services
+
+- **API Layer is Stateless**
+  - The REST APIs are stateless by design, ensuring they can be horizontally scaled across multiple instances behind a load balancer without any session affinity.
+
+- **Benefits**
+  - ✅ Easy to scale horizontally
+  - ✅ Simplified deployment and container orchestration
+  - ✅ Better fault isolation and zero-downtime rollouts
+
+- **Tech Stack Alignment**
+  - Open Liberty and Jakarta EE’s stateless `@RequestScoped` beans naturally support this model.
+
+**🔸 Scalable Architecture Flow**
+
+<img width="1155" alt="Screenshot 2025-04-15 at 1 52 02 PM" src="https://github.com/user-attachments/assets/cfe99120-7311-4b76-978c-8ae1ae75b212" />
+
+---
+
+### 10.2 Kafka-based Email Handling
+
+- **Asynchronous Event Processing**
+  - Email events are emitted to **Kafka**, which decouples the API response cycle from the email-sending process.
+
+- **Advantages**
+  - ✅ Improves user-perceived performance
+  - ✅ Enables retry logic on failure
+  - ✅ Scales independently of the API layer
+
+- **Fault Tolerance**
+  - The `EmailWorker` consumer reads from Kafka and handles delivery failures using:
+    - Retry queues / dead-letter topics
+    - Backoff strategies
+    - Alerting for manual intervention if needed
+
+**🔸 Kafka Event Flow for Asynchronous Email Handling**
+
+<img width="1150" alt="Screenshot 2025-04-15 at 1 53 22 PM" src="https://github.com/user-attachments/assets/dec0f5b4-7728-48b7-9445-9b78dff73d30" />
+
+---
+
+### 10.3 Database Performance Optimization
+
+- **PostgreSQL Tuning**
+  - Tables and queries are designed with performance in mind:
+    - Indexes on commonly queried fields like `email`, `status`, `book_id`, `user_id`
+    - Partial indexes where applicable (e.g., for only `status = 'pending`')
+
+- **Search & Reporting Optimization**
+  - Materialized views may be used for costly report aggregations
+  - Connection pooling and optimized transaction scopes reduce DB load
+
+- **Scaling Strategy**
+  - Vertical scaling supported initially
+  - Can evolve to **read replicas** for heavy read operations or **sharding** in large deployments
+
+**🔸 Database Query Performance Flow**
+
+<img width="890" alt="Screenshot 2025-04-15 at 1 54 48 PM" src="https://github.com/user-attachments/assets/5b3e0ea7-8e5b-44a3-a3f6-f0d0c45ee832" />
+
+---
+
+### 10.4 Benchmarking and Performance Evaluation
+
+Here’s a suggested **benchmarking strategy** for evaluating the system’s performance and scalability under load:
+
+**i. Load Testing**
+
+- **Tools:** JMeter, Gatling, or Artillery
+- **Objective:** Simulate heavy loads to test horizontal scaling of stateless services.
+- **Tests:**
+  - Simulate **thousands of concurrent API requests**.
+  - Measure the response times and throughput at different scaling points (e.g., 1, 3, 5 Open Liberty nodes).
+
+**ii. Database Benchmarking**
+
+- **Tools:** pgbench or custom PostgreSQL scripts
+- **Objective:** Test the database's ability to handle large numbers of queries.
+- **Tests:**
+  - **Query performance** for commonly used queries (search by `email`, `book_id`).
+  - Measure **response times** for complex aggregations and report generation.
+  - Test **read replica load balancing** and database failover mechanisms.
+
+**iii. Kafka Performance Testing**
+
+- **Tools:** Kafka's built-in benchmarks, or third-party tools like `kafkacat`.
+- **Objective:** Test the message throughput and latency of Kafka in an event-driven architecture.
+- **Tests:**
+  - Measure **message throughput** for the event-driven flow (e.g., email events).
+  - Test **retry logic** and **dead-letter queues** performance.
+
+**iv. End-to-End Latency**
+
+- Measure the overall **latency** for an end-user action (e.g., book borrowing request) and ensure that the system remains performant under load.
+
+**v. Auto-Scaling Strategy Validation**
+
+- **Tools:** Kubernetes Horizontal Pod Autoscaler (HPA) metrics, AWS Auto Scaling (if on AWS).
+- **Objective:** Validate that the system can **automatically scale** based on incoming load and reduce cost during idle times.
+
+---
+
+## 11. Deployment and Configuration
+
+This section outlines how the system can be reliably deployed, tested, and configured across various environments.
+
+### 11.1 Local Environment
+
+Local development is containerized to reduce setup friction and ensure consistency across machines.
+- **Docker Compose** is used to spin up all critical components locally:
+
+```
+# docker-compose.yml (simplified)
+version: "3.8"
+services:
+  liberty:
+    image: openliberty/open-liberty:latest
+    ports:
+      - "9080:9080"
+      - "9443:9443"
+    environment:
+      - MP_CONFIG_PROFILE=dev
+    volumes:
+      - ./app:/config
+    depends_on:
+      - kafka
+      - db
+
+  kafka:
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    ports:
+      - "2181:2181"
+
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=library
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+
+```
+- **Hot reload** for developers enabled via Liberty dev mode (`liberty:dev`).
+- Logs and volumes can be persisted or wiped per developer preference.
+
+---
+
+### 11.2 Runtime Profiles
+
+Configuration is environment-specific and managed through profile-specific application files.
+
+- Profiles used:
+  - `application-dev.yml` — used for local and testing environments.
+  - `application-prod.yml` — production-grade settings.
+
+Example:
+
+```
+# application-dev.yml
+db:
+  url: jdbc:postgresql://localhost:5432/library
+  user: admin
+  password: admin
+
+email:
+  smtp:
+    host: localhost
+    port: 1025
+    secure: false
+
+```
+
+```
+# application-prod.yml
+db:
+  url: jdbc:postgresql://prod-db:5432/library
+  user: prod_user
+  password: ${DB_PASSWORD}
+
+email:
+  smtp:
+    host: smtp.prod.mail
+    port: 465
+    secure: true
+
+```
+
+- Profiles are activated using the `MP_CONFIG_PROFILE` variable (e.g., in Docker or Liberty config).
+
+### 11.3 Config Management
+
+Open Liberty integrates with **MicroProfile Config** to support flexible and layered configuration.
+
+**✅ Key Features**
+
+- Supports config from:
+  - `application.yml`
+  - System properties
+  - Environment variables
+  - External config servers
+
+- Dynamic Config with DB Override:
+  - Config values like SMTP credentials, email templates, and flags can be overridden from a configuration table in PostgreSQL.
+  - A config refresh endpoint or polling strategy ensures updated values are reloaded without restart.
+
+**🛠 Sample Config Table (PostgreSQL)**
+
+| Key                      | Value                  |
+|--------------------------|------------------------|
+| `email.smtp.host`          | `smtp.mail.local`        |
+| `email.retry.count`        | `3`                      |
+| `email.template.welcome`   | `Welcome to Library!`    |
+
+
+**📦 Docker Compose Architecture**
+
+<img width="732" alt="Screenshot 2025-04-15 at 2 20 57 PM" src="https://github.com/user-attachments/assets/6202e94b-6314-46c3-8b37-0a6363a4a6b5" />
+
+**⚙️ Config Resolution Flow**
+
+<img width="916" alt="Screenshot 2025-04-15 at 2 21 49 PM" src="https://github.com/user-attachments/assets/88640d16-f730-4e3a-b187-0019bed8bf96" />
+
+**🔁 Runtime Profile Activation**
+
+<img width="632" alt="Screenshot 2025-04-15 at 2 25 25 PM" src="https://github.com/user-attachments/assets/744bf8e4-6dc2-4ab7-aaed-8e9e54f358ca" />
+
+
+Key Notes:
+- Set `mp.config.profile=dev` or `prod` as a system property or env variable.
+- Liberty picks up the matching config YAML automatically.
+
+**🔄 DB-Based Dynamic Config Refresh**
+
+<img width="785" alt="Screenshot 2025-04-15 at 2 26 52 PM" src="https://github.com/user-attachments/assets/b774af16-5c25-43d9-907e-dfad7150f392" />
+
+How it works:
+
+- Admin uses a UI or API to update config values (e.g., SMTP host).
+- App either:
+  - Polls periodically (every N mins), or
+  - Gets notified (e.g., via Kafka or trigger flag).
+- On detection, values are reloaded in memory.
+
+
+---
+
+## 12. Project Directory Structure
+
+```
 lib-mgmt/
 ├── api-gateway/
+│   ├── src/
+│   │   ├── main/java/com/libmgmt/gateway/
+│   │   │   ├── controller/ApiGatewayController.java
+│   │   │   └── filter/AuthFilter.java
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       ├── microprofile-config.properties
+│   │       ├── liberty-server.xml
+│   │       └── payara-resources.xml
+│   └── test/java/com/libmgmt/gateway/
+│       └── ApiGatewayControllerTest.java
+
 ├── modules/
 │   ├── user/
+│   │   ├── src/main/java/com/libmgmt/user/
+│   │   │   ├── controller/UserController.java
+│   │   │   ├── service/UserService.java
+│   │   │   ├── repository/UserRepository.java
+│   │   │   ├── dto/UserDTO.java
+│   │   │   └── mapper/UserMapper.java
+│   │   └── test/java/com/libmgmt/user/
+│   │       ├── controller/UserControllerTest.java
+│   │       ├── service/UserServiceTest.java
+│   │       └── repository/UserRepositoryTest.java
+│
 │   ├── book/
+│   │   ├── src/main/java/com/libmgmt/book/
+│   │   │   ├── controller/BookController.java
+│   │   │   ├── service/BookService.java
+│   │   │   ├── repository/BookRepository.java
+│   │   │   ├── dto/BookDTO.java
+│   │   │   └── mapper/BookMapper.java
+│   │   └── test/java/com/libmgmt/book/
+│   │       ├── controller/BookControllerTest.java
+│   │       ├── service/BookServiceTest.java
+│   │       └── repository/BookRepositoryTest.java
+│
 │   ├── request/
+│   │   ├── src/main/java/com/libmgmt/request/
+│   │   │   ├── controller/RequestController.java
+│   │   │   ├── service/RequestService.java
+│   │   │   ├── repository/RequestRepository.java
+│   │   │   ├── dto/RequestDTO.java
+│   │   │   └── mapper/RequestMapper.java
+│   │   └── test/java/com/libmgmt/request/
+│   │       ├── controller/RequestControllerTest.java
+│   │       ├── service/RequestServiceTest.java
+│   │       └── repository/RequestRepositoryTest.java
+│
 │   ├── reservation/
+│   │   ├── src/main/java/com/libmgmt/reservation/
+│   │   │   ├── controller/ReservationController.java
+│   │   │   ├── service/ReservationService.java
+│   │   │   ├── repository/ReservationRepository.java
+│   │   │   ├── dto/ReservationDTO.java
+│   │   │   └── mapper/ReservationMapper.java
+│   │   └── test/java/com/libmgmt/reservation/
+│   │       ├── controller/ReservationControllerTest.java
+│   │       ├── service/ReservationServiceTest.java
+│   │       └── repository/ReservationRepositoryTest.java
+│
 │   ├── email/
-│   └── report/
+│   │   ├── src/main/java/com/libmgmt/email/
+│   │   │   ├── service/EmailService.java
+│   │   │   └── model/EmailPayload.java
+│   │   └── test/java/com/libmgmt/email/
+│   │       └── EmailServiceTest.java
+│
+│   ├── kafka/
+│   │   ├── src/main/java/com/libmgmt/kafka/
+│   │   │   ├── producer/EmailProducer.java
+│   │   │   ├── consumer/EmailConsumer.java
+│   │   │   └── config/KafkaConfig.java
+│   │   └── test/java/com/libmgmt/kafka/
+│   │       ├── EmailProducerTest.java
+│   │       └── EmailConsumerTest.java
+│
+│   ├── report/
+│   │   ├── src/main/java/com/libmgmt/report/
+│   │   │   ├── service/ReportService.java
+│   │   │   └── dto/MonthlyReportDTO.java
+│   │   └── test/java/com/libmgmt/report/
+│   │       └── ReportServiceTest.java
+
 ├── common/
-├── kafka/
+│   ├── src/main/java/com/libmgmt/common/
+│   │   ├── model/
+│   │   │   ├── User.java
+│   │   │   ├── Book.java
+│   │   │   ├── Request.java
+│   │   │   └── Reservation.java
+│   │   ├── exception/
+│   │   │   ├── GlobalExceptionHandler.java
+│   │   │   ├── ResourceNotFoundException.java
+│   │   │   └── ValidationException.java
+│   │   ├── security/
+│   │   │   ├── JwtUtil.java
+│   │   │   ├── RefreshTokenService.java
+│   │   │   ├── TokenBlacklistService.java
+│   │   │   ├── AccountLockManager.java
+│   │   │   └── Role.java
+│   │   ├── config/
+│   │   │   ├── MicroProfileConfig.java
+│   │   │   └── DynamicDbConfig.java
+│   │   └── util/
+│   │       ├── DateUtils.java
+│   │       └── EmailValidator.java
+│   └── test/java/com/libmgmt/common/
+│       ├── JwtUtilTest.java
+│       ├── DateUtilsTest.java
+│       ├── ExceptionHandlerTest.java
+│       └── TokenServiceTest.java
+
+├── integration-tests/
+│   ├── src/test/java/com/libmgmt/integration/
+│   │   ├── UserFlowIT.java
+│   │   ├── BookReservationIT.java
+│   │   └── EmailNotificationIT.java
+│   └── resources/testcontainers-config.yml
+
 ├── config/
+│   ├── docker-compose.yml
+│   ├── application-dev.yml
+│   ├── application-prod.yml
+│   ├── microprofile-config.properties
+│   └── secrets.env
+
 ├── docker/
+│   ├── Dockerfile.liberty
+│   ├── Dockerfile.payara
+│   ├── entrypoint.sh
+│   └── healthcheck.sh
+
 ├── docs/
+│   ├── architecture.md
+│   ├── er-diagram.mmd
+│   ├── security.md
+│   └── README.md
+
 └── pom.xml
 
-13. Non-Functional Requirements
+```
 
-99.9% availability
+---
 
-Secure APIs and external integrations
+## 13. Non-Functional Requirements
 
-Low latency for API requests (<300ms avg)
+### 13.1. 99.9% Availability
 
-Extensible module design
+- **Objective:** Ensure that the system remains available and operational for 99.9% of the time, which translates to a downtime allowance of approximately 8 hours and 45 minutes per year.
+- **Strategies:**
+  - **High Availability (HA) Setup:** Implement high-availability clusters for both application servers (Liberty/Payara) and databases (PostgreSQL, Kafka). This ensures that if one server or node fails, another can take over without impacting the service.
+  - **Load Balancing:** Use load balancers to distribute incoming traffic across multiple instances of the application, ensuring that no single instance becomes a point of failure.
+  - **Automatic Failover:** Set up automatic failover mechanisms for database and messaging services like Kafka to ensure minimal disruption in case of service degradation.
+  - **Redundancy:** Implement redundancy for critical infrastructure components like database replicas, messaging queues, and network paths to avoid single points of failure.
+  - **Disaster Recovery:** Design and implement a disaster recovery strategy that includes regular backups, off-site storage, and the ability to quickly restore services in the event of a catastrophic failure.
 
-14. Future Considerations
+### 13.2. Secure APIs and External Integrations
 
-UI frontend integration (React/Vue)
+- **Objective:** Ensure that all APIs and external integrations are secure and comply with industry standards for authentication, authorization, and data protection.
+- Strategies:
+  - **Encryption:** Use HTTPS (TLS) to encrypt all communications between clients and the server, as well as between internal services. This protects sensitive data, such as personal information, from being intercepted.
+  - **Authentication and Authorization:**
+    - **JWT-based Authentication:** Use JSON Web Tokens (JWT) for stateless authentication. Each API request must be authenticated using a valid JWT token.
+    - **Role-Based Access Control (RBAC):** Implement role-based access control to restrict access to sensitive endpoints. Users with different roles (e.g., Admin, User) will only be allowed to access the APIs or features that are appropriate for their roles.
+    - **OAuth2/SAML Integration:** For enterprise use cases, integrate OAuth2 or SAML authentication for Single Sign-On (SSO) capabilities.
+- **API Rate Limiting:** To prevent abuse, implement rate limiting for APIs, ensuring that clients do not overwhelm the system with excessive requests.
+- **Input Validation and Sanitization:** All input from users or external systems must be validated and sanitized to prevent SQL injection, XSS (cross-site scripting), and other common security vulnerabilities.
+- **Audit Logs:** Maintain comprehensive security audit logs for all user activity, particularly for sensitive operations, such as login attempts, data access, and modification.
 
-Redis caching layer
+---
 
-Metrics/observability integration
+### 13.3. Low Latency for API Requests (<300ms Average)
 
-Audit logging
+- **Objective:** Ensure that API requests are processed quickly, with an average response time of less than **300ms** under normal operational conditions, providing a responsive experience for users.
+- **Strategies:**
+  - **Caching:** Use caching mechanisms like **Redis** or **Memcached** to store frequently accessed data, reducing the time required to fetch data from the database.
+  - **Database Optimization:**
+    - **Indexes:** Ensure proper indexing of frequently queried fields in the database (PostgreSQL) to speed up search operations.
+    - **Query Optimization:** Optimize database queries by avoiding N+1 query problems and ensuring that they are efficient.
+  - **Asynchronous Processing:** For long-running tasks, such as sending emails or processing complex reports, use asynchronous processing with message queues (e.g., Kafka, RabbitMQ) to avoid blocking API responses.
+  - **Load Balancing and Horizontal Scaling:** Implement horizontal scaling by adding more instances of the service to distribute the load evenly and avoid bottlenecks.
+  - **Service Monitoring and Profiling:** Use tools like **Prometheus** and **Grafana** to monitor application performance and identify latency bottlenecks in real-time. This allows for proactive optimization.
+  - **Content Delivery Network (CDN):** For static resources (e.g., images, JS, CSS), use a CDN to ensure quick delivery of content to users from geographically distributed servers.
 
-I18n and template-based email rendering
+---
 
-15. Appendices
+### 13.4. Extensible Module Design
 
-A. Sequence Diagrams
+- **Objective:** Ensure that the system is designed in a modular way that allows for the easy addition of new features or components without requiring major changes to existing code.
+- **Strategies:**
+  - **Microservices Architecture:** Break the application into smaller, self-contained services (e.g., User Service, Book Service, Reservation Service) that communicate with each other via well-defined APIs. This makes it easier to extend the system by adding new services without affecting the core logic.
+  - **Loose Coupling:** Ensure that the modules are loosely coupled, meaning that changes in one module should not directly affect other modules. This can be achieved through event-driven architecture or using APIs and message queues for communication between services.
+  - **Dependency Injection:** Use dependency injection to manage object creation and dependencies, making the codebase more flexible and easier to test and extend.
+  - **Pluggable Components:** For external integrations (e.g., payment gateways, email services, reporting tools), design the system with pluggable components that can be swapped or updated without affecting other parts of the system.
+  - **Interface Segregation:** Design interfaces that are specific to the module's needs, preventing unnecessary dependencies. For example, provide a `PaymentGateway` interface for integrating with various payment providers.
+  - **Versioning:** Implement versioning for both APIs and internal services to ensure backward compatibility when adding new features or making changes. This ensures that existing clients or services are not disrupted by new releases.
+  - **Service Discovery:** In a microservices setup, use service discovery tools like Consul or Eureka to automatically detect and route traffic to available service instances. This simplifies scaling and the addition of new services.
+ 
+---
 
-Registration
+## 14. Future Considerations
 
-Borrow Request
+### 14.1. UI Frontend Integration (React/Vue)
 
-Email Flow
+- **Objective:** Build an intuitive and responsive user interface for both end-users and administrators.
+- **Approach:**
+  - Design a modular frontend using frameworks like **React** or **Vue.js**, depending on the team’s preference and project requirements.
+  - Integrate with backend APIs via RESTful services or GraphQL.
+  - Ensure responsive design using component libraries (e.g., Material-UI, BootstrapVue).
+  - Support client-side routing, state management (Redux/Vuex), and dynamic rendering of user roles and permissions.
 
-B. Glossary
+---
 
-JWT: JSON Web Token
+### 14.2. Redis Caching Layer
 
-RBAC: Role-Based Access Control
+- **Objective:** Improve application performance and reduce load on backend systems through efficient caching.
+- **Use Cases:**
+  - Session management (if stateless JWT is not preferred).
+  - Caching frequently accessed data (e.g., user profiles, book catalog, metadata).
+  - Rate-limiting and API request throttling.
+- **Setup:**
+  - Deploy **Redis** as a standalone service or as part of a cluster, depending on scale.
+  - Use TTL (time-to-live) policies to avoid stale cache.
+  - Integrate caching logic at the service layer using appropriate client libraries.
 
-C. API Reference
+---
 
-See OpenAPI spec in /docs/api.yaml
+### 14.3. Metrics/Observability Integration
 
-D. Kafka Events
+- **Objective:** Gain visibility into application health, performance, and usage patterns.
+- **Components:**
+  - **Prometheus** for metrics collection.
+  - **Grafana** for dashboard visualization.
+  - **Alertmanager** for alerting based on thresholds (e.g., high error rates, CPU usage).
+  - Integrate metrics at both application and infrastructure levels (e.g., JVM metrics, database query timings, API latency).
+- **Future Enhancements:**
+  - Enable distributed tracing with **OpenTelemetry** and **Jaeger** or **Zipkin** to trace requests across microservices.
+  - Support SLA/SLO definitions and track compliance.
 
-user-events
+---
 
-book-events
+### 4. Audit Logging
 
-<--
+- **Objective:** Maintain a comprehensive, immutable log of system events for compliance, debugging, and security.
+- **Implementation:**
+  - Log all critical user actions (e.g., login, data access, modifications).
+  - Use structured logging formats (e.g., JSON) to support parsing and indexing.
+  - Store logs in a centralized system like **ELK stack (Elasticsearch, Logstash, Kibana)** or **Fluentd + Loki + Grafana**.
+  - Include correlation IDs to trace multi-service actions.
+- **Security:**
+  - Restrict access to audit logs.
+  - Ensure logs are tamper-proof and retained for a defined duration per compliance requirements.
+
+---
+
+### 5. Internationalization (i18n) and Template-Based Email Rendering
+
+- **Objective:** Support a global user base with localized content and dynamic communications.
+- **i18n Strategy:**
+  - Use language files or translation frameworks (e.g., `react-i18next`, `vue-i18n`) to support multiple locales.
+  - Enable language preference selection at user/profile level.
+  - Provide RTL (right-to-left) support where necessary.
+- **Email Rendering:**
+  - Use template engines (e.g., **Handlebars, Thymeleaf, Mustache**) for dynamic email content.
+  - Support multilingual email templates.
+  - Integrate with SMTP or third-party providers (e.g., SendGrid, Mailgun).
+  - Ensure emails are responsive and compatible with common clients.
+
+---
+
+## 15. Appendices
+
+### A. Glossary
+
+| Term                        | Description                                                                                                         |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------|
+| **JWT (JSON Web Token)**    | A compact, self-contained method for securely transmitting information between parties as a JSON object. Used for authentication and session management. Contains user identity, expiration time, and other claims. |
+| **RBAC (Role-Based Access Control)** | A security model that restricts system access based on user roles. Roles are associated with permissions, and users are assigned one or more roles to enforce the principle of least privilege. |
+| **DTO (Data Transfer Object)** | A design pattern used to transfer data between layers (e.g., from controller to service) without exposing domain models. Keeps interfaces clean and helps in serialization/deserialization. |
+| **Kafka**                    | A distributed event streaming platform used for high-throughput, fault-tolerant data pipelines. Enables communication between loosely coupled microservices via publish-subscribe messaging. |
+| **Mapper**                   | A component or utility responsible for converting data between different representations (e.g., Entity ↔ DTO). Helps maintain separation of concerns and avoids tight coupling. |
+| **MicroProfile**             | A set of APIs optimized for microservice architecture, offering features like config, metrics, fault tolerance, and JWT authentication. Used in Liberty/Payara runtimes. |
+| **Testcontainers**           | A Java library supporting JUnit tests, which provides lightweight, throwaway instances of common databases, Selenium browsers, or anything else that can run in a Docker container. Used in integration testing. |
+
+---
+
+### B. Kafka Events
+
+Kafka is used to decouple services and enable scalable, asynchronous communication. Each domain module that emits or consumes events uses a well-defined topic and message format.
+
+**i. `user-events`**
+
+- **Purpose:**
+  - Handles lifecycle events related to user activity.
+- **Producer:** `user-service`
+- **Consumers:** `email-service`, `report-service`
+- **Event Types:**
+  - `UserRegistered`: Triggered when a new user signs up
+  - `UserDeactivated`: Fired when an account is disabled
+  - `PasswordChanged`: Used for audit or notification purposes
+
+**Sample Payload:**
+
+```
+{
+  "eventType": "UserRegistered",
+  "userId": "u12345",
+  "email": "user@example.com",
+  "timestamp": "2025-04-15T10:20:30Z"
+}
+```
+
+---
+
+**ii. `book-events`**
+
+- **Purpose:**
+  - Tracks book lifecycle and borrow/return activities.
+- **Producer:** `book-service`, `reservation-service`
+- **Consumers:** `report-service`, `notification-service`
+- **Event Types:**
+  - `BookAdded`: New book added to inventory
+  - `BookBorrowed`: Book loaned to a user
+  - `BookReturned`: Book returned by user
+  - `ReservationExpired`: Reservation window expired
+
+**Sample Payload:**
+
+```
+{
+  "eventType": "BookBorrowed",
+  "bookId": "b9876",
+  "userId": "u12345",
+  "borrowDate": "2025-04-15T11:00:00Z"
+}
+```
+
+**Additional Notes:**
+
+- All events are published with metadata (event type, timestamp, correlation ID).
+- Consumers implement **idempotent** processing to handle retries gracefully.
+- Event schema evolution is managed via versioning and stored in `/docs/kafka-schemas/`.
+
+---
+
+### C. API Reference
+
+All RESTful APIs provided by the system are documented using the **OpenAPI 3.0 Specification**.
+
+- The main spec file is located at `/docs/api.yaml`
+- You can load the spec in tools like Swagger UI, Postman, or Stoplight Studio to view endpoints interactively.
+
+**API documentation includes:**
+
+- Endpoint URL paths, HTTP methods, query parameters
+- Request/response schemas with sample payloads
+- Authentication requirements (JWT bearer token)
+- Common status codes and error structures
+- Role-based access constraints for protected endpoints
+
+> The API is designed to follow **RESTful principles**, and consistent naming conventions are used for resources (`/users`, `/books`, `/reservations`, etc.).
+
+---
