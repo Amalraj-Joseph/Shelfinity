@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shelfinity.common.dto;
+package com.shelfinity.user.dto;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -37,7 +37,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.shelfinity.common.enums.Role;
+import com.shelfinity.user.dto.enums.Role;
 
 /**
  * Data Transfer Object (DTO) representing a user in the system, used for data transfer over REST APIs.
@@ -84,6 +84,7 @@ public class UserDTO {
     @Schema(description = "The date and time when the user was created", example = "2022-03-25T14:30:00", required = true)
     @PastOrPresent(message = "Created date must be in the past or present")
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    @NotNull
     private LocalDateTime createdAt;
 
     @Schema(description = "The last login date and time of the user", example = "2023-03-25T14:30:00")
@@ -92,9 +93,11 @@ public class UserDTO {
     private LocalDateTime lastLogin;
 
     @Schema(description = "Whether the user is locked", defaultValue = "false")
+    @NotNull
     private boolean locked;
 
     @Schema(description = "Whether the user is enabled", defaultValue = "true")
+    @NotNull
     private boolean enabled;
 
     /**

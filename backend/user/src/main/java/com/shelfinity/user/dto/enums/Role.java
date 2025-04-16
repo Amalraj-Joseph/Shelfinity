@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shelfinity.common.enums;
+package com.shelfinity.user.dto.enums;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
