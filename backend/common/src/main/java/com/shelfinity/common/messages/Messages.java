@@ -34,4 +34,8 @@ public class Messages {
     public static final String SFUI001 = "SFUI001";
     public static final String SFUI002 = "SFUI002";
     public static final String SFUI003 = "SFUI003";
+
+    // Common Response Status
+    public static final String SFUI004 = "SFUI004";
+    public static final String SFUI005 = "SFUI005";
 }
