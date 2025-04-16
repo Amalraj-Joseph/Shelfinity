@@ -26,32 +26,26 @@ package com.shelfinity.user.dto.enums;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /**
- * Enum representing the status of a user registration request.
+ * Enum representing the common response status for generic success or failure cases.
  */
-@Schema(description = "The status of a user registration request")
-public enum RegistrationStatus implements BaseStatus {
+@Schema(description = "The common response status indicating success or failure")
+public enum CommonResponseStatus implements BaseStatus {
 
     /**
-     * The registration request is received and waiting for admin approval.
+     * Indicates the operation was successful.
      */
-    @Schema(description = "The registration request is pending admin approval")
-    PENDING("pending"),
+    @Schema(description = "The operation was successful")
+    SUCCESS("success"),
 
     /**
-     * The registration request has been approved by an admin.
+     * Indicates the operation failed.
      */
-    @Schema(description = "The registration request has been approved")
-    APPROVED("approved"),
-
-    /**
-     * The registration request has been rejected by an admin.
-     */
-    @Schema(description = "The registration request has been rejected")
-    REJECTED("rejected");
+    @Schema(description = "The operation failed")
+    FAILURE("failure");
 
     private final String statusName;
 
-    RegistrationStatus(String statusName) {
+    CommonResponseStatus(String statusName) {
         this.statusName = statusName;
     }
 
@@ -66,19 +60,19 @@ public enum RegistrationStatus implements BaseStatus {
     }
 
     /**
-     * Gets a RegistrationStatus enum from a string value.
+     * Gets a CommonResponseStatus enum from a string value.
      *
      * @param statusName The name of the status.
-     * @return The RegistrationStatus enum corresponding to the provided string.
+     * @return The CommonResponseStatus enum corresponding to the provided string.
      * @throws IllegalArgumentException If the status name is invalid.
      */
-    public static RegistrationStatus fromString(String statusName) {
-        for (RegistrationStatus status : RegistrationStatus.values()) {
+    public static CommonResponseStatus fromString(String statusName) {
+        for (CommonResponseStatus status : CommonResponseStatus.values()) {
             if (status.statusName.equalsIgnoreCase(statusName)) {
                 return status;
             }
         }
-        throw new IllegalArgumentException("Invalid registration status: " + statusName);
+        throw new IllegalArgumentException("Invalid common response status: " + statusName);
     }
 
     /**

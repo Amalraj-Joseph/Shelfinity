@@ -21,60 +21,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shelfinity.user.dto;
+package com.shelfinity.user.dto.responses;
 
-import com.shelfinity.user.dto.enums.RegistrationStatus;
+import com.shelfinity.user.dto.enums.BaseStatus;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.Objects;
 
 /**
- * Data Transfer Object (DTO) for responding to a user registration request.
- * Indicates that the request has been received and is pending admin approval.
+ * Generic base class for all response DTOs with a status.
+ *
+ * @param <T> Type of status that implements BaseStatus.
  */
-@Schema(description = "DTO representing the response after user registration request is received")
-public class RegisterUserResponseDTO {
+@Schema(description = "Base class for response DTOs with a status")
+public class BaseResponseDTO<T extends BaseStatus> {
 
-    @Schema(description = "The status of the user registration request", required = true)
-    private RegistrationStatus status;
-
-    @Schema(description = "Human-readable message for the registration status", required = true)
+    @Schema(description = "Human-readable message for the response", required = true)
     private String message;
 
+    @Schema(description = "Status object for the response", required = true)
+    private T status;
+
     /**
-     * Default constructor for RegisterUserResponseDTO.
-     * Initializes a new instance of RegisterUserResponseDTO with default values.
+     * Default constructor for BaseResponseDTO.
+     * Initializes a new instance of BaseResponseDTO with default values.
      */
-    public RegisterUserResponseDTO() {
+    public BaseResponseDTO() {
         // Default constructor
     }
 
     /**
-     * Constructs a RegisterUserResponseDTO with the given parameters.
+     * Constructs a BaseResponseDTO with the given parameters.
      *
-     * @param status  The registration status of the request (e.g. PENDING, APPROVED).
-     * @param message The human-readable message associated with the registration status.
+     * @param status      The operation status.
+     * @param message     Human readable message for the user
      */
-    public RegisterUserResponseDTO(RegistrationStatus status, String message) {
+    public BaseResponseDTO(T status, String message) {
         this.status = status;
         this.message = message;
     }
 
     /**
-     * Provides a string representation of the RegisterUserResponseDTO object.
+     * Provides a string representation of the BaseResponseDTO object.
      *
-     * @return A string containing the RegisterUserResponseDTO information.
+     * @return A string containing the BaseResponseDTO information.
      */
     @Override
     public String toString() {
-        return "RegisterUserResponseDTO{" +
+        return "BaseResponseDTO{" +
                 "status=" + status +
                 ", message='" + message + '\'' +
                 '}';
     }
 
     /**
-     * Compares this RegisterUserResponseDTO object to another object for equality.
+     * Compares this BaseResponseDTO object to another object for equality.
      *
      * @param o The object to compare.
      * @return true if the objects are equal, otherwise false.
@@ -82,14 +83,14 @@ public class RegisterUserResponseDTO {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RegisterUserResponseDTO that = (RegisterUserResponseDTO) o;
-        return status == that.status &&
+        if (!(o instanceof BaseResponseDTO)) return false;
+        BaseResponseDTO<?> that = (BaseResponseDTO<?>) o;
+        return Objects.equals(status, that.status) &&
                Objects.equals(message, that.message);
     }
 
     /**
-     * Generates a hash code for the RegisterUserResponseDTO object.
+     * Generates a hash code for the BaseResponseDTO object.
      *
      * @return A hash code value for this object.
      */
@@ -99,20 +100,20 @@ public class RegisterUserResponseDTO {
     }
 
     // Getters and Setters below
-
-    public RegistrationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(RegistrationStatus status) {
-        this.status = status;
-    }
-
+    
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public T getStatus() {
+        return status;
+    }
+
+    public void setStatus(T status) {
+        this.status = status;
     }
 }

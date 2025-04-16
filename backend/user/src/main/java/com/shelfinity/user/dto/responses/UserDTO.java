@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shelfinity.user.dto;
+package com.shelfinity.user.dto.responses;
 
 import java.time.LocalDateTime;
 import java.util.Objects;

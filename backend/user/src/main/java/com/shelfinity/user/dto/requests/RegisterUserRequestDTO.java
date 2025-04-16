@@ -21,11 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shelfinity.user.dto;
+package com.shelfinity.user.dto.requests;
 
 import java.util.Objects;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -44,6 +46,7 @@ public class RegisterUserRequestDTO {
     private String name;
 
     @Schema(description = "Email of the user", example = "john.doe@example.com", required = true)
+    @JsonbProperty("id")
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     @Size(max = 100, message = "Email must not exceed 100 characters")
