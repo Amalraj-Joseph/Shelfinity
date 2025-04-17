@@ -56,7 +56,7 @@ public class UserRepository {
     private final SFLogger logger;
 
     @Inject
-    public UserRepository(SFLogger logger) {
+    public UserRepository(SFLogger logger){
         this.logger = logger;
     }
 

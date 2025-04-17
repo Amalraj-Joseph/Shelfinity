@@ -32,9 +32,11 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import jakarta.enterprise.context.ApplicationScoped;
 /**
  * Shelfinity Logger
  */
+@ApplicationScoped
 public class SFLogger {
 
     private static final Logger logger = Logger.getLogger(SFLogger.class.getName());
@@ -62,7 +64,7 @@ public class SFLogger {
     }
 
     public SFLogger(){
-        // Default Constructor
+        // default constructor
     }
 
     /**
