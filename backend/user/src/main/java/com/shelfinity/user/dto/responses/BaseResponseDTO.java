@@ -25,8 +25,9 @@ package com.shelfinity.user.dto.responses;
 
 import java.util.Objects;
 
-import com.shelfinity.user.dto.enums.BaseStatus;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import com.shelfinity.user.dto.enums.BaseStatus;
 
 /**
  * Generic base class for all response DTOs with a status.

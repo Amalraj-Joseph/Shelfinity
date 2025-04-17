@@ -23,9 +23,9 @@
  */
 package com.shelfinity.user.dto.responses;
 
-import com.shelfinity.user.dto.enums.CommonResponseStatus;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import com.shelfinity.user.dto.enums.CommonResponseStatus;
 /**
  * DTO representing a generic success/failure response.
  */

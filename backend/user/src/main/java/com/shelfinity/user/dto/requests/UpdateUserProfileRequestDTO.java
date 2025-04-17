@@ -26,7 +26,6 @@ package com.shelfinity.user.dto.requests;
 import java.util.Objects;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

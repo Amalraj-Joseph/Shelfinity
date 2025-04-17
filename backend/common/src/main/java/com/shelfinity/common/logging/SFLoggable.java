@@ -21,32 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shelfinity.user.dto.responses;
+package com.shelfinity.common.logging;
 
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import com.shelfinity.user.dto.enums.RegistrationStatus;
+import jakarta.interceptor.InterceptorBinding;
+
 /**
- * DTO representing the response after a user registration request.
+ * Custom annotation to mark methods or classes that should be intercepted
+ * for logging purposes.
+ * <p>
+ * When applied to a method or class, the associated interceptor
+ * will log the entry, exit, and any exceptions thrown during execution.
+ * </p>
  */
-@Schema(description = "DTO representing the response after user registration request is received")
-public class RegisterUserResponseDTO extends BaseResponseDTO<RegistrationStatus> {
-
-    /**
-     * Default constructor for RegisterUserResponseDTO.
-     * Initializes a new instance of RegisterUserResponseDTO with default values.
-     */
-    public RegisterUserResponseDTO() {
-        super();
-    }
-
-    /**
-     * Constructs a RegisterUserResponseDTO with the given parameters.
-     *
-     * @param status      The operation status.
-     * @param message     Human readable message for the user
-     */
-    public RegisterUserResponseDTO(RegistrationStatus status, String message) {
-        super(status, message);
-    }
+@InterceptorBinding
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SFLoggable {
 }
