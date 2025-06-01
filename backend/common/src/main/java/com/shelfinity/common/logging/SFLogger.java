@@ -1,28 +1,13 @@
 /*
- * MIT License
- * 
  * Copyright (c) 2025 Shadow-Codex
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
  */
 package com.shelfinity.common.logging;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.ConsoleHandler;
@@ -39,88 +24,99 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class SFLogger {
 
-    private static final Logger logger = Logger.getLogger(SFLogger.class.getName());
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-    static {
+    private static Logger getLogger(String className){
+        Logger logger = Logger.getLogger(className);
         // Clear default handlers
         LogManager.getLogManager().reset();
-
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
+        ConsoleHandler handler = new ConsoleHandler() {
+            @Override
+            protected synchronized void setOutputStream(java.io.OutputStream out) throws SecurityException {
+                super.setOutputStream(System.out); // Force to stdout
+            }
+        };
         handler.setFormatter(new SimpleFormatter() {
             @Override
             public synchronized String format(LogRecord record) {
-                return String.format("[%s] %s %s - %s%n",
-                        record.getLevel().getName(),
+                StringBuilder sb = new StringBuilder();
+                String level = String.format("[%-8s]", record.getLevel().getName());
+            
+                sb.append(String.format("%s %s %s.%s %s%n",
+                        level,
                         LocalDateTime.now().format(FORMATTER),
-                        record.getLoggerName(),
-                        record.getMessage());
+                        record.getSourceClassName(),
+                        record.getSourceMethodName(),
+                        record.getMessage()));
+            
+                if (record.getThrown() != null) {
+                    Throwable t = record.getThrown();
+                    sb.append(getStackTrace(t));
+                }
+                return sb.toString();
             }
-        });
-
+                        
+        });       
+        handler.setLevel(Level.ALL);
         logger.addHandler(handler);
         logger.setLevel(Level.ALL);
-    }
-
-    public SFLogger(){
-        // default constructor
+        return logger;
     }
 
     /**
      * Log a message at INFO level.
      * @param message the message to log
      */
-    public void info(String message) {
-        log(Level.INFO, message);
+    public void info(String className, String methodName, String message) {
+        log(Level.INFO, className, methodName, message);
     }
 
     /**
      * Log a message at SEVERE level.
      * @param message the message to log
      */
-    public void severe(String message) {
-        log(Level.SEVERE, message);
+    public void severe(String className, String methodName, String message, Throwable t) {
+        log(Level.SEVERE, className, methodName, message, t);
     }
 
     /**
      * Log a message at WARNING level.
      * @param message the message to log
      */
-    public void warning(String message) {
-        log(Level.WARNING, message);
+    public void warning(String className, String methodName, String message) {
+        log(Level.WARNING, className, methodName, message);
     }
 
     /**
      * Log a message at FINE level.
      * @param message the message to log
      */
-    public void fine(String message) {
-        log(Level.FINE, message);
+    public void fine(String className, String methodName, String message) {
+        log(Level.FINE, className, methodName, message);
     }
 
     /**
      * Log a message at CONFIG level.
      * @param message the message to log
      */
-    public void config(String message) {
-        log(Level.CONFIG, message);
+    public void config(String className, String methodName, String message) {
+        log(Level.CONFIG, className, methodName, message);
     }
 
     /**
      * Log a message at FINEST level.
      * @param message the message to log
      */
-    public void finest(String message) {
-        log(Level.FINEST, message);
+    public void finest(String className, String methodName, String message) {
+        log(Level.FINEST, className, methodName, message);
     }
 
     /**
      * Log a message at OFF level (no logging).
      * @param message the message to log
      */
-    public void off(String message) {
-        log(Level.OFF, message);
+    public void off(String className, String methodName, String message) {
+        log(Level.OFF, className, methodName, message);
     }
 
     /**
@@ -128,27 +124,33 @@ public class SFLogger {
      * @param level the log level
      * @param message the message to log
      */
-    public static void log(Level level, String message) {
+    public static void log(Level level, String className, String methodName, String message) {
+        Logger logger  = getLogger(className);
         if (logger.isLoggable(level)) {
-            StackTraceElement caller = findCaller();
-            String context = caller.getClassName() + "." + caller.getMethodName();
-            logger.log(level, context + " - " + message);
+            logger.logp(level, className, methodName, String.format("%s", message));
         }
     }
 
     /**
-     * Find the caller of the log method.
-     * @return the caller's stack trace element
+     * Log a message with the given level.
+     * @param level the log level
+     * @param message the message to log
      */
-    private static StackTraceElement findCaller() {
-        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        for (int i = 2; i < stack.length; i++) {
-            String className = stack[i].getClassName();
-            if (!className.equals(SFLogger.class.getName()) &&
-                !className.startsWith("java.lang.Thread")) {
-                return stack[i];
-            }
-        }
-        return stack[2]; // fallback
+    public static void log(Level level, String className, String methodName, String message, Throwable t) {
+        Logger logger  = getLogger(className);
+        logger.logp(level, className, methodName, String.format("%s", message),t);
     }
+
+    private static String getStackTrace(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+    
+        String[] lines = sw.toString().split(System.lineSeparator());
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            sb.append("\t").append(line).append(System.lineSeparator());
+        }
+        return sb.toString();
+    }    
 }

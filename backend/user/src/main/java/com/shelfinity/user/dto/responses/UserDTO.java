@@ -1,29 +1,12 @@
 /*
- * MIT License
- * 
  * Copyright (c) 2025 Shadow-Codex
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
  */
 package com.shelfinity.user.dto.responses;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -85,12 +68,12 @@ public class UserDTO {
     @PastOrPresent(message = "Created date must be in the past or present")
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Schema(description = "The last login date and time of the user", example = "2023-03-25T14:30:00")
     @PastOrPresent(message = "Last login must be in the past or present")
     @JsonbDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime lastLogin;
+    private Instant lastLogin;
 
     @Schema(description = "Whether the user is locked", defaultValue = "false")
     @NotNull
@@ -123,7 +106,7 @@ public class UserDTO {
      * @param enabled     Whether the user is enabled.
      */
     public UserDTO(String name, String email, String password, String phoneNumber, String address, Role role,
-                   LocalDateTime createdAt, LocalDateTime lastLogin, boolean locked, boolean enabled) {
+                   Instant createdAt, Instant lastLogin, boolean locked, boolean enabled) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -237,19 +220,19 @@ public class UserDTO {
         this.role = role;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getLastLogin() {
+    public Instant getLastLogin() {
         return lastLogin;
     }
 
-    public void setLastLogin(LocalDateTime lastLogin) {
+    public void setLastLogin(Instant lastLogin) {
         this.lastLogin = lastLogin;
     }
 

@@ -1,37 +1,20 @@
 /*
- * MIT License
- * 
  * Copyright (c) 2025 Shadow-Codex
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
  */
 package com.shelfinity.user.repository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
-import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import com.shelfinity.user.entity.User;
@@ -42,112 +25,146 @@ import com.shelfinity.common.logging.SFLogger;
 /**
  * Repository class for performing CRUD operations on the User entity.
  */
-@Stateless
-@Named
+ 
+@ApplicationScoped
 @Transactional
 @SFLoggable
-public class UserRepository {
-
-    private static final String GET_ALL_EMAILS_QUERY = "SELECT u.email FROM User u";
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private final SFLogger logger;
+public class UserRepository extends BaseUserRepository<User>{
+        
+    private static final String CLASS_NAME = UserRepository.class.getName();
+    private static String METHOD_NAME;
 
     @Inject
-    public UserRepository(SFLogger logger){
-        this.logger = logger;
-    }
+    private SFLogger logger;
 
+    @Override
     public List<String> getAllUserEmails() {
-        logger.fine("Fetching all user emails.");
-        return entityManager
-                .createQuery(GET_ALL_EMAILS_QUERY, String.class)
-                .getResultList();
+        METHOD_NAME = "getAllUserEmails";
+        logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user emails.");
+        return findByNamedQuery("User.getAllUserEmails");
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        logger.fine(String.format("Fetching user by email: {}", email));
-        return Optional.ofNullable(entityManager.find(User.class, email));
+    @Override
+    public List<String> getAllUserPhoneNumbers() {
+        METHOD_NAME = "getAllUserPhoneNumbers";
+        logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user phone numbers.");
+        return findByNamedQuery("User.getAllUserPhoneNumbers"); 
     }
 
+    @Override
+    public List<String> getAllUserUsernames() {
+        METHOD_NAME = "getAllUserUsernames";
+        logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user usernames.");
+        return findByNamedQuery("User.getAllUserUsernames"); 
+    }
+
+    @Override
+    public Optional<User> getUserById(UUID id) {
+        METHOD_NAME = "getUserById";
+        logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by id: %s", id.toString()));
+        return Optional.ofNullable(entityManager.find(User.class, id));
+    }
+
+    @Override
+    public Optional<User> getUserByUsername(String username) {
+        METHOD_NAME = "getUserByUsername";
+        logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by username: %s", username));
+        return findByNamedQuery("User.findByUsername", "username", username, User.class);
+    }
+
+    @Override
+    public Optional<User> getUserByEmail(String email){
+        METHOD_NAME = "getUserByEmail";
+        logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by email: %s", email));
+        return findByNamedQuery("User.findByEmail", "email", email, User.class);
+    }
+
+    @Override
+    public Optional<User> getUserByPhoneNumber(String phoneNumber){
+        METHOD_NAME = "getUserByPhoneNumber";
+        logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by email: %s", phoneNumber));
+        return findByNamedQuery("User.findByPhoneNumber", "phoneNumber", phoneNumber, User.class);
+    }
+
+    @Override
     public void addUser(User user) {
+        METHOD_NAME = "addUser";
         entityManager.persist(user);
-        logger.info(String.format("New user added: {}", user.getEmail()));
+        logger.info(CLASS_NAME, METHOD_NAME, String.format("New user added: %s", user.getId().toString()));
     }
 
     public void updateUserProfile(User user) {
-        User existingUser = entityManager.find(User.class, user.getEmail());
-        if (existingUser == null) {
-            logger.warning(String.format("Attempt to update non-existing user: {}", user.getEmail()));
-            return;
-        }
-
-        existingUser.setName(user.getName());
-        existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setAddress(user.getAddress());
-        entityManager.merge(existingUser);
-        logger.info(String.format("User profile updated: {}", user.getEmail()));
+        METHOD_NAME = "updateUserProfile";
+        entityManager.merge(user);
+        logger.info(CLASS_NAME, METHOD_NAME, String.format("User profile updated: %s", user.getUsername()));
     }
 
-    public void updateUserPassword(String email, String password) {
-        User user = entityManager.find(User.class, email);
-        if (user == null) {
-            logger.warning(String.format("Attempt to update password for non-existing user: {}", email));
-            return;
-        }
-
-        user.setPassword(password);
-        entityManager.merge(user);
-        logger.info(String.format("Password updated for user: {}", email));
+    public int updateUserPassword(UUID id, String password){
+        METHOD_NAME = "updateUserPassword";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("password", password);
+        params.put("lastUpdated", Instant.now());
+        return executeUpdateNamedQuery("User.updatePasswordById", params);
     }
 
-    public void updateUserRole(String email, Role role) {
-        User user = entityManager.find(User.class, email);
-        if (user == null) {
-            logger.warning(String.format("Attempt to update role for non-existing user: {}", email));
-            return;
-        }
-
-        user.setRole(role);
-        entityManager.merge(user);
-        logger.info(String.format("Role updated for user: {}, new role: {}", email, role));
+    public int updateUserPhoneNumber(UUID id, String phoneNumber){
+        METHOD_NAME = "updateUserPhoneNumber";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("phoneNumber", phoneNumber);
+        params.put("lastUpdated", Instant.now());
+        return executeUpdateNamedQuery("User.updatePhoneNumberById", params);
+    }
+    
+    public int updateUserEmail(UUID id, String email){
+        METHOD_NAME = "updateUserEmail";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("email", email);
+        params.put("lastUpdated", Instant.now());
+        return executeUpdateNamedQuery("User.updateEmailById", params);
     }
 
-    public void toggleUserLock(String email) {
-        User user = entityManager.find(User.class, email);
-        if (user == null) {
-            logger.warning(String.format("Attempt to toggle lock for non-existing user: {}", email));
-            return;
-        }
-
-        user.setLocked(!user.isLocked());
-        entityManager.merge(user);
-        logger.info(String.format("Lock status toggled for user: {}. Now locked: {}", email, user.isLocked()));
+    public int updateUserUsername(UUID id, String username){
+        METHOD_NAME = "updateUserUsername";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("username", username);
+        params.put("lastUpdated", Instant.now());
+        return executeUpdateNamedQuery("User.updateUsernameById", params);
     }
 
-    public void toggleUserEnabled(String email) {
-        User user = entityManager.find(User.class, email);
-        if (user == null) {
-            logger.warning(String.format("Attempt to toggle enabled status for non-existing user: {}", email));
-            return;
-        }
-
-        user.setEnabled(!user.isEnabled());
-        entityManager.merge(user);
-        logger.info(String.format("Enabled status toggled for user: {}. Now enabled: {}", email, user.isEnabled()));
+    public int updateUserRole(UUID id, Role role) {
+        METHOD_NAME = "updateUserRole";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("role", role);
+        params.put("lastUpdated", Instant.now());
+        return executeUpdateNamedQuery("User.updateRoleById", params);
     }
 
-    public void updateLastLogin(String email) {
-        User user = entityManager.find(User.class, email);
-        if (user == null) {
-            logger.warning(String.format("Attempt to update last login for non-existing user: {}", email));
-            return;
-        }
+    public int toggleUserLock(UUID id) {
+        METHOD_NAME = "toggleUserLock";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("lastUpdated", Instant.now());
+        return executeUpdateNamedQuery("User.toggleLocked", params);
+    }
 
-        user.setLastLogin(LocalDateTime.now());
-        entityManager.merge(user);
-        logger.fine(String.format("Last login updated for user: {}", email));
+    public int toggleUserEnabled(UUID id) {
+        METHOD_NAME = "toggleUserEnabled";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("lastUpdated", Instant.now());
+        return executeUpdateNamedQuery("User.toggleEnabled", params);
+    }
+
+    public int updateLastLogin(UUID id) {
+        METHOD_NAME = "updateLastLogin";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("lastLogin", Instant.now());
+        return executeUpdateNamedQuery("User.updateLastLogin", params);
     }
 }
