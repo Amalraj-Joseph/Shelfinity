@@ -6,14 +6,13 @@
  */
 package com.shelfinity.user.service;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.shelfinity.common.logging.SFLoggable;
+import com.shelfinity.common.logging.SFLogger;
+import com.shelfinity.common.security.PasswordEncryptionService;
 import com.shelfinity.user.dto.requests.RegisterUserRequestDTO;
 import com.shelfinity.user.dto.requests.UpdateUserPasswordRequestDTO;
 import com.shelfinity.user.dto.requests.UpdateUserProfileRequestDTO;
@@ -30,9 +29,10 @@ import com.shelfinity.user.exception.UserServiceException;
 import com.shelfinity.user.repository.BaseUserRepository;
 import com.shelfinity.user.repository.PreUserRepository;
 import com.shelfinity.user.repository.UserRepository;
-import com.shelfinity.common.logging.SFLoggable;
-import com.shelfinity.common.logging.SFLogger;
-import com.shelfinity.common.security.PasswordEncryptionService;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 @SFLoggable
@@ -82,7 +82,7 @@ public class UserService {
                                                 .phoneNumber(registerUserRequestDTO.getPhoneNumber())
                                                 .address(address)
                                                 .build();
-
+        System.err.println("Request \n" + newRequest.getUpdatedBy().toString());
         insert(newRequest, preUserRepository);
     }
 

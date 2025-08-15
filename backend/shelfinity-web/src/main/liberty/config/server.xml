@@ -21,9 +21,9 @@
         <properties.postgresql 
             serverName="localhost"
             portNumber="5432"
-            databaseName="${shelfinity_db}"
-            user="${shelfinity_user}"
-            password="{shelfinity_pass}" />
+            databaseName="shelfinity_db"
+            user="shelfinity_user"
+            password="shelfinity_pass" />
     </dataSource>
 
     <library id="PostgreSQLLib">

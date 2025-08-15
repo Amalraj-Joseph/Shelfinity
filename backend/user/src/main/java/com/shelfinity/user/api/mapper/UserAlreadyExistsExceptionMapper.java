@@ -7,18 +7,30 @@
  */
 package com.shelfinity.user.api.mapper;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.shelfinity.user.exception.UserAlreadyExistsException;
+
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-
-import com.shelfinity.user.exception.UserAlreadyExistsException;
 
 @Provider
 public class UserAlreadyExistsExceptionMapper implements ExceptionMapper<UserAlreadyExistsException> {
     @Override
     public Response toResponse(UserAlreadyExistsException exception) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", Instant.now().toString());
+        errorResponse.put("status", Response.Status.CONFLICT.getStatusCode());
+        errorResponse.put("error", "Conflict");
+        errorResponse.put("message", exception.getMessage());
+        
         return Response.status(Response.Status.CONFLICT) // 409
-                       .entity(exception.getMessage())
+                       .type(MediaType.APPLICATION_JSON)
+                       .entity(errorResponse)
                        .build();
     }
 }

@@ -49,11 +49,12 @@ public abstract class BaseUserRepository<T> {
     protected Optional<T> findByNamedQuery(String namedQuery, String parameterName, String parameterValue, Class<T> resultClass){
         METHOD_NAME = "findByNamedQuery";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Executing named query %s with paramter %s=%s", namedQuery, parameterName, parameterValue));
-        return Optional.ofNullable(
-            entityManager.createNamedQuery(namedQuery, resultClass)
+        Optional<T> result = Optional.ofNullable(entityManager.createNamedQuery(namedQuery, resultClass)
                          .setParameter(parameterName, parameterValue)
-                         .getSingleResultOrNull()
-        );        
+                         .getResultStream()
+                         .findFirst()
+                         .orElse(null));
+        return result;        
     }
 
     protected int executeUpdateNamedQuery(String namedQuery, Map<String, Object> parameters) {

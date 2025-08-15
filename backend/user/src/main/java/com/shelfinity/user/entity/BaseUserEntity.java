@@ -6,23 +6,23 @@
  */
 package com.shelfinity.user.entity;
 
-import java.time.LocalDate;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
 import com.shelfinity.user.dto.enums.Gender;
 import com.shelfinity.user.dto.enums.Role;
 
-import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 @MappedSuperclass
 public abstract class BaseUserEntity {
@@ -91,7 +91,7 @@ public abstract class BaseUserEntity {
         this.password    = password;
         this.phoneNumber = phoneNumber;
         this.address     = address;
-        this.role        = role;
+        this.role        = role != null ? role : Role.USER;
     }
 
     // --- Getters and Setters ---

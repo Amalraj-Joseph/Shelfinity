@@ -13,14 +13,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.shelfinity.common.logging.SFLoggable;
+import com.shelfinity.common.logging.SFLogger;
+import com.shelfinity.user.dto.enums.Role;
+import com.shelfinity.user.entity.User;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import com.shelfinity.user.entity.User;
-import com.shelfinity.user.dto.enums.Role;
-import com.shelfinity.common.logging.SFLoggable;
-import com.shelfinity.common.logging.SFLogger;
 
 /**
  * Repository class for performing CRUD operations on the User entity.

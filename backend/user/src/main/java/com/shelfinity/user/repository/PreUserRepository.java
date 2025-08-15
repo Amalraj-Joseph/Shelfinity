@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.shelfinity.common.logging.SFLoggable;
+import com.shelfinity.common.logging.SFLogger;
+import com.shelfinity.user.dto.enums.RegistrationStatus;
+import com.shelfinity.user.entity.UserRegistrationRequest;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import com.shelfinity.user.dto.enums.RegistrationStatus;
-import com.shelfinity.user.entity.UserRegistrationRequest;
-import com.shelfinity.common.logging.SFLoggable;
-import com.shelfinity.common.logging.SFLogger;
 
 /**
  * Repository class for performing CRUD operations on the UserRegistrationRequest entity.
@@ -65,7 +65,8 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
     public Optional<UserRegistrationRequest> getUserByUsername(String username) {
         METHOD_NAME = "getPreUserById";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by username: %s from reg request db.", username));
-        return findByNamedQuery("UserRegistrationRequest.findByUsername", "username", username, UserRegistrationRequest.class);
+        Optional<UserRegistrationRequest> request = findByNamedQuery("UserRegistrationRequest.findByUsername", "username", username, UserRegistrationRequest.class);
+        return request;
     }
 
     @Override
@@ -79,7 +80,8 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
     public Optional<UserRegistrationRequest> getUserByPhoneNumber(String phoneNumber){
         METHOD_NAME = "getUserByPhoneNumber";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by email: %s from reg request db.", phoneNumber));
-        return findByNamedQuery("UserRegistrationRequest.findByPhoneNumber", "phoneNumber", phoneNumber, UserRegistrationRequest.class);
+        Optional<UserRegistrationRequest> request = findByNamedQuery("UserRegistrationRequest.findByPhoneNumber", "phoneNumber", phoneNumber, UserRegistrationRequest.class);
+        return request;
     }
 
     @Override

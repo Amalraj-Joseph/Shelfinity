@@ -9,13 +9,6 @@ package com.shelfinity.user.api.impl;
 import java.util.List;
 import java.util.Locale;
 
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
-
 import com.shelfinity.common.logging.SFLoggable;
 import com.shelfinity.common.messages.Messages;
 import com.shelfinity.user.api.UserAPI;
@@ -23,6 +16,13 @@ import com.shelfinity.user.dto.enums.RegistrationStatus;
 import com.shelfinity.user.dto.requests.RegisterUserRequestDTO;
 import com.shelfinity.user.dto.responses.RegisterUserResponseDTO;
 import com.shelfinity.user.service.UserService;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 @RequestScoped
 @SFLoggable

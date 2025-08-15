@@ -9,16 +9,16 @@ package com.shelfinity.user.entity;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.shelfinity.user.dto.enums.Gender;
+import com.shelfinity.user.dto.enums.RegistrationStatus;
+import com.shelfinity.user.dto.enums.Role;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
-
-import com.shelfinity.user.dto.enums.Gender;
-import com.shelfinity.user.dto.enums.RegistrationStatus;
-import com.shelfinity.user.dto.enums.Role;
 
 @Entity
 @Table(name = "user_reg_requests")
@@ -35,7 +35,6 @@ public class UserRegistrationRequest extends BaseUserEntity {
     @Column(nullable = false)
     private RegistrationStatus status = RegistrationStatus.PENDING;
 
-    @Column
     private UUID updatedBy;
 
     @Column(length = 255)
@@ -60,8 +59,7 @@ public class UserRegistrationRequest extends BaseUserEntity {
             role
         );
         this.status = status != null ? status : RegistrationStatus.PENDING;
-        this.updatedBy = updatedBy;
-        this.remark = remark;
+        this.updatedBy = updatedBy != null ? updatedBy : new UUID(0L,0L);
     }
 
     // Getters and setters
@@ -155,6 +153,7 @@ public class UserRegistrationRequest extends BaseUserEntity {
             return this;
         }
 
+        
         public Builder updatedBy(UUID updatedBy) {
             this.updatedBy = updatedBy;
             return this;
