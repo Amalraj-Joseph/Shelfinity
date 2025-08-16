@@ -38,24 +38,31 @@ public class UserRepository extends BaseUserRepository<User>{
     private SFLogger logger;
 
     @Override
+    public List<User> getAllUsers() {
+        METHOD_NAME = "getAllUsers";
+        logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all users reg request db.");
+        return findByNamedQuery("UserRegistrationRequest.getAllUserEmails", User.class);
+    }
+
+    @Override
     public List<String> getAllUserEmails() {
         METHOD_NAME = "getAllUserEmails";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user emails.");
-        return findByNamedQuery("User.getAllUserEmails");
+        return findByNamedQuery("User.getAllUserEmails", String.class);
     }
 
     @Override
     public List<String> getAllUserPhoneNumbers() {
         METHOD_NAME = "getAllUserPhoneNumbers";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user phone numbers.");
-        return findByNamedQuery("User.getAllUserPhoneNumbers"); 
+        return findByNamedQuery("User.getAllUserPhoneNumbers", String.class); 
     }
 
     @Override
     public List<String> getAllUserUsernames() {
         METHOD_NAME = "getAllUserUsernames";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user usernames.");
-        return findByNamedQuery("User.getAllUserUsernames"); 
+        return findByNamedQuery("User.getAllUserUsernames", String.class); 
     }
 
     @Override

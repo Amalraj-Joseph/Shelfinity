@@ -23,6 +23,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "user_reg_requests")
 
+@NamedQuery(name = "UserRegistrationRequest.getAllUsers", query = "SELECT u FROM UserRegistrationRequest u")
 @NamedQuery(name = "UserRegistrationRequest.findByEmail", query = "SELECT u FROM UserRegistrationRequest u WHERE u.email =:email")
 @NamedQuery(name = "UserRegistrationRequest.findByPhoneNumber", query = "SELECT u FROM UserRegistrationRequest u WHERE u.phoneNumber =:phoneNumber")
 @NamedQuery(name = "UserRegistrationRequest.findByUsername", query = "SELECT u FROM UserRegistrationRequest u WHERE u.username =:username")

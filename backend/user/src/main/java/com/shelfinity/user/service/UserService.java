@@ -6,6 +6,7 @@
  */
 package com.shelfinity.user.service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -138,6 +139,11 @@ public class UserService {
             user.setDateOfBirth(updateUserProfileRequestDTO.getDateOfBirth());
         }
         userRepository.updateUserProfile(user);
+    }
+
+    public List<UserRegistrationRequest> getRequests (){
+        METHOD_NAME = "getRequests";
+        return preUserRepository.getAllUsers();
     }
 
     public void updateUserPassword(UpdateUserPasswordRequestDTO updateUserPasswordRequestDTO, UUID userId){

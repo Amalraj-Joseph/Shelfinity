@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response.Status;
 
 @RequestScoped
 @SFLoggable
-public class UserAPIImpl implements UserAPI {
+public class UserImpl implements UserAPI {
 
     @Inject
     private UserService userService;

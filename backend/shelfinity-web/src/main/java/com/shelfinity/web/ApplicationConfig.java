@@ -14,12 +14,14 @@ import java.util.Set;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 
-import com.shelfinity.user.api.impl.UserAPIImpl;
+import com.shelfinity.user.api.impl.UserImpl;
 import com.shelfinity.user.api.mapper.DataBaseExceptionMapper;
 import com.shelfinity.user.api.mapper.UnauthorizedExceptionMapper;
 import com.shelfinity.user.api.mapper.UserAlreadyExistsExceptionMapper;
 import com.shelfinity.user.api.mapper.UserNotExistsExceptionMapper;
 import com.shelfinity.user.api.mapper.UserServiceExceptionMapper;
+
+import com.shelfinity.admin.api.impl.QueueImpl;
 
 @ApplicationPath("/") // Context root is "/"
 @OpenAPIDefinition(
@@ -31,7 +33,8 @@ import com.shelfinity.user.api.mapper.UserServiceExceptionMapper;
 public class ApplicationConfig extends Application {
 
     private static final Set<Class<?>> applicationClasses = Set.of(
-        UserAPIImpl.class,
+        UserImpl.class,
+        QueueImpl.class,
         
         UserAlreadyExistsExceptionMapper.class,
         UserServiceExceptionMapper.class,

@@ -34,24 +34,31 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
     private SFLogger logger;
 
     @Override
+    public List<UserRegistrationRequest> getAllUsers() {
+        METHOD_NAME = "getAllUsers";
+        logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all users reg request db.");
+        return findByNamedQuery("UserRegistrationRequest.getAllUsers", UserRegistrationRequest.class);
+    }
+
+    @Override
     public List<String> getAllUserEmails() {
         METHOD_NAME = "getAllPreUserEmails";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user emails from reg request db.");
-        return findByNamedQuery("UserRegistrationRequest.getAllUserEmails");
+        return findByNamedQuery("UserRegistrationRequest.getAllUserEmails", String.class);
     }
 
     @Override
     public List<String> getAllUserPhoneNumbers() {
         METHOD_NAME = "getAllPreUserPhoneNumbers";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user phone numbers from reg request db.");
-        return findByNamedQuery("UserRegistrationRequest.getAllUserPhoneNumbers");
+        return findByNamedQuery("UserRegistrationRequest.getAllUserPhoneNumbers", String.class);
     }
 
     @Override
     public List<String> getAllUserUsernames() {
         METHOD_NAME = "getAllPreUserUsernames";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user usernames from reg request db.");
-        return findByNamedQuery("UserRegistrationRequest.getAllUserUsernames");
+        return findByNamedQuery("UserRegistrationRequest.getAllUserUsernames", String.class);
     }
 
     @Override

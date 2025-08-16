@@ -9,13 +9,13 @@ package com.shelfinity.user.entity;
 import java.time.Instant;
 import java.time.LocalDate;
 
+import com.shelfinity.user.dto.enums.Gender;
+import com.shelfinity.user.dto.enums.Role;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
-
-import com.shelfinity.user.dto.enums.Gender;
-import com.shelfinity.user.dto.enums.Role;
 
 /**
  * Entity representing a user in the system.
@@ -24,6 +24,7 @@ import com.shelfinity.user.dto.enums.Role;
 @Entity
 @Table(name = "users")
 
+@NamedQuery(name = "User.getAllUsers", query = "SELECT u FROM User u")
 @NamedQuery(name = "User.findByEmail", query = "SELECT u FROM User u WHERE u.email =:email")
 @NamedQuery(name = "User.findByPhoneNumber", query = "SELECT u FROM User u WHERE u.phoneNumber =:phoneNumber")
 @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username =:username")

@@ -29,6 +29,7 @@ public abstract class BaseUserRepository<T> {
     @Inject
     protected SFLogger logger;
 
+    public abstract List<T> getAllUsers();
     public abstract List<String> getAllUserEmails();
     public abstract List<String> getAllUserPhoneNumbers();
     public abstract List<String> getAllUserUsernames();
@@ -38,11 +39,11 @@ public abstract class BaseUserRepository<T> {
     public abstract Optional<T> getUserByPhoneNumber(String phoneNumber);
     public abstract void addUser(T User);
 
-    protected List<String> findByNamedQuery(String namedQuery){
+    protected <T> List<T> findByNamedQuery(String namedQuery, Class<T> resultClass){
         METHOD_NAME = "findByNamedQuery";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Executing named query: %s", namedQuery));
         return entityManager
-                .createNamedQuery(namedQuery, String.class)
+                .createNamedQuery(namedQuery, resultClass)
                 .getResultList();
     }
 
