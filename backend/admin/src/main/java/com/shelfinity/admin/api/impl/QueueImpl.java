@@ -7,6 +7,7 @@
 package com.shelfinity.admin.api.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.shelfinity.admin.api.QueueAPI;
 import com.shelfinity.admin.service.QueueService;
@@ -19,14 +20,15 @@ import jakarta.ws.rs.core.Response;
 
 @RequestScoped
 @SFLoggable
-public class QueueImpl implements QueueAPI{
+public class QueueImpl implements QueueAPI {
 
-    @Inject QueueService queueService;
+    @Inject
+    QueueService queueService;
 
     @Override
-    public Response getQueue() {
-        
-        List<UserRegistrationRequest> requests = queueService.getRequests();
+    public Response getQueue(UUID id, String email, String phone, String username) {
+        // Pass through the optional filters; service will handle nulls/empties.
+        List<UserRegistrationRequest> requests = queueService.getRequests(id, email, phone, username);
         return Response.ok(requests).build();
     }
 }

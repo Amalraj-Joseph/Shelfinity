@@ -38,10 +38,10 @@ public class UserRepository extends BaseUserRepository<User>{
     private SFLogger logger;
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(UUID id, String email, String phoneNumber, String username) {
         METHOD_NAME = "getAllUsers";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all users reg request db.");
-        return findByNamedQuery("UserRegistrationRequest.getAllUserEmails", User.class);
+        return findByNamedQuery("User.getAllUsers", User.class);
     }
 
     @Override

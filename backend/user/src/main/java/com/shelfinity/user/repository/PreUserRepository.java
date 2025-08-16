@@ -6,7 +6,9 @@
  */
 package com.shelfinity.user.repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,10 +36,17 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
     private SFLogger logger;
 
     @Override
-    public List<UserRegistrationRequest> getAllUsers() {
+    public List<UserRegistrationRequest> getAllUsers(UUID id, String email, String phone, String username) {
         METHOD_NAME = "getAllUsers";
-        logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all users reg request db.");
-        return findByNamedQuery("UserRegistrationRequest.getAllUsers", UserRegistrationRequest.class);
+        logger.fine(CLASS_NAME, METHOD_NAME, "Fetching users with optional filters.");
+
+        Map<String, Object> params = new HashMap<>();
+        if (id != null) params.put("id", id);
+        if (email != null && !email.isBlank()) params.put("email", email);
+        if (phone != null && !phone.isBlank()) params.put("phoneNumber", phone);
+        if (username != null && !username.isBlank()) params.put("username", username);
+
+        return findByCriteria(UserRegistrationRequest.class, params);
     }
 
     @Override

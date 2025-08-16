@@ -34,6 +34,7 @@ import com.shelfinity.user.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 
 @ApplicationScoped
 @SFLoggable
@@ -141,9 +142,9 @@ public class UserService {
         userRepository.updateUserProfile(user);
     }
 
-    public List<UserRegistrationRequest> getRequests (){
-        METHOD_NAME = "getRequests";
-        return preUserRepository.getAllUsers();
+    @Transactional(TxType.REQUIRES_NEW)
+    public List<UserRegistrationRequest> getRequests(UUID id, String email, String phoneNumber, String username) {
+        return preUserRepository.getAllUsers(id, email, phoneNumber, username);
     }
 
     public void updateUserPassword(UpdateUserPasswordRequestDTO updateUserPasswordRequestDTO, UUID userId){
