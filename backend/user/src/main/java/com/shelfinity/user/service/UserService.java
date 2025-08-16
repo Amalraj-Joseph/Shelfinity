@@ -6,6 +6,7 @@
  */
 package com.shelfinity.user.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,9 +15,11 @@ import java.util.UUID;
 import com.shelfinity.common.logging.SFLoggable;
 import com.shelfinity.common.logging.SFLogger;
 import com.shelfinity.common.security.PasswordEncryptionService;
+import com.shelfinity.user.dto.enums.RegistrationStatus;
 import com.shelfinity.user.dto.requests.RegisterUserRequestDTO;
 import com.shelfinity.user.dto.requests.UpdateUserPasswordRequestDTO;
 import com.shelfinity.user.dto.requests.UpdateUserProfileRequestDTO;
+import com.shelfinity.user.dto.responses.UpdateRegistrationStatusResponseDTO;
 import com.shelfinity.user.entity.Address;
 import com.shelfinity.user.entity.BaseUserEntity;
 import com.shelfinity.user.entity.Name;
@@ -43,6 +46,10 @@ public class UserService {
 
     private static final String CLASS_NAME = UserService.class.getName();
     private static String METHOD_NAME;
+
+
+    private static final UUID SYSTEM_ACTOR =
+        UUID.fromString("00000000-0000-0000-0000-000000000000"); // dummy admin id for now
 
     @Inject
     private UserRepository userRepository;
@@ -286,6 +293,93 @@ public class UserService {
         if(expected != actual){
             throw new DataBaseException("A database exception occured");
         }
+    }
+
+    public UpdateRegistrationStatusResponseDTO updateRegistrationRequestStatus(
+            UUID requestId, RegistrationStatus requestedStatus, String remark) {
+
+        Optional<UserRegistrationRequest> maybeReq = preUserRepository.getUserById(requestId);
+        UserRegistrationRequest req = maybeReq.orElseThrow(() ->
+                new UserNotExistsException("Registration request not found"));
+
+        RegistrationStatus current = req.getStatus();
+        RegistrationStatus target = (requestedStatus != null) ? requestedStatus : current;
+
+        if (requestedStatus == null || requestedStatus == current) {
+
+            preUserRepository.updatePreUserStatus(req.getId(), current, remark, SYSTEM_ACTOR);
+            preUserRepository.touchLastUpdated(req.getId());
+            return toResponse(req.getId(), current, remark, false);
+        }
+
+        switch (target) {
+            case APPROVED:
+                if (current == RegistrationStatus.APPROVED) {
+                    return toResponse(req.getId(), current, remark, false);
+                }
+                ensureUserUniqueness(req);
+
+                User user = toUserEntity(req);
+                user.setEnabled(true);
+                user.setLastUpdated(Instant.now());
+                userRepository.addUser(user);
+
+                preUserRepository.deleteById(req.getId());
+
+                return toResponse(req.getId(), RegistrationStatus.APPROVED, remark, true);
+
+            case REJECTED:
+
+                preUserRepository.updatePreUserStatus(req.getId(), RegistrationStatus.REJECTED, remark, SYSTEM_ACTOR);
+                preUserRepository.touchLastUpdated(req.getId());
+                return toResponse(req.getId(), RegistrationStatus.REJECTED, remark, false);
+
+            case PENDING:
+
+                preUserRepository.updatePreUserStatus(req.getId(), RegistrationStatus.PENDING, remark, SYSTEM_ACTOR);
+                preUserRepository.touchLastUpdated(req.getId());
+                return toResponse(req.getId(), RegistrationStatus.PENDING, remark, false);
+
+            default:
+                throw new DataBaseException("Unsupported status: " + target);
+        }
+    }
+
+    private void ensureUserUniqueness(UserRegistrationRequest req) {
+        if (userRepository.getUserByUsername(req.getUsername()).isPresent()
+         || userRepository.getUserByEmail(req.getEmail()).isPresent()
+         || userRepository.getUserByPhoneNumber(req.getPhoneNumber()).isPresent()) {
+            throw new UserAlreadyExistsException("A user already exists with the same username/email/phone.");
+        }
+    }
+
+    private User toUserEntity(UserRegistrationRequest r) {
+
+        return new User.Builder()
+                .name(r.getName())
+                .dateOfBirth(r.getDateOfBirth())
+                .gender(r.getGender())
+                .username(r.getUsername())
+                .email(r.getEmail())
+                .password(r.getPassword())
+                .phoneNumber(r.getPhoneNumber())
+                .address(r.getAddress())
+                .role(r.getRole())
+                .build();
+    }
+
+    private UpdateRegistrationStatusResponseDTO toResponse(UUID id,
+                                                           RegistrationStatus status,
+                                                           String remark,
+                                                           boolean moved) {
+        UpdateRegistrationStatusResponseDTO dto = new UpdateRegistrationStatusResponseDTO();
+        dto.setId(id);
+        dto.setStatus(status);
+        dto.setRemark(remark);
+        dto.setMovedToUsers(moved);
+        dto.setUpdatedBy(SYSTEM_ACTOR);
+        dto.setLastUpdated(Instant.now());
+        return dto;
     }
 }
 

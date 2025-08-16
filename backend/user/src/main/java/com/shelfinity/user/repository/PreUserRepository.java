@@ -6,6 +6,7 @@
  */
 package com.shelfinity.user.repository;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,17 +108,31 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
         logger.info(CLASS_NAME, METHOD_NAME, String.format("New user request added: %s to reg request db.", preUser.getId().toString()));
     }
 
-    public void updatePreUserStatus(UUID id, RegistrationStatus newStatus, String remarks, UUID  admin) {
-        METHOD_NAME = "updateUserRole";
-        UserRegistrationRequest userRequest = entityManager.find(UserRegistrationRequest.class, id);
-        if (userRequest == null) {
-            logger.warning(CLASS_NAME, METHOD_NAME, String.format("Attempt to update role for non-existing user: %s", id.toString()));
-            return;
+    @Transactional
+    public void deleteById(UUID id) {
+        UserRegistrationRequest entity = entityManager.find(UserRegistrationRequest.class, id);
+        if (entity != null) {
+            entityManager.remove(entity);
         }
-        userRequest.setStatus(newStatus);
-        userRequest.setRemark(remarks);
+    }
+
+    @Transactional
+    public void touchLastUpdated(UUID id) {
+        UserRegistrationRequest entity = entityManager.find(UserRegistrationRequest.class, id);
+        if (entity != null) {
+            entity.setLastUpdated(Instant.now()); 
+            entityManager.merge(entity);
+        }
+    }
+
+    public void updatePreUserStatus(UUID id, RegistrationStatus newStatus, String remarks, UUID admin) {
+        UserRegistrationRequest userRequest = entityManager.find(UserRegistrationRequest.class, id);
+        if (userRequest == null) return;
+
+        if (newStatus != null) userRequest.setStatus(newStatus);
+        if (remarks != null) userRequest.setRemark(remarks);
         userRequest.setUpdatedBy(admin);
+        userRequest.setLastUpdated(Instant.now()); // <— add this
         entityManager.merge(userRequest);
-        logger.info(CLASS_NAME, METHOD_NAME, String.format("Status updated for user: %s, by admin: %s", userRequest.getUsername(), admin.toString()));
     }
 }

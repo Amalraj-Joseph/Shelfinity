@@ -17,9 +17,14 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.openapi.annotations.tags.Tags;
 
+import com.shelfinity.user.dto.requests.UpdateRegistrationStatusRequestDTO;
+import com.shelfinity.user.dto.responses.UpdateRegistrationStatusResponseDTO;
+
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -31,6 +36,7 @@ import jakarta.ws.rs.core.Response;
 @Tags(@Tag(name = "Queue", description = "API to manage Admin Queue"))
 public interface QueueAPI {
 
+    @GET
     @Operation(
         summary = "Admin accessing the QUEUE",
         description = "Fetch queue entries. All query params are optional and applied as filters (combined with AND).",
@@ -51,7 +57,6 @@ public interface QueueAPI {
         description = "Forbidden",
         content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
-    @GET
     Response getQueue(
         @Parameter(
             description = "Filter by request ID",
@@ -80,5 +85,27 @@ public interface QueueAPI {
             example = "alice"
         )
         @QueryParam("username") String username
+    );
+
+    @PATCH
+    @Path("/{id}")
+    @Operation(summary = "Update status/remark of a registration request (PENDING/APPROVED/REJECTED). " +
+                         "If status is omitted, only remark is updated.")
+    @APIResponse(
+        responseCode = "200",
+        description = "Updated",
+        content = @Content(schema = @Schema(implementation = UpdateRegistrationStatusResponseDTO.class))
+    )
+    @APIResponse(
+        responseCode = "404", 
+        description = "Request not found"
+    )
+    @APIResponse(
+        responseCode = "409", 
+        description = "Invalid transition (e.g., already APPROVED)"
+    )
+    Response updateRegistrationRequest(
+        @PathParam("id") UUID id,
+        UpdateRegistrationStatusRequestDTO patch
     );
 }

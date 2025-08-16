@@ -12,6 +12,8 @@ import java.util.UUID;
 import com.shelfinity.admin.api.QueueAPI;
 import com.shelfinity.admin.service.QueueService;
 import com.shelfinity.common.logging.SFLoggable;
+import com.shelfinity.user.dto.requests.UpdateRegistrationStatusRequestDTO;
+import com.shelfinity.user.dto.responses.UpdateRegistrationStatusResponseDTO;
 import com.shelfinity.user.entity.UserRegistrationRequest;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -30,5 +32,11 @@ public class QueueImpl implements QueueAPI {
         // Pass through the optional filters; service will handle nulls/empties.
         List<UserRegistrationRequest> requests = queueService.getRequests(id, email, phone, username);
         return Response.ok(requests).build();
+    }
+
+    @Override
+    public Response updateRegistrationRequest(UUID id, UpdateRegistrationStatusRequestDTO patch) {
+        UpdateRegistrationStatusResponseDTO result = queueService.updateRegistrationRequest(id, patch);
+        return Response.ok(result).build();
     }
 }

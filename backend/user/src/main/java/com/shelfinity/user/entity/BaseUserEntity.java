@@ -167,6 +167,10 @@ public abstract class BaseUserEntity {
     public Instant getLastUpdated(){
         return lastUpdated;
     }
+
+    public void setLastUpdated(Instant lastUpdated){
+        this.lastUpdated = lastUpdated;
+    }
     
     public Role getRole() {
         return role;

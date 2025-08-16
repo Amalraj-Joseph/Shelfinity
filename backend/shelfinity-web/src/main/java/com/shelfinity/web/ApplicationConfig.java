@@ -6,14 +6,12 @@
  */
 package com.shelfinity.web;
 
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
-
 import java.util.Set;
 
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 
+import com.shelfinity.admin.api.impl.QueueImpl;
 import com.shelfinity.user.api.impl.UserImpl;
 import com.shelfinity.user.api.mapper.DataBaseExceptionMapper;
 import com.shelfinity.user.api.mapper.UnauthorizedExceptionMapper;
@@ -21,7 +19,8 @@ import com.shelfinity.user.api.mapper.UserAlreadyExistsExceptionMapper;
 import com.shelfinity.user.api.mapper.UserNotExistsExceptionMapper;
 import com.shelfinity.user.api.mapper.UserServiceExceptionMapper;
 
-import com.shelfinity.admin.api.impl.QueueImpl;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 @ApplicationPath("/") // Context root is "/"
 @OpenAPIDefinition(
