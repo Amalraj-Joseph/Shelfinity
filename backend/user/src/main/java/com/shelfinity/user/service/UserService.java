@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import com.shelfinity.common.logging.SFLoggable;
 import com.shelfinity.common.logging.SFLogger;
@@ -109,6 +110,15 @@ public class UserService {
                         .role(request.getRole())
                         .build();
         insert(newUser, userRepository);
+    }
+
+    public User getUser(UUID id){
+        METHOD_NAME = "addUser";
+        Optional<User> user = userRepository.getUserById(id);
+        if (!user.isPresent()){
+            throw new UserNotExistsException();
+        }
+        return user.get();
     }
 
     public void updateUserProfile(UpdateUserProfileRequestDTO updateUserProfileRequestDTO, UUID userId){
@@ -313,7 +323,7 @@ public class UserService {
         }
 
         switch (target) {
-            case APPROVED:
+            case APPROVED -> {
                 if (current == RegistrationStatus.APPROVED) {
                     return toResponse(req.getId(), current, remark, false);
                 }
@@ -327,21 +337,21 @@ public class UserService {
                 preUserRepository.deleteById(req.getId());
 
                 return toResponse(req.getId(), RegistrationStatus.APPROVED, remark, true);
+            }
 
-            case REJECTED:
-
+            case REJECTED -> {
                 preUserRepository.updatePreUserStatus(req.getId(), RegistrationStatus.REJECTED, remark, SYSTEM_ACTOR);
                 preUserRepository.touchLastUpdated(req.getId());
                 return toResponse(req.getId(), RegistrationStatus.REJECTED, remark, false);
+            }
 
-            case PENDING:
-
+            case PENDING -> {
                 preUserRepository.updatePreUserStatus(req.getId(), RegistrationStatus.PENDING, remark, SYSTEM_ACTOR);
                 preUserRepository.touchLastUpdated(req.getId());
                 return toResponse(req.getId(), RegistrationStatus.PENDING, remark, false);
+            }
 
-            default:
-                throw new DataBaseException("Unsupported status: " + target);
+            default -> throw new DataBaseException("Unsupported status: " + target);
         }
     }
 
@@ -381,5 +391,32 @@ public class UserService {
         dto.setLastUpdated(Instant.now());
         return dto;
     }
+
+    public void updateUser(UUID id, UpdateUserProfileRequestDTO dto) {
+        User user = getUser(id);
+
+        Name name = user.getName();
+        setIfNonNull(dto.getSalutation(), name::setSalutation);
+        setIfNonNull(dto.getFirstName(),  name::setFirstName);
+        setIfNonNull(dto.getMiddleName(), name::setMiddleName);
+        setIfNonNull(dto.getLastName(),   name::setLastName);
+
+        setIfNonNull(dto.getDateOfBirth(), user::setDateOfBirth);
+        setIfNonNull(dto.getGender(),      user::setGender);
+
+        Address addr = user.getAddress();
+        setIfNonNull(dto.getStreet(),     addr::setStreet);
+        setIfNonNull(dto.getCity(),       addr::setCity);
+        setIfNonNull(dto.getState(),      addr::setState);
+        setIfNonNull(dto.getCountry(),    addr::setCountry);
+        setIfNonNull(dto.getPostalCode(), addr::setPostalCode);
+
+        userRepository.updateUserProfile(user); 
+    }
+
+    private static <T> void setIfNonNull(T value, Consumer<T> setter) {
+        if (value != null) setter.accept(value);
+    }
+
 }
 

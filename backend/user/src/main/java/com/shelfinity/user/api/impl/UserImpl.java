@@ -8,13 +8,16 @@ package com.shelfinity.user.api.impl;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import com.shelfinity.common.logging.SFLoggable;
 import com.shelfinity.common.messages.Messages;
 import com.shelfinity.user.api.UserAPI;
 import com.shelfinity.user.dto.enums.RegistrationStatus;
 import com.shelfinity.user.dto.requests.RegisterUserRequestDTO;
+import com.shelfinity.user.dto.requests.UpdateUserProfileRequestDTO;
 import com.shelfinity.user.dto.responses.RegisterUserResponseDTO;
+import com.shelfinity.user.entity.User;
 import com.shelfinity.user.service.UserService;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -45,6 +48,20 @@ public class UserImpl implements UserAPI {
         response.setMessage(Messages.resolveMessage(Messages.SFUI003, locale));
 
         return Response.status(Status.CREATED).entity(response).build();
+    }
+
+    @Override
+    public Response getUser(UUID id) {
+        // Pass through the optional filters; service will handle nulls/empties.
+        User user = userService.getUser(id);
+        return Response.ok(user).build();
+    }
+
+    @Override
+    public Response updateUser(UUID id, UpdateUserProfileRequestDTO update) {
+        // Pass through the optional filters; service will handle nulls/empties.
+        userService.updateUser(id, update);
+        return Response.ok().build();
     }
 
     private Locale getPreferredLocale() {
