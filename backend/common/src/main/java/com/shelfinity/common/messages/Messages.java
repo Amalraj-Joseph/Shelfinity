@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class Messages {
+
     private Messages() {
         // this class is not meant to be instantiated.
     }

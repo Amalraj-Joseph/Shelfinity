@@ -41,29 +41,29 @@ public class UserRegistrationRequest extends BaseUserEntity {
     private String remark;
 
     // No-args constructor (JPA requirement)
-    public UserRegistrationRequest() { }
+    public UserRegistrationRequest() {
+    }
 
     // All-args constructor (excluding generated id)
-    public UserRegistrationRequest(Name name, LocalDate dateOfBirth, Gender gender, String username, 
-                                   String email, String password, String phoneNumber, Address address, 
-                                   Role role, RegistrationStatus status, UUID updatedBy, String remark) {
+    public UserRegistrationRequest(Name name, LocalDate dateOfBirth, Gender gender, String username,
+            String email, String password, String phoneNumber, Address address,
+            Role role, RegistrationStatus status, UUID updatedBy, String remark) {
         super(
-            name,
-            dateOfBirth, 
-            gender, 
-            username,
-            email,
-            password,
-            phoneNumber,
-            address,
-            role
+                name,
+                dateOfBirth,
+                gender,
+                username,
+                email,
+                password,
+                phoneNumber,
+                address,
+                role
         );
         this.status = status != null ? status : RegistrationStatus.PENDING;
-        this.updatedBy = updatedBy != null ? updatedBy : new UUID(0L,0L);
+        this.updatedBy = updatedBy != null ? updatedBy : new UUID(0L, 0L);
     }
 
     // Getters and setters
-
     public RegistrationStatus getStatus() {
         return status;
     }
@@ -87,6 +87,7 @@ public class UserRegistrationRequest extends BaseUserEntity {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
     // Static Builder Class
     public static class Builder {
 
@@ -153,7 +154,6 @@ public class UserRegistrationRequest extends BaseUserEntity {
             return this;
         }
 
-        
         public Builder updatedBy(UUID updatedBy) {
             this.updatedBy = updatedBy;
             return this;
@@ -166,7 +166,7 @@ public class UserRegistrationRequest extends BaseUserEntity {
 
         public UserRegistrationRequest build() {
             return new UserRegistrationRequest(
-                    name, dateOfBirth, gender, username, email, password, 
+                    name, dateOfBirth, gender, username, email, password,
                     phoneNumber, address, role, status, updatedBy, remark);
         }
     }

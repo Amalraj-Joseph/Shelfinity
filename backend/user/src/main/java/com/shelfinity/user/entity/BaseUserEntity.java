@@ -26,7 +26,7 @@ import jakarta.persistence.PreUpdate;
 
 @MappedSuperclass
 public abstract class BaseUserEntity {
-    
+
     /**
      * Primary key UUID for the user.
      */
@@ -62,17 +62,17 @@ public abstract class BaseUserEntity {
 
     @Column(nullable = false)
     private Instant createdAt;
-    
+
     @Column(nullable = false)
     private Instant lastUpdated;
 
     @PreUpdate
-    public void onPreUpdate(){
+    public void onPreUpdate() {
         lastUpdated = Instant.now();
     }
 
     @PrePersist
-    public void onPrePersist(){
+    public void onPrePersist() {
         createdAt = Instant.now();
         lastUpdated = createdAt;
     }
@@ -81,21 +81,20 @@ public abstract class BaseUserEntity {
         // JPA default constructor
     }
 
-    public BaseUserEntity(Name name, LocalDate dateOfBirth, Gender gender, String username, 
-                String email, String password, String phoneNumber, Address address, Role role ) {
-        this.name        = name;
+    public BaseUserEntity(Name name, LocalDate dateOfBirth, Gender gender, String username,
+            String email, String password, String phoneNumber, Address address, Role role) {
+        this.name = name;
         this.dateOfBirth = dateOfBirth;
-        this.gender      = gender;
-        this.username    = username;
-        this.email       = email;
-        this.password    = password;
+        this.gender = gender;
+        this.username = username;
+        this.email = email;
+        this.password = password;
         this.phoneNumber = phoneNumber;
-        this.address     = address;
-        this.role        = role != null ? role : Role.USER;
+        this.address = address;
+        this.role = role != null ? role : Role.USER;
     }
 
     // --- Getters and Setters ---
-
     public UUID getId() {
         return id;
     }
@@ -104,11 +103,11 @@ public abstract class BaseUserEntity {
         this.id = id;
     }
 
-    public Name getName(){
+    public Name getName() {
         return name;
     }
 
-    public void setName(Name name){
+    public void setName(Name name) {
         this.name = name;
     }
 
@@ -144,19 +143,19 @@ public abstract class BaseUserEntity {
         this.email = email;
     }
 
-    public String getPassword(){
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password){
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public String getPhoneNumber(){
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber){
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -164,14 +163,14 @@ public abstract class BaseUserEntity {
         return createdAt;
     }
 
-    public Instant getLastUpdated(){
+    public Instant getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(Instant lastUpdated){
+    public void setLastUpdated(Instant lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
-    
+
     public Role getRole() {
         return role;
     }
@@ -180,18 +179,22 @@ public abstract class BaseUserEntity {
         this.role = role;
     }
 
-    public Address getAddress(){
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(Address address){
+    public void setAddress(Address address) {
         this.address = address;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BaseUserEntity user)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BaseUserEntity user)) {
+            return false;
+        }
         return Objects.equals(id, user.id);
     }
 

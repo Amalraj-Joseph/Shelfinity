@@ -9,6 +9,7 @@ package com.shelfinity.user.dto.responses;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.shelfinity.user.dto.enums.RegistrationStatus;
+
 /**
  * DTO representing the response after a user registration request.
  */
@@ -16,8 +17,8 @@ import com.shelfinity.user.dto.enums.RegistrationStatus;
 public class RegisterUserResponseDTO extends BaseResponseDTO<RegistrationStatus> {
 
     /**
-     * Default constructor for RegisterUserResponseDTO.
-     * Initializes a new instance of RegisterUserResponseDTO with default values.
+     * Default constructor for RegisterUserResponseDTO. Initializes a new
+     * instance of RegisterUserResponseDTO with default values.
      */
     public RegisterUserResponseDTO() {
         super();
@@ -26,8 +27,8 @@ public class RegisterUserResponseDTO extends BaseResponseDTO<RegistrationStatus>
     /**
      * Constructs a RegisterUserResponseDTO with the given parameters.
      *
-     * @param status      The operation status.
-     * @param message     Human readable message for the user
+     * @param status The operation status.
+     * @param message Human readable message for the user
      */
     public RegisterUserResponseDTO(RegistrationStatus status, String message) {
         super(status, message);

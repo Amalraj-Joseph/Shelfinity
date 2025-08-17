@@ -48,9 +48,8 @@ public class UserService {
     private static final String CLASS_NAME = UserService.class.getName();
     private static String METHOD_NAME;
 
-
-    private static final UUID SYSTEM_ACTOR =
-        UUID.fromString("00000000-0000-0000-0000-000000000000"); // dummy admin id for now
+    private static final UUID SYSTEM_ACTOR
+            = UUID.fromString("00000000-0000-0000-0000-000000000000"); // dummy admin id for now
 
     @Inject
     private UserRepository userRepository;
@@ -70,90 +69,90 @@ public class UserService {
         String encryptedPassword = passwordEncryptionService.encryptPassword(registerUserRequestDTO.getPassword());
 
         Name name = new Name.Builder()
-                            .salutation(registerUserRequestDTO.getName().getSalutation())
-                            .firstName(registerUserRequestDTO.getName().getFirstName())
-                            .middleName(registerUserRequestDTO.getName().getMiddleName())
-                            .lastName(registerUserRequestDTO.getName().getLastName())
-                            .build(); 
+                .salutation(registerUserRequestDTO.getName().getSalutation())
+                .firstName(registerUserRequestDTO.getName().getFirstName())
+                .middleName(registerUserRequestDTO.getName().getMiddleName())
+                .lastName(registerUserRequestDTO.getName().getLastName())
+                .build();
         Address address = new Address.Builder()
-                            .street(registerUserRequestDTO.getAddress().getStreet())
-                            .city(registerUserRequestDTO.getAddress().getCity())
-                            .state(registerUserRequestDTO.getAddress().getState())
-                            .postalCode(registerUserRequestDTO.getAddress().getPostalCode())
-                            .country(registerUserRequestDTO.getAddress().getCountry())
-                            .build() ;       
+                .street(registerUserRequestDTO.getAddress().getStreet())
+                .city(registerUserRequestDTO.getAddress().getCity())
+                .state(registerUserRequestDTO.getAddress().getState())
+                .postalCode(registerUserRequestDTO.getAddress().getPostalCode())
+                .country(registerUserRequestDTO.getAddress().getCountry())
+                .build();
         UserRegistrationRequest newRequest = new UserRegistrationRequest.Builder()
-                                                .name(name)
-                                                .dateOfBirth(registerUserRequestDTO.getDateOfBirth())
-                                                .gender(registerUserRequestDTO.getGender())
-                                                .username(registerUserRequestDTO.getUsername())
-                                                .email(registerUserRequestDTO.getEmail())
-                                                .password(encryptedPassword)
-                                                .phoneNumber(registerUserRequestDTO.getPhoneNumber())
-                                                .address(address)
-                                                .build();
+                .name(name)
+                .dateOfBirth(registerUserRequestDTO.getDateOfBirth())
+                .gender(registerUserRequestDTO.getGender())
+                .username(registerUserRequestDTO.getUsername())
+                .email(registerUserRequestDTO.getEmail())
+                .password(encryptedPassword)
+                .phoneNumber(registerUserRequestDTO.getPhoneNumber())
+                .address(address)
+                .build();
         System.err.println("Request \n" + newRequest.getUpdatedBy().toString());
         insert(newRequest, preUserRepository);
     }
 
-    public void addUser(UserRegistrationRequest request){
+    public void addUser(UserRegistrationRequest request) {
         METHOD_NAME = "addUser";
         User newUser = new User.Builder()
-                        .name(request.getName())
-                        .dateOfBirth(request.getDateOfBirth())
-                        .gender(request.getGender())
-                        .username(request.getUsername())
-                        .email(request.getEmail())
-                        .password(request.getPassword())
-                        .phoneNumber(request.getPhoneNumber())
-                        .address(request.getAddress())
-                        .role(request.getRole())
-                        .build();
+                .name(request.getName())
+                .dateOfBirth(request.getDateOfBirth())
+                .gender(request.getGender())
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .phoneNumber(request.getPhoneNumber())
+                .address(request.getAddress())
+                .role(request.getRole())
+                .build();
         insert(newUser, userRepository);
     }
 
-    public User getUser(UUID id){
+    public User getUser(UUID id) {
         METHOD_NAME = "addUser";
         Optional<User> user = userRepository.getUserById(id);
-        if (!user.isPresent()){
+        if (!user.isPresent()) {
             throw new UserNotExistsException();
         }
         return user.get();
     }
 
-    public void updateUserProfile(UpdateUserProfileRequestDTO updateUserProfileRequestDTO, UUID userId){
+    public void updateUserProfile(UpdateUserProfileRequestDTO updateUserProfileRequestDTO, UUID userId) {
         User user = userRepository.getUserById(userId).get();
-        if (user == null){
+        if (user == null) {
             throw new UserNotExistsException("Invalid User ID");
         }
-        Name name       = user.getName();
-        Address address = user.getAddress(); 
+        Name name = user.getName();
+        Address address = user.getAddress();
 
-        Name updatedName        = new Name.Builder()
-                                    .salutation(Objects.requireNonNullElse(updateUserProfileRequestDTO.getSalutation(), name.getSalutation()))
-                                    .firstName(Objects.requireNonNullElse(updateUserProfileRequestDTO.getFirstName(), name.getFirstName()))
-                                    .middleName(Objects.requireNonNullElse(updateUserProfileRequestDTO.getMiddleName(), name.getMiddleName()))
-                                    .lastName(Objects.requireNonNullElse(updateUserProfileRequestDTO.getLastName(), name.getLastName()))
-                                    .build();
+        Name updatedName = new Name.Builder()
+                .salutation(Objects.requireNonNullElse(updateUserProfileRequestDTO.getSalutation(), name.getSalutation()))
+                .firstName(Objects.requireNonNullElse(updateUserProfileRequestDTO.getFirstName(), name.getFirstName()))
+                .middleName(Objects.requireNonNullElse(updateUserProfileRequestDTO.getMiddleName(), name.getMiddleName()))
+                .lastName(Objects.requireNonNullElse(updateUserProfileRequestDTO.getLastName(), name.getLastName()))
+                .build();
 
-        Address updatAddress    = new Address.Builder()
-                                    .street(Objects.requireNonNullElse(updateUserProfileRequestDTO.getStreet(), address.getStreet()))
-                                    .city(Objects.requireNonNullElse(updateUserProfileRequestDTO.getCity(), address.getCity()))
-                                    .state(Objects.requireNonNullElse(updateUserProfileRequestDTO.getState(), address.getState()))
-                                    .postalCode(Objects.requireNonNullElse(updateUserProfileRequestDTO.getPostalCode(), address.getPostalCode()))
-                                    .country(Objects.requireNonNullElse(updateUserProfileRequestDTO.getCountry(), address.getCountry()))
-                                    .build();
-        
-        if(!name.equals(updatedName)){
+        Address updatAddress = new Address.Builder()
+                .street(Objects.requireNonNullElse(updateUserProfileRequestDTO.getStreet(), address.getStreet()))
+                .city(Objects.requireNonNullElse(updateUserProfileRequestDTO.getCity(), address.getCity()))
+                .state(Objects.requireNonNullElse(updateUserProfileRequestDTO.getState(), address.getState()))
+                .postalCode(Objects.requireNonNullElse(updateUserProfileRequestDTO.getPostalCode(), address.getPostalCode()))
+                .country(Objects.requireNonNullElse(updateUserProfileRequestDTO.getCountry(), address.getCountry()))
+                .build();
+
+        if (!name.equals(updatedName)) {
             user.setName(updatedName);
         }
-        if(!address.equals(updatAddress)){
+        if (!address.equals(updatAddress)) {
             user.setAddress(updatAddress);
         }
-        if(updateUserProfileRequestDTO.getGender() != null){
+        if (updateUserProfileRequestDTO.getGender() != null) {
             user.setGender(updateUserProfileRequestDTO.getGender());
         }
-        if(updateUserProfileRequestDTO.getDateOfBirth() != null){
+        if (updateUserProfileRequestDTO.getDateOfBirth() != null) {
             user.setDateOfBirth(updateUserProfileRequestDTO.getDateOfBirth());
         }
         userRepository.updateUserProfile(user);
@@ -164,12 +163,12 @@ public class UserService {
         return preUserRepository.getAllUsers(id, email, phoneNumber, username);
     }
 
-    public void updateUserPassword(UpdateUserPasswordRequestDTO updateUserPasswordRequestDTO, UUID userId){
+    public void updateUserPassword(UpdateUserPasswordRequestDTO updateUserPasswordRequestDTO, UUID userId) {
         User user = userRepository.getUserById(userId).get();
-        if (user == null){
+        if (user == null) {
             throw new UserNotExistsException("Invalid User ID");
         }
-        if (!passwordEncryptionService.checkPassword(updateUserPasswordRequestDTO.getOldPassword(), user.getPassword())){
+        if (!passwordEncryptionService.checkPassword(updateUserPasswordRequestDTO.getOldPassword(), user.getPassword())) {
             throw new UnauthorizedException("The provided old password is wrong");
         }
         String encryptedNewPassword = passwordEncryptionService.encryptPassword(updateUserPasswordRequestDTO.getNewPassword());
@@ -177,66 +176,66 @@ public class UserService {
         checkRowsAffected(1, actualRowsAffected);
     }
 
-    public void updateUserPhoneNumber(String phoneNumber, UUID userId){
+    public void updateUserPhoneNumber(String phoneNumber, UUID userId) {
         checkUserExist(userId);
         checkPhoneNumberAvailability(phoneNumber);
         int actualRowsAffected = userRepository.updateUserPhoneNumber(userId, phoneNumber);
         checkRowsAffected(1, actualRowsAffected);
     }
-    
-    public void updateUserEmail(String email, UUID userId){
+
+    public void updateUserEmail(String email, UUID userId) {
         checkUserExist(userId);
         checkEmailAvailability(email);
         int actualRowsAffected = userRepository.updateUserEmail(userId, email);
         checkRowsAffected(1, actualRowsAffected);
     }
 
-    public void updateUserUsername(String username, UUID userId){
+    public void updateUserUsername(String username, UUID userId) {
         checkUserExist(userId);
         validateUsername(username);
         int actualRowsAffected = userRepository.updateUserUsername(userId, username);
         checkRowsAffected(1, actualRowsAffected);
     }
 
-    public void toggleLocked(UUID userId){
+    public void toggleLocked(UUID userId) {
         checkUserExist(userId);
         int actualRowsAffected = userRepository.toggleUserLock(userId);
         checkRowsAffected(1, actualRowsAffected);
     }
 
-    public void toggleEnabled(UUID userId){
+    public void toggleEnabled(UUID userId) {
         checkUserExist(userId);
         int actualRowsAffected = userRepository.toggleUserEnabled(userId);
         checkRowsAffected(1, actualRowsAffected);
     }
 
-    public void updateLastLogin(UUID userId){
+    public void updateLastLogin(UUID userId) {
         checkUserExist(userId);
         int actualRowsAffected = userRepository.updateLastLogin(userId);
         checkRowsAffected(1, actualRowsAffected);
     }
 
-    public UUID checkAuthorization(String username, String password ){
+    public UUID checkAuthorization(String username, String password) {
         User user = userRepository.getUserByUsername(username).get();
-        if(user == null){
+        if (user == null) {
             throw new UserNotExistsException("Invalid Username");
         }
-        if(!passwordEncryptionService.checkPassword(password, user.getPassword())){
+        if (!passwordEncryptionService.checkPassword(password, user.getPassword())) {
             throw new UnauthorizedException("The provided old password is wrong");
         }
         return user.getId();
     }
 
-    public void checkUserExist(UUID userId){
+    public void checkUserExist(UUID userId) {
         User user = userRepository.getUserById(userId).get();
-        if (user == null){
+        if (user == null) {
             throw new UserNotExistsException("Invalid User ID");
         }
     }
 
-    private <T extends BaseUserEntity, P extends BaseUserRepository<T>> void insert(T user, P repository){
+    private <T extends BaseUserEntity, P extends BaseUserRepository<T>> void insert(T user, P repository) {
         METHOD_NAME = "insert";
-        try{
+        try {
             // Retry mechanism (basic retry for database operation)
             boolean success = false;
             int retryCount = 3;
@@ -259,48 +258,48 @@ public class UserService {
         }
     }
 
-    private void validateRegistrationRequest(RegisterUserRequestDTO registerUserRequestDTO){
+    private void validateRegistrationRequest(RegisterUserRequestDTO registerUserRequestDTO) {
         validatePhoneNumber(registerUserRequestDTO.getPhoneNumber());
         validateEmail(registerUserRequestDTO.getEmail());
         validateUsername(registerUserRequestDTO.getUsername());
     }
 
-    private void checkPhoneNumberAvailability(String phoneNumber){
+    private void checkPhoneNumberAvailability(String phoneNumber) {
         validatePhoneNumber(phoneNumber);
         //TODO: Implement 2FA
     }
 
-    private void checkEmailAvailability(String email){
+    private void checkEmailAvailability(String email) {
         validateEmail(email);
         //TODO: Implement 2FA
     }
 
-    private void validatePhoneNumber(String phoneNumber){
+    private void validatePhoneNumber(String phoneNumber) {
         Optional<User> existingUser = userRepository.getUserByPhoneNumber(phoneNumber);
         Optional<UserRegistrationRequest> request = preUserRepository.getUserByPhoneNumber(phoneNumber);
-        if(existingUser.isPresent() || request.isPresent()){
+        if (existingUser.isPresent() || request.isPresent()) {
             throw new UserAlreadyExistsException("User or registration request with this Phone Number already exists.");
         }
     }
 
-    private void validateEmail(String email){
+    private void validateEmail(String email) {
         Optional<User> existingUser = userRepository.getUserByEmail(email);
         Optional<UserRegistrationRequest> request = preUserRepository.getUserByEmail(email);
-        if(existingUser.isPresent() || request.isPresent()){
+        if (existingUser.isPresent() || request.isPresent()) {
             throw new UserAlreadyExistsException("User or registration request with this email already exists.");
-        }       
+        }
     }
 
-    private void validateUsername(String username){
+    private void validateUsername(String username) {
         Optional<User> existingUser = userRepository.getUserByUsername(username);
         Optional<UserRegistrationRequest> request = preUserRepository.getUserByUsername(username);
-        if(existingUser.isPresent() || request.isPresent()){
+        if (existingUser.isPresent() || request.isPresent()) {
             throw new UserAlreadyExistsException("User or registration request with this username already exists.");
         }
     }
 
-    private void checkRowsAffected(int expected, int actual){
-        if(expected != actual){
+    private void checkRowsAffected(int expected, int actual) {
+        if (expected != actual) {
             throw new DataBaseException("A database exception occured");
         }
     }
@@ -309,8 +308,8 @@ public class UserService {
             UUID requestId, RegistrationStatus requestedStatus, String remark) {
 
         Optional<UserRegistrationRequest> maybeReq = preUserRepository.getUserById(requestId);
-        UserRegistrationRequest req = maybeReq.orElseThrow(() ->
-                new UserNotExistsException("Registration request not found"));
+        UserRegistrationRequest req = maybeReq.orElseThrow(()
+                -> new UserNotExistsException("Registration request not found"));
 
         RegistrationStatus current = req.getStatus();
         RegistrationStatus target = (requestedStatus != null) ? requestedStatus : current;
@@ -351,14 +350,15 @@ public class UserService {
                 return toResponse(req.getId(), RegistrationStatus.PENDING, remark, false);
             }
 
-            default -> throw new DataBaseException("Unsupported status: " + target);
+            default ->
+                throw new DataBaseException("Unsupported status: " + target);
         }
     }
 
     private void ensureUserUniqueness(UserRegistrationRequest req) {
         if (userRepository.getUserByUsername(req.getUsername()).isPresent()
-         || userRepository.getUserByEmail(req.getEmail()).isPresent()
-         || userRepository.getUserByPhoneNumber(req.getPhoneNumber()).isPresent()) {
+                || userRepository.getUserByEmail(req.getEmail()).isPresent()
+                || userRepository.getUserByPhoneNumber(req.getPhoneNumber()).isPresent()) {
             throw new UserAlreadyExistsException("A user already exists with the same username/email/phone.");
         }
     }
@@ -379,9 +379,9 @@ public class UserService {
     }
 
     private UpdateRegistrationStatusResponseDTO toResponse(UUID id,
-                                                           RegistrationStatus status,
-                                                           String remark,
-                                                           boolean moved) {
+            RegistrationStatus status,
+            String remark,
+            boolean moved) {
         UpdateRegistrationStatusResponseDTO dto = new UpdateRegistrationStatusResponseDTO();
         dto.setId(id);
         dto.setStatus(status);
@@ -397,26 +397,27 @@ public class UserService {
 
         Name name = user.getName();
         setIfNonNull(dto.getSalutation(), name::setSalutation);
-        setIfNonNull(dto.getFirstName(),  name::setFirstName);
+        setIfNonNull(dto.getFirstName(), name::setFirstName);
         setIfNonNull(dto.getMiddleName(), name::setMiddleName);
-        setIfNonNull(dto.getLastName(),   name::setLastName);
+        setIfNonNull(dto.getLastName(), name::setLastName);
 
         setIfNonNull(dto.getDateOfBirth(), user::setDateOfBirth);
-        setIfNonNull(dto.getGender(),      user::setGender);
+        setIfNonNull(dto.getGender(), user::setGender);
 
         Address addr = user.getAddress();
-        setIfNonNull(dto.getStreet(),     addr::setStreet);
-        setIfNonNull(dto.getCity(),       addr::setCity);
-        setIfNonNull(dto.getState(),      addr::setState);
-        setIfNonNull(dto.getCountry(),    addr::setCountry);
+        setIfNonNull(dto.getStreet(), addr::setStreet);
+        setIfNonNull(dto.getCity(), addr::setCity);
+        setIfNonNull(dto.getState(), addr::setState);
+        setIfNonNull(dto.getCountry(), addr::setCountry);
         setIfNonNull(dto.getPostalCode(), addr::setPostalCode);
 
-        userRepository.updateUserProfile(user); 
+        userRepository.updateUserProfile(user);
     }
 
     private static <T> void setIfNonNull(T value, Consumer<T> setter) {
-        if (value != null) setter.accept(value);
+        if (value != null) {
+            setter.accept(value);
+        }
     }
 
 }
-

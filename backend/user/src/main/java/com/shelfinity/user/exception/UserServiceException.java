@@ -7,12 +7,12 @@
 package com.shelfinity.user.exception;
 
 public class UserServiceException extends RuntimeException {
-    
-    public UserServiceException(){
+
+    public UserServiceException() {
         super();
     }
 
-    public UserServiceException(Throwable cause){
+    public UserServiceException(Throwable cause) {
         super(cause);
     }
 

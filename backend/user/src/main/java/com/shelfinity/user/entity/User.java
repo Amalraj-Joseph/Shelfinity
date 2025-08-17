@@ -18,8 +18,8 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 
 /**
- * Entity representing a user in the system.
- * Mapped to the "users" table in the database.
+ * Entity representing a user in the system. Mapped to the "users" table in the
+ * database.
  */
 @Entity
 @Table(name = "users")
@@ -40,7 +40,7 @@ import jakarta.persistence.Table;
 @NamedQuery(name = "User.toggleLocked", query = "UPDATE User u SET u.locked = CASE WHEN u.locked = true THEN false ELSE true END, u.lastUpdated = :lastUpdated WHERE u.id = :id")
 @NamedQuery(name = "User.toggleEnabled", query = "UPDATE User u SET u.enabled = CASE WHEN u.enabled = true THEN false ELSE true END, u.lastUpdated = :lastUpdated WHERE u.id = :id")
 @NamedQuery(name = "User.updateLastLogin", query = "UPDATE User u SET u.lastLogin = :lastLogin WHERE u.id = :id")
-public class User extends BaseUserEntity{
+public class User extends BaseUserEntity {
 
     private Instant lastLogin;
 
@@ -55,18 +55,18 @@ public class User extends BaseUserEntity{
     }
 
     public User(Name name, LocalDate dateOfBirth, Gender gender, String username, String email, String password,
-                String phoneNumber, Address address, Role role, Instant lastLogin, boolean locked, 
-                boolean enabled) {
+            String phoneNumber, Address address, Role role, Instant lastLogin, boolean locked,
+            boolean enabled) {
         super(
-            name, 
-            dateOfBirth, 
-            gender, 
-            username,
-            email,
-            password,
-            phoneNumber,
-            address,
-            role
+                name,
+                dateOfBirth,
+                gender,
+                username,
+                email,
+                password,
+                phoneNumber,
+                address,
+                role
         );
         this.lastLogin = lastLogin;
         this.locked = locked;
@@ -74,7 +74,6 @@ public class User extends BaseUserEntity{
     }
 
     // --- Getters and Setters ---
-
     public Instant getLastLogin() {
         return lastLogin;
     }
@@ -100,6 +99,7 @@ public class User extends BaseUserEntity{
     }
 
     public static class Builder {
+
         private Name name;
         private LocalDate dateOfBirth;
         private Gender gender;
@@ -175,8 +175,8 @@ public class User extends BaseUserEntity{
 
         public User build() {
             return new User(
-                name, dateOfBirth, gender, username, email, password,
-                phoneNumber, address, role, lastLogin, locked, enabled
+                    name, dateOfBirth, gender, username, email, password,
+                    phoneNumber, address, role, lastLogin, locked, enabled
             );
         }
     }

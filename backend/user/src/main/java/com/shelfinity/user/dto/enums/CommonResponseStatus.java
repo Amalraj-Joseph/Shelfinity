@@ -9,7 +9,8 @@ package com.shelfinity.user.dto.enums;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /**
- * Enum representing the common response status for generic success or failure cases.
+ * Enum representing the common response status for generic success or failure
+ * cases.
  */
 @Schema(description = "The common response status indicating success or failure")
 public enum CommonResponseStatus implements BaseStatus {
@@ -19,7 +20,6 @@ public enum CommonResponseStatus implements BaseStatus {
      */
     @Schema(description = "The operation was successful")
     SUCCESS("success"),
-
     /**
      * Indicates the operation failed.
      */
@@ -46,7 +46,8 @@ public enum CommonResponseStatus implements BaseStatus {
      * Gets a CommonResponseStatus enum from a string value.
      *
      * @param statusName The name of the status.
-     * @return The CommonResponseStatus enum corresponding to the provided string.
+     * @return The CommonResponseStatus enum corresponding to the provided
+     * string.
      * @throws IllegalArgumentException If the status name is invalid.
      */
     public static CommonResponseStatus fromString(String statusName) {

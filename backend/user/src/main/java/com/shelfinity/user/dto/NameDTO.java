@@ -9,11 +9,12 @@ package com.shelfinity.user.dto;
 import java.util.Objects;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import com.shelfinity.user.dto.enums.Salutation;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import com.shelfinity.user.dto.enums.Salutation;
 
 /**
  * Data Transfer Object (DTO) representing the name of a user.
@@ -38,25 +39,26 @@ public class NameDTO {
     @Size(max = 50, message = "Last name must not exceed 50 characters")
     private String lastName;
 
-    public NameDTO() { }
+    public NameDTO() {
+    }
 
     /**
-     * Constructs a RegisterUserRequestDTO with all required and optional user profile details.
+     * Constructs a RegisterUserRequestDTO with all required and optional user
+     * profile details.
      *
-     * @param salutation   The user's salutation (e.g., Mr, Ms, Dr).
-     * @param firstName    The user's first name.
-     * @param middleName   The user's middle name (optional).
-     * @param lastName     The user's last name.
-     */ 
+     * @param salutation The user's salutation (e.g., Mr, Ms, Dr).
+     * @param firstName The user's first name.
+     * @param middleName The user's middle name (optional).
+     * @param lastName The user's last name.
+     */
     public NameDTO(Salutation salutation, String firstName, String middleName, String lastName) {
         this.salutation = salutation;
-        this.firstName  = firstName;
+        this.firstName = firstName;
         this.middleName = middleName;
-        this.lastName   = lastName;
+        this.lastName = lastName;
     }
 
     // --- Getters and Setters ---
-
     public Salutation getSalutation() {
         return salutation;
     }
@@ -90,15 +92,18 @@ public class NameDTO {
     }
 
     // --- equals & hashCode ---
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof NameDTO nameDto)) return false;
-        return salutation == nameDto.salutation &&
-               Objects.equals(firstName, nameDto.firstName) &&
-               Objects.equals(middleName, nameDto.middleName) &&
-               Objects.equals(lastName, nameDto.lastName);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NameDTO nameDto)) {
+            return false;
+        }
+        return salutation == nameDto.salutation
+                && Objects.equals(firstName, nameDto.firstName)
+                && Objects.equals(middleName, nameDto.middleName)
+                && Objects.equals(lastName, nameDto.lastName);
     }
 
     @Override
@@ -107,8 +112,8 @@ public class NameDTO {
     }
 
     // --- Builder pattern ---
-
     public static class Builder {
+
         private Salutation salutation;
         private String firstName;
         private String middleName;
@@ -143,4 +148,3 @@ public class NameDTO {
         return new Builder();
     }
 }
-

@@ -10,6 +10,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import com.shelfinity.user.dto.enums.Role;
+
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
@@ -20,11 +23,10 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.shelfinity.user.dto.enums.Role;
-
 /**
- * Data Transfer Object (DTO) representing a user in the system, used for data transfer over REST APIs.
- * This class contains the user data that will be sent to/from the client and does not contain any database logic.
+ * Data Transfer Object (DTO) representing a user in the system, used for data
+ * transfer over REST APIs. This class contains the user data that will be sent
+ * to/from the client and does not contain any database logic.
  */
 @Schema(description = "User DTO representing a user in the system")
 public class UserDTO {
@@ -45,8 +47,8 @@ public class UserDTO {
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
-        message = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
+            message = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
     )
     private String password;
 
@@ -84,8 +86,8 @@ public class UserDTO {
     private boolean enabled;
 
     /**
-     * Default constructor for UserDTO.
-     * Initializes a new instance of UserDTO with default values.
+     * Default constructor for UserDTO. Initializes a new instance of UserDTO
+     * with default values.
      */
     public UserDTO() {
         // Default constructor
@@ -94,19 +96,19 @@ public class UserDTO {
     /**
      * Constructs a UserDTO with the given parameters.
      *
-     * @param name        The full name of the user.
-     * @param email       The email of the user (also used as the unique identifier).
-     * @param password    The user's password.
+     * @param name The full name of the user.
+     * @param email The email of the user (also used as the unique identifier).
+     * @param password The user's password.
      * @param phoneNumber The phone number of the user.
-     * @param address     The address of the user.
-     * @param role        The role of the user.
-     * @param createdAt   The creation timestamp of the user.
-     * @param lastLogin   The last login timestamp of the user.
-     * @param locked      Whether the user is locked.
-     * @param enabled     Whether the user is enabled.
+     * @param address The address of the user.
+     * @param role The role of the user.
+     * @param createdAt The creation timestamp of the user.
+     * @param lastLogin The last login timestamp of the user.
+     * @param locked Whether the user is locked.
+     * @param enabled Whether the user is enabled.
      */
     public UserDTO(String name, String email, String password, String phoneNumber, String address, Role role,
-                   Instant createdAt, Instant lastLogin, boolean locked, boolean enabled) {
+            Instant createdAt, Instant lastLogin, boolean locked, boolean enabled) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -126,17 +128,17 @@ public class UserDTO {
      */
     @Override
     public String toString() {
-        return "UserDTO{" +
-                "name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", address='" + address + '\'' +
-                ", role=" + role +
-                ", createdAt=" + createdAt +
-                ", lastLogin=" + lastLogin +
-                ", locked=" + locked +
-                ", enabled=" + enabled +
-                '}';
+        return "UserDTO{"
+                + "name='" + name + '\''
+                + ", email='" + email + '\''
+                + ", phoneNumber='" + phoneNumber + '\''
+                + ", address='" + address + '\''
+                + ", role=" + role
+                + ", createdAt=" + createdAt
+                + ", lastLogin=" + lastLogin
+                + ", locked=" + locked
+                + ", enabled=" + enabled
+                + '}';
     }
 
     /**
@@ -147,17 +149,21 @@ public class UserDTO {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         UserDTO userDTO = (UserDTO) o;
-        return locked == userDTO.locked && enabled == userDTO.enabled &&
-                Objects.equals(name, userDTO.name) &&
-                Objects.equals(email, userDTO.email) &&
-                Objects.equals(phoneNumber, userDTO.phoneNumber) &&
-                Objects.equals(address, userDTO.address) &&
-                role == userDTO.role &&
-                Objects.equals(createdAt, userDTO.createdAt) &&
-                Objects.equals(lastLogin, userDTO.lastLogin);
+        return locked == userDTO.locked && enabled == userDTO.enabled
+                && Objects.equals(name, userDTO.name)
+                && Objects.equals(email, userDTO.email)
+                && Objects.equals(phoneNumber, userDTO.phoneNumber)
+                && Objects.equals(address, userDTO.address)
+                && role == userDTO.role
+                && Objects.equals(createdAt, userDTO.createdAt)
+                && Objects.equals(lastLogin, userDTO.lastLogin);
     }
 
     /**
@@ -171,7 +177,6 @@ public class UserDTO {
     }
 
     // Getters and Setters
-
     public String getName() {
         return name;
     }

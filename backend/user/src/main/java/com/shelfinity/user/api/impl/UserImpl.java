@@ -34,7 +34,8 @@ public class UserImpl implements UserAPI {
     @Inject
     private UserService userService;
 
-    @Context HttpHeaders headers;
+    @Context
+    HttpHeaders headers;
 
     @Override
     public Response registerUser(RegisterUserRequestDTO request) {

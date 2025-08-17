@@ -36,120 +36,118 @@ import jakarta.ws.rs.core.Response;
 @Path("/user")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Tags(@Tag(name = "users", description = "API to manage user resources"))
+@Tags(
+        @Tag(name = "users", description = "API to manage user resources"))
 public interface UserAPI {
 
     @POST
     @Operation(
-        summary = "New user registration request",
-        description = "A new user submits his/her registration form",
-        operationId = "register_user"
+            summary = "New user registration request",
+            description = "A new user submits his/her registration form",
+            operationId = "register_user"
     )
     @APIResponse(
-        responseCode = "201",
-        description = "Successful operation",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "201",
+            description = "Successful operation",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "409",
-        description = "User already exists",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "409",
+            description = "User already exists",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "400",
-        description = "Bad Request",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     Response registerUser(
-        @RequestBody(
-            description = "Values needed for submitting a registration request.",
-            content = @Content(
-                mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = RegisterUserRequestDTO.class)
+            @RequestBody(
+                    description = "Values needed for submitting a registration request.",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = RegisterUserRequestDTO.class)
+                    )
             )
-        )
-        @NotNull
-        @Valid
-        RegisterUserRequestDTO request
+            @NotNull
+            @Valid RegisterUserRequestDTO request
     );
 
     @Path("/{id}")
     @GET
     @Operation(
-        summary = "Accessing a User Entity",
-        description = "Fetching a User record from the DB.",
-        operationId = "view_user"
+            summary = "Accessing a User Entity",
+            description = "Fetching a User record from the DB.",
+            operationId = "view_user"
     )
     @APIResponse(
-        responseCode = "200",
-        description = "Successful operation",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "200",
+            description = "Successful operation",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "401",
-        description = "Unauthorized",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "401",
+            description = "Unauthorized",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "403",
-        description = "Forbidden",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "403",
+            description = "Forbidden",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "404",
-        description = "Not Found",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "404",
+            description = "Not Found",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     Response getUser(
-        @Parameter(
-            description = "Filter by request ID",
-            schema = @Schema(type = SchemaType.STRING, format = "uuid"),
-            example = "a1b2c3d4-1111-2222-3333-444455556666"
-        )
-        @PathParam("id") UUID id
+            @Parameter(
+                    description = "Filter by request ID",
+                    schema = @Schema(type = SchemaType.STRING, format = "uuid"),
+                    example = "a1b2c3d4-1111-2222-3333-444455556666"
+            )
+            @PathParam("id") UUID id
     );
 
     @Path("/{id}")
     @PUT
     @Operation(
-        summary = "Updating a User Entity",
-        description = "Fetching a User record from the DB.",
-        operationId = "update_user"
+            summary = "Updating a User Entity",
+            description = "Fetching a User record from the DB.",
+            operationId = "update_user"
     )
     @APIResponse(
-        responseCode = "200",
-        description = "Successful operation",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "200",
+            description = "Successful operation",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "401",
-        description = "Unauthorized",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "401",
+            description = "Unauthorized",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "403",
-        description = "Forbidden",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "403",
+            description = "Forbidden",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "404",
-        description = "Not Found",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "404",
+            description = "Not Found",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
-        responseCode = "400",
-        description = "Bad Request",
-        content = @Content(mediaType = MediaType.APPLICATION_JSON)
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     Response updateUser(
-        @Parameter(
-            description = "Filter by request ID",
-            schema = @Schema(type = SchemaType.STRING, format = "uuid"),
-            example = "a1b2c3d4-1111-2222-3333-444455556666"
-        )
-        @PathParam("id") UUID id,
-
-        @Valid
-        UpdateUserProfileRequestDTO update
+            @Parameter(
+                    description = "Filter by request ID",
+                    schema = @Schema(type = SchemaType.STRING, format = "uuid"),
+                    example = "a1b2c3d4-1111-2222-3333-444455556666"
+            )
+            @PathParam("id") UUID id,
+            @Valid UpdateUserProfileRequestDTO update
     );
 }

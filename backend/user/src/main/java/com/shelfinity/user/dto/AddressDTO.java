@@ -9,11 +9,11 @@ package com.shelfinity.user.dto;
 import java.util.Objects;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class AddressDTO {
-
 
     @Schema(description = "Street address", example = "123 Main St", required = true)
     @NotBlank(message = "Street is required")
@@ -40,7 +40,8 @@ public class AddressDTO {
     @Size(max = 50, message = "Country must not exceed 50 characters")
     private String country;
 
-    public AddressDTO() { }
+    public AddressDTO() {
+    }
 
     public AddressDTO(String street, String city, String state, String postalCode, String country) {
         this.street = street;
@@ -51,7 +52,6 @@ public class AddressDTO {
     }
 
     // --- Getters and Setters ---
-
     public String getStreet() {
         return street;
     }
@@ -93,16 +93,19 @@ public class AddressDTO {
     }
 
     // --- equals & hashCode ---
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AddressDTO that)) return false;
-        return Objects.equals(street, that.street) &&
-               Objects.equals(city, that.city) &&
-               Objects.equals(state, that.state) &&
-               Objects.equals(postalCode, that.postalCode) &&
-               Objects.equals(country, that.country);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AddressDTO that)) {
+            return false;
+        }
+        return Objects.equals(street, that.street)
+                && Objects.equals(city, that.city)
+                && Objects.equals(state, that.state)
+                && Objects.equals(postalCode, that.postalCode)
+                && Objects.equals(country, that.country);
     }
 
     @Override
@@ -111,8 +114,8 @@ public class AddressDTO {
     }
 
     // --- Builder pattern ---
-
     public static class Builder {
+
         private String street;
         private String city;
         private String state;

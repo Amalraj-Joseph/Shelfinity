@@ -27,8 +27,8 @@ public class BaseResponseDTO<T extends BaseStatus> {
     private T status;
 
     /**
-     * Default constructor for BaseResponseDTO.
-     * Initializes a new instance of BaseResponseDTO with default values.
+     * Default constructor for BaseResponseDTO. Initializes a new instance of
+     * BaseResponseDTO with default values.
      */
     public BaseResponseDTO() {
         // Default constructor
@@ -37,8 +37,8 @@ public class BaseResponseDTO<T extends BaseStatus> {
     /**
      * Constructs a BaseResponseDTO with the given parameters.
      *
-     * @param status      The operation status.
-     * @param message     Human readable message for the user
+     * @param status The operation status.
+     * @param message Human readable message for the user
      */
     public BaseResponseDTO(T status, String message) {
         this.status = status;
@@ -52,10 +52,10 @@ public class BaseResponseDTO<T extends BaseStatus> {
      */
     @Override
     public String toString() {
-        return "BaseResponseDTO{" +
-                "status=" + status +
-                ", message='" + message + '\'' +
-                '}';
+        return "BaseResponseDTO{"
+                + "status=" + status
+                + ", message='" + message + '\''
+                + '}';
     }
 
     /**
@@ -66,11 +66,15 @@ public class BaseResponseDTO<T extends BaseStatus> {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BaseResponseDTO)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BaseResponseDTO)) {
+            return false;
+        }
         BaseResponseDTO<?> that = (BaseResponseDTO<?>) o;
-        return Objects.equals(status, that.status) &&
-               Objects.equals(message, that.message);
+        return Objects.equals(status, that.status)
+                && Objects.equals(message, that.message);
     }
 
     /**
@@ -84,7 +88,6 @@ public class BaseResponseDTO<T extends BaseStatus> {
     }
 
     // Getters and Setters below
-    
     public String getMessage() {
         return message;
     }

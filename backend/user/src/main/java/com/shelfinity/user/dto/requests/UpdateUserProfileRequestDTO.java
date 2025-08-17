@@ -69,8 +69,8 @@ public class UpdateUserProfileRequestDTO {
     private String country;
 
     /**
-     * Default constructor for UpdateUserProfileRequestDTO.
-     * Initializes a new instance of UpdateUserProfileRequestDTO with default values.
+     * Default constructor for UpdateUserProfileRequestDTO. Initializes a new
+     * instance of UpdateUserProfileRequestDTO with default values.
      */
     public UpdateUserProfileRequestDTO() {
         // Default constructor
@@ -79,16 +79,16 @@ public class UpdateUserProfileRequestDTO {
     /**
      * Constructs a UpdateUserProfileRequestDTO with the given parameters.
      *
-     * @param salutation   The user's salutation (e.g., Mr, Ms, Dr).
-     * @param firstName    The user's first name.
-     * @param middleName   The user's middle name (optional).
-     * @param lastName     The user's last name.
-     * @param dateOfBirth  The user's date of birth.
-     * @param gender       The user's gender (optional).
+     * @param salutation The user's salutation (e.g., Mr, Ms, Dr).
+     * @param firstName The user's first name.
+     * @param middleName The user's middle name (optional).
+     * @param lastName The user's last name.
+     * @param dateOfBirth The user's date of birth.
+     * @param gender The user's gender (optional).
      */
-    public UpdateUserProfileRequestDTO(Salutation salutation, String firstName, String middleName, String lastName, 
-                                       LocalDate dateOfBirth, Gender gender, String street, String city, String state, 
-                                       String postalCode, String country) {
+    public UpdateUserProfileRequestDTO(Salutation salutation, String firstName, String middleName, String lastName,
+            LocalDate dateOfBirth, Gender gender, String street, String city, String state,
+            String postalCode, String country) {
         this.salutation = salutation;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -103,35 +103,41 @@ public class UpdateUserProfileRequestDTO {
     }
 
     /**
-     * Provides a string representation of the UpdateUserProfileRequestDTO object.
+     * Provides a string representation of the UpdateUserProfileRequestDTO
+     * object.
      *
      * @return A string containing the UpdateUserProfileRequestDTO information.
      */
     @Override
     public String toString() {
-        return "UserDTO{" +
-                "salutation='" + salutation + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
+        return "UserDTO{"
+                + "salutation='" + salutation + '\''
+                + ", firstName='" + firstName + '\''
+                + ", middleName='" + middleName + '\''
+                + ", lastName='" + lastName + '\''
+                + '}';
     }
 
     /**
-     * Compares this UpdateUserProfileRequestDTO object to another object for equality.
+     * Compares this UpdateUserProfileRequestDTO object to another object for
+     * equality.
      *
      * @param o The object to compare.
      * @return true if the objects are equal, otherwise false.
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         UpdateUserProfileRequestDTO updateUserRequestDTO = (UpdateUserProfileRequestDTO) o;
-        return  Objects.equals(salutation, updateUserRequestDTO.salutation) &&
-                Objects.equals(firstName, updateUserRequestDTO.firstName) &&
-                Objects.equals(middleName, updateUserRequestDTO.middleName) &&
-                Objects.equals(lastName, updateUserRequestDTO.lastName);
+        return Objects.equals(salutation, updateUserRequestDTO.salutation)
+                && Objects.equals(firstName, updateUserRequestDTO.firstName)
+                && Objects.equals(middleName, updateUserRequestDTO.middleName)
+                && Objects.equals(lastName, updateUserRequestDTO.lastName);
     }
 
     /**
@@ -145,12 +151,11 @@ public class UpdateUserProfileRequestDTO {
     }
 
     // Getters and Setters
-
-    public Salutation getSalutation(){
+    public Salutation getSalutation() {
         return salutation;
     }
 
-    public void setSalutation(Salutation salutation){
+    public void setSalutation(Salutation salutation) {
         this.salutation = salutation;
     }
 
@@ -178,19 +183,19 @@ public class UpdateUserProfileRequestDTO {
         this.lastName = lastName;
     }
 
-    public LocalDate getDateOfBirth(){
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth){
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Gender getGender(){
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(Gender gender){
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 

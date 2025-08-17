@@ -8,7 +8,6 @@ package com.shelfinity.user.dto.enums;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-
 /**
  * Enum representing the different roles a user can have in the system.
  */
@@ -20,7 +19,6 @@ public enum Role {
      */
     @Schema(description = "Administrator with full access to the system")
     ADMIN("admin"),
-
     /**
      * Represents a general user with limited access.
      */
@@ -44,7 +42,7 @@ public enum Role {
 
     /**
      * Gets a Role enum from a string value.
-     * 
+     *
      * @param roleName The name of the role.
      * @return The Role enum corresponding to the provided string.
      * @throws IllegalArgumentException If the role name is invalid.

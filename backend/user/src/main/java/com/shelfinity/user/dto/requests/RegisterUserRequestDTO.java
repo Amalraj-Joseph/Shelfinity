@@ -10,6 +10,12 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import com.shelfinity.common.annotations.agerange.AgeRange;
+import com.shelfinity.user.dto.AddressDTO;
+import com.shelfinity.user.dto.NameDTO;
+import com.shelfinity.user.dto.enums.Gender;
+
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -18,13 +24,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.shelfinity.common.annotations.agerange.AgeRange;
-import com.shelfinity.user.dto.AddressDTO;
-import com.shelfinity.user.dto.NameDTO;
-import com.shelfinity.user.dto.enums.Gender;
 /**
- * Data Transfer Object (DTO) used for submitting registration request of a new user via 
- * REST APIs. This class captures the data needed from the client during user registration.
+ * Data Transfer Object (DTO) used for submitting registration request of a new
+ * user via REST APIs. This class captures the data needed from the client
+ * during user registration.
  */
 @Schema(description = "DTO representing the request payload for registering a new user")
 public class RegisterUserRequestDTO {
@@ -46,11 +49,11 @@ public class RegisterUserRequestDTO {
     @NotBlank(message = "Username is required")
     @Size(min = 4, max = 30, message = "Username must be between 4 and 30 characters")
     @Pattern(
-        regexp = "^[a-zA-Z0-9._-]+$",
-        message = "Username can only contain letters, numbers, dots (.), underscores (_) and hyphens (-)"
+            regexp = "^[a-zA-Z0-9._-]+$",
+            message = "Username can only contain letters, numbers, dots (.), underscores (_) and hyphens (-)"
     )
     private String username;
-    
+
     @Schema(description = "Email of the user", example = "john.doe@example.com", required = true)
     @JsonbProperty("id")
     @NotBlank(message = "Email is required")
@@ -58,46 +61,48 @@ public class RegisterUserRequestDTO {
     @Size(max = 100, message = "Email must not exceed 100 characters")
     private String email;
 
-    @Schema(description = "User's password", example="Abcd1234!", required = true)
+    @Schema(description = "User's password", example = "Abcd1234!", required = true)
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
-        message = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
+            message = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
     )
     private String password;
 
     @Schema(description = "Phone number with country code", example = "+91-1876543210", required = true)
     @NotBlank(message = "Phone number is required")
     @Pattern(
-        regexp = "^\\+[1-9]{1,3}-[0-9]{7,12}$",
-        message = "Phone number must be in the format +<country_code>-<number> (e.g., +91-1876543210)"
+            regexp = "^\\+[1-9]{1,3}-[0-9]{7,12}$",
+            message = "Phone number must be in the format +<country_code>-<number> (e.g., +91-1876543210)"
     )
     private String phoneNumber;
-    
+
     @Schema(description = "Address of the user", required = true)
     @NotNull(message = "Address is required")
     @Valid
     private AddressDTO address;
 
     /**
-     * Default constructor for RegisterUserRequestDTO.
-     * Initializes a new instance of RegisterUserRequestDTO with default values.
+     * Default constructor for RegisterUserRequestDTO. Initializes a new
+     * instance of RegisterUserRequestDTO with default values.
      */
     public RegisterUserRequestDTO() {
         // Default constructor
     }
 
     /**
-     * Constructs a RegisterUserRequestDTO with all required and optional user profile details.
-     * @param name         The user's name.
-     * @param dateOfBirth  The user's date of birth.
-     * @param gender       The user's gender (optional).
-     * @param username     The unique username of the user.
-     * @param email        The email of the user (used as identifier).
-     * @param password     The user's password.
-     * @param phoneNumber  The user's phone number with country code.
-     * @param address      The user's address.
+     * Constructs a RegisterUserRequestDTO with all required and optional user
+     * profile details.
+     *
+     * @param name The user's name.
+     * @param dateOfBirth The user's date of birth.
+     * @param gender The user's gender (optional).
+     * @param username The unique username of the user.
+     * @param email The email of the user (used as identifier).
+     * @param password The user's password.
+     * @param phoneNumber The user's phone number with country code.
+     * @param address The user's address.
      */
     public RegisterUserRequestDTO(
             NameDTO name,
@@ -126,31 +131,36 @@ public class RegisterUserRequestDTO {
      */
     @Override
     public String toString() {
-        return "UserDTO{" +
-                "salutation='" + name.getSalutation() + '\'' +
-                ", firstName='" + name.getFirstName() + '\'' +
-                ", middleName='" + name.getMiddleName() + '\'' +
-                ", lastName='" + name.getLastName() + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+        return "UserDTO{"
+                + "salutation='" + name.getSalutation() + '\''
+                + ", firstName='" + name.getFirstName() + '\''
+                + ", middleName='" + name.getMiddleName() + '\''
+                + ", lastName='" + name.getLastName() + '\''
+                + ", email='" + email + '\''
+                + '}';
     }
 
     /**
-     * Compares this RegisterUserRequestDTO object to another object for equality.
+     * Compares this RegisterUserRequestDTO object to another object for
+     * equality.
      *
      * @param o The object to compare.
      * @return true if the objects are equal, otherwise false.
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RegisterUserRequestDTO registerUserRequestDTO = (RegisterUserRequestDTO) o;
-        return  Objects.equals(name.getSalutation(), registerUserRequestDTO.getName().getSalutation()) &&
-                Objects.equals(name.getFirstName(), registerUserRequestDTO.getName().getFirstName()) &&
-                Objects.equals(name.getMiddleName(), registerUserRequestDTO.getName().getMiddleName()) &&
-                Objects.equals(name.getLastName(), registerUserRequestDTO.getName().getLastName()) &&
-                Objects.equals(email, registerUserRequestDTO.email);
+        return Objects.equals(name.getSalutation(), registerUserRequestDTO.getName().getSalutation())
+                && Objects.equals(name.getFirstName(), registerUserRequestDTO.getName().getFirstName())
+                && Objects.equals(name.getMiddleName(), registerUserRequestDTO.getName().getMiddleName())
+                && Objects.equals(name.getLastName(), registerUserRequestDTO.getName().getLastName())
+                && Objects.equals(email, registerUserRequestDTO.email);
     }
 
     /**
@@ -164,7 +174,6 @@ public class RegisterUserRequestDTO {
     }
 
     // Getters and Setters below
-
     public NameDTO getName() {
         return name;
     }
@@ -173,27 +182,27 @@ public class RegisterUserRequestDTO {
         this.name = name;
     }
 
-    public String getUsername(){
+    public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username){
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    public LocalDate getDateOfBirth(){
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth){
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Gender getGender(){
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(Gender gender){
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -228,7 +237,9 @@ public class RegisterUserRequestDTO {
     public void setAddress(AddressDTO address) {
         this.address = address;
     }
+
     public static class Builder {
+
         private NameDTO name;
         private LocalDate dateOfBirth;
         private Gender gender;
@@ -280,19 +291,19 @@ public class RegisterUserRequestDTO {
 
         public RegisterUserRequestDTO build() {
             return new RegisterUserRequestDTO(
-                name,
-                dateOfBirth,
-                gender,
-                username,
-                email,
-                password,
-                phoneNumber,
-                address
+                    name,
+                    dateOfBirth,
+                    gender,
+                    username,
+                    email,
+                    password,
+                    phoneNumber,
+                    address
             );
         }
     }
+
     public static Builder builder() {
         return new Builder();
     }
 }
-

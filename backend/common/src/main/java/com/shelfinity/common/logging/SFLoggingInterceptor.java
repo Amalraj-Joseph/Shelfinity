@@ -15,9 +15,9 @@ import jakarta.interceptor.InvocationContext;
 /**
  * Interceptor that logs method entry, exit, and exception details.
  * <p>
- * This interceptor is activated by the {@link SFLoggable} annotation. It
- * logs the method name, class name, execution time, and any exceptions
- * that are thrown during method execution.
+ * This interceptor is activated by the {@link SFLoggable} annotation. It logs
+ * the method name, class name, execution time, and any exceptions that are
+ * thrown during method execution.
  * </p>
  */
 @SFLoggable
@@ -25,11 +25,13 @@ import jakarta.interceptor.InvocationContext;
 @Priority(Interceptor.Priority.APPLICATION)
 public class SFLoggingInterceptor {
 
-    @Inject 
+    @Inject
     private SFLogger logger;
+
     /**
-     * Intercepts method invocation to log the method entry, exit, execution time, and any exceptions thrown.
-     * 
+     * Intercepts method invocation to log the method entry, exit, execution
+     * time, and any exceptions thrown.
+     *
      * @param ctx The invocation context
      * @return The result of the method invocation
      * @throws Exception If an error occurs during method invocation
@@ -47,11 +49,11 @@ public class SFLoggingInterceptor {
         try {
             // Proceed with the method execution
             Object result = ctx.proceed();
-            
+
             // Log method exit with execution time (INFO level)
             long duration = System.currentTimeMillis() - start;
             logger.info(className, methodName, " exited [Execution time: " + duration + " ms]");
-            
+
             return result;
         } catch (Exception ex) {
             // Log exception with SEVERE level

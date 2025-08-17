@@ -10,7 +10,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "Gender of a person")
 public enum Gender {
-    
+
     MALE("male"),
     FEMALE("female"),
     NON_BINARY("non-binary"),
@@ -34,7 +34,7 @@ public enum Gender {
 
     /**
      * Gets a gender enum from a string value.
-     * 
+     *
      * @param gender gender.
      * @return The enum corresponding to the provided gender.
      * @throws IllegalArgumentException If the gender is invalid.

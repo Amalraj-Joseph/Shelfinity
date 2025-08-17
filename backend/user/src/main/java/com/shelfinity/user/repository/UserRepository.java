@@ -25,12 +25,11 @@ import jakarta.transaction.Transactional;
 /**
  * Repository class for performing CRUD operations on the User entity.
  */
- 
 @ApplicationScoped
 @Transactional
 @SFLoggable
-public class UserRepository extends BaseUserRepository<User>{
-        
+public class UserRepository extends BaseUserRepository<User> {
+
     private static final String CLASS_NAME = UserRepository.class.getName();
     private static String METHOD_NAME;
 
@@ -55,14 +54,14 @@ public class UserRepository extends BaseUserRepository<User>{
     public List<String> getAllUserPhoneNumbers() {
         METHOD_NAME = "getAllUserPhoneNumbers";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user phone numbers.");
-        return findByNamedQuery("User.getAllUserPhoneNumbers", String.class); 
+        return findByNamedQuery("User.getAllUserPhoneNumbers", String.class);
     }
 
     @Override
     public List<String> getAllUserUsernames() {
         METHOD_NAME = "getAllUserUsernames";
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching all user usernames.");
-        return findByNamedQuery("User.getAllUserUsernames", String.class); 
+        return findByNamedQuery("User.getAllUserUsernames", String.class);
     }
 
     @Override
@@ -80,14 +79,14 @@ public class UserRepository extends BaseUserRepository<User>{
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email){
+    public Optional<User> getUserByEmail(String email) {
         METHOD_NAME = "getUserByEmail";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by email: %s", email));
         return findByNamedQuery("User.findByEmail", "email", email, User.class);
     }
 
     @Override
-    public Optional<User> getUserByPhoneNumber(String phoneNumber){
+    public Optional<User> getUserByPhoneNumber(String phoneNumber) {
         METHOD_NAME = "getUserByPhoneNumber";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by email: %s", phoneNumber));
         return findByNamedQuery("User.findByPhoneNumber", "phoneNumber", phoneNumber, User.class);
@@ -106,7 +105,7 @@ public class UserRepository extends BaseUserRepository<User>{
         logger.info(CLASS_NAME, METHOD_NAME, String.format("User profile updated: %s", user.getUsername()));
     }
 
-    public int updateUserPassword(UUID id, String password){
+    public int updateUserPassword(UUID id, String password) {
         METHOD_NAME = "updateUserPassword";
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
@@ -115,7 +114,7 @@ public class UserRepository extends BaseUserRepository<User>{
         return executeUpdateNamedQuery("User.updatePasswordById", params);
     }
 
-    public int updateUserPhoneNumber(UUID id, String phoneNumber){
+    public int updateUserPhoneNumber(UUID id, String phoneNumber) {
         METHOD_NAME = "updateUserPhoneNumber";
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
@@ -123,8 +122,8 @@ public class UserRepository extends BaseUserRepository<User>{
         params.put("lastUpdated", Instant.now());
         return executeUpdateNamedQuery("User.updatePhoneNumberById", params);
     }
-    
-    public int updateUserEmail(UUID id, String email){
+
+    public int updateUserEmail(UUID id, String email) {
         METHOD_NAME = "updateUserEmail";
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
@@ -133,7 +132,7 @@ public class UserRepository extends BaseUserRepository<User>{
         return executeUpdateNamedQuery("User.updateEmailById", params);
     }
 
-    public int updateUserUsername(UUID id, String username){
+    public int updateUserUsername(UUID id, String username) {
         METHOD_NAME = "updateUserUsername";
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);

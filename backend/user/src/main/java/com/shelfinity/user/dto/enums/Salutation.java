@@ -34,7 +34,7 @@ public enum Salutation {
 
     /**
      * Gets a Salutation enum from a string value.
-     * 
+     *
      * @param salutation salutation.
      * @return The enum corresponding to the provided salutation.
      * @throws IllegalArgumentException If the salutation is invalid.

@@ -23,7 +23,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 
+@Transactional
 public abstract class BaseUserRepository<T> {
 
     @PersistenceContext
@@ -36,16 +38,24 @@ public abstract class BaseUserRepository<T> {
     protected SFLogger logger;
 
     public abstract List<T> getAllUsers(UUID id, String email, String phoneNumber, String username);
+
     public abstract List<String> getAllUserEmails();
+
     public abstract List<String> getAllUserPhoneNumbers();
+
     public abstract List<String> getAllUserUsernames();
+
     public abstract Optional<T> getUserById(UUID id);
+
     public abstract Optional<T> getUserByUsername(String username);
+
     public abstract Optional<T> getUserByEmail(String email);
+
     public abstract Optional<T> getUserByPhoneNumber(String phoneNumber);
+
     public abstract void addUser(T User);
 
-    protected <T> List<T> findByNamedQuery(String namedQuery, Class<T> resultClass){
+    protected <T> List<T> findByNamedQuery(String namedQuery, Class<T> resultClass) {
         METHOD_NAME = "findByNamedQuery";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Executing named query: %s", namedQuery));
         return entityManager
@@ -59,12 +69,12 @@ public abstract class BaseUserRepository<T> {
         String paramLog = (parameters == null || parameters.isEmpty())
                 ? "(no parameters)"
                 : parameters.entrySet()
-                            .stream()
-                            .map(e -> e.getKey() + "=" + String.valueOf(e.getValue()))
-                            .collect(Collectors.joining(", "));
+                        .stream()
+                        .map(e -> e.getKey() + "=" + String.valueOf(e.getValue()))
+                        .collect(Collectors.joining(", "));
 
         logger.fine(CLASS_NAME, METHOD_NAME,
-            String.format("Executing named query %s with parameters %s", namedQuery, paramLog));
+                String.format("Executing named query %s with parameters %s", namedQuery, paramLog));
 
         var query = entityManager.createNamedQuery(namedQuery, resultClass);
         if (parameters != null && !parameters.isEmpty()) {
@@ -80,8 +90,8 @@ public abstract class BaseUserRepository<T> {
             Map<String, Object> filters
     ) {
         METHOD_NAME = "findByCriteria";
-        logger.fine(CLASS_NAME, METHOD_NAME, 
-            String.format("Executing criteria query for %s with filters=%s",
+        logger.fine(CLASS_NAME, METHOD_NAME,
+                String.format("Executing criteria query for %s with filters=%s",
                         entityClass.getSimpleName(), filters));
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -101,15 +111,15 @@ public abstract class BaseUserRepository<T> {
         return entityManager.createQuery(cq).getResultList();
     }
 
-    protected Optional<T> findByNamedQuery(String namedQuery, String parameterName, String parameterValue, Class<T> resultClass){
+    protected Optional<T> findByNamedQuery(String namedQuery, String parameterName, String parameterValue, Class<T> resultClass) {
         METHOD_NAME = "findByNamedQuery";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Executing named query %s with paramter %s=%s", namedQuery, parameterName, parameterValue));
         Optional<T> result = Optional.ofNullable(entityManager.createNamedQuery(namedQuery, resultClass)
-                         .setParameter(parameterName, parameterValue)
-                         .getResultStream()
-                         .findFirst()
-                         .orElse(null));
-        return result;        
+                .setParameter(parameterName, parameterValue)
+                .getResultStream()
+                .findFirst()
+                .orElse(null));
+        return result;
     }
 
     protected int executeUpdateNamedQuery(String namedQuery, Map<String, Object> parameters) {

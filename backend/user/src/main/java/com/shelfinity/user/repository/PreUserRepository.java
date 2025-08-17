@@ -23,13 +23,14 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 /**
- * Repository class for performing CRUD operations on the UserRegistrationRequest entity.
+ * Repository class for performing CRUD operations on the
+ * UserRegistrationRequest entity.
  */
 @ApplicationScoped
 @Transactional
 @SFLoggable
-public class PreUserRepository extends BaseUserRepository<UserRegistrationRequest>{
-        
+public class PreUserRepository extends BaseUserRepository<UserRegistrationRequest> {
+
     private static final String CLASS_NAME = PreUserRepository.class.getName();
     private static String METHOD_NAME;
 
@@ -42,10 +43,18 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
         logger.fine(CLASS_NAME, METHOD_NAME, "Fetching users with optional filters.");
 
         Map<String, Object> params = new HashMap<>();
-        if (id != null) params.put("id", id);
-        if (email != null && !email.isBlank()) params.put("email", email);
-        if (phone != null && !phone.isBlank()) params.put("phoneNumber", phone);
-        if (username != null && !username.isBlank()) params.put("username", username);
+        if (id != null) {
+            params.put("id", id);
+        }
+        if (email != null && !email.isBlank()) {
+            params.put("email", email);
+        }
+        if (phone != null && !phone.isBlank()) {
+            params.put("phoneNumber", phone);
+        }
+        if (username != null && !username.isBlank()) {
+            params.put("username", username);
+        }
 
         return findByCriteria(UserRegistrationRequest.class, params);
     }
@@ -87,14 +96,14 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
     }
 
     @Override
-    public Optional<UserRegistrationRequest> getUserByEmail(String email){
+    public Optional<UserRegistrationRequest> getUserByEmail(String email) {
         METHOD_NAME = "getUserByEmail";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by email: %s", email));
         return findByNamedQuery("UserRegistrationRequest.findByEmail", "email", email, UserRegistrationRequest.class);
     }
 
     @Override
-    public Optional<UserRegistrationRequest> getUserByPhoneNumber(String phoneNumber){
+    public Optional<UserRegistrationRequest> getUserByPhoneNumber(String phoneNumber) {
         METHOD_NAME = "getUserByPhoneNumber";
         logger.fine(CLASS_NAME, METHOD_NAME, String.format("Fetching user by email: %s from reg request db.", phoneNumber));
         Optional<UserRegistrationRequest> request = findByNamedQuery("UserRegistrationRequest.findByPhoneNumber", "phoneNumber", phoneNumber, UserRegistrationRequest.class);
@@ -120,17 +129,23 @@ public class PreUserRepository extends BaseUserRepository<UserRegistrationReques
     public void touchLastUpdated(UUID id) {
         UserRegistrationRequest entity = entityManager.find(UserRegistrationRequest.class, id);
         if (entity != null) {
-            entity.setLastUpdated(Instant.now()); 
+            entity.setLastUpdated(Instant.now());
             entityManager.merge(entity);
         }
     }
 
     public void updatePreUserStatus(UUID id, RegistrationStatus newStatus, String remarks, UUID admin) {
         UserRegistrationRequest userRequest = entityManager.find(UserRegistrationRequest.class, id);
-        if (userRequest == null) return;
+        if (userRequest == null) {
+            return;
+        }
 
-        if (newStatus != null) userRequest.setStatus(newStatus);
-        if (remarks != null) userRequest.setRemark(remarks);
+        if (newStatus != null) {
+            userRequest.setStatus(newStatus);
+        }
+        if (remarks != null) {
+            userRequest.setRemark(remarks);
+        }
         userRequest.setUpdatedBy(admin);
         userRequest.setLastUpdated(Instant.now()); // <— add this
         entityManager.merge(userRequest);

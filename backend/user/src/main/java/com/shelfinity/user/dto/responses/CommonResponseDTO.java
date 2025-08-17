@@ -9,6 +9,7 @@ package com.shelfinity.user.dto.responses;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import com.shelfinity.user.dto.enums.CommonResponseStatus;
+
 /**
  * DTO representing a generic success/failure response.
  */
@@ -16,8 +17,8 @@ import com.shelfinity.user.dto.enums.CommonResponseStatus;
 public class CommonResponseDTO extends BaseResponseDTO<CommonResponseStatus> {
 
     /**
-     * Default constructor for CommonResponseDTO.
-     * Initializes a new instance of CommonResponseDTO with default values.
+     * Default constructor for CommonResponseDTO. Initializes a new instance of
+     * CommonResponseDTO with default values.
      */
     public CommonResponseDTO() {
         super();
@@ -26,8 +27,8 @@ public class CommonResponseDTO extends BaseResponseDTO<CommonResponseStatus> {
     /**
      * Constructs a CommonResponseDTO with the given parameters.
      *
-     * @param status      The operation status.
-     * @param message     Human readable message for the user
+     * @param status The operation status.
+     * @param message Human readable message for the user
      */
     public CommonResponseDTO(CommonResponseStatus status, String message) {
         super(status, message);

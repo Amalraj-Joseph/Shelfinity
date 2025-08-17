@@ -7,11 +7,11 @@
 package com.shelfinity.user.exception;
 
 public class DataBaseException extends RuntimeException {
-    
-    public DataBaseException(){
+
+    public DataBaseException() {
         super();
     }
-    
+
     public DataBaseException(String message) {
         super(message);
     }

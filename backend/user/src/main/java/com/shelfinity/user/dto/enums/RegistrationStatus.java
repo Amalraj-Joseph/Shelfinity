@@ -19,13 +19,11 @@ public enum RegistrationStatus implements BaseStatus {
      */
     @Schema(description = "The registration request is pending admin approval")
     PENDING("pending"),
-
     /**
      * The registration request has been approved by an admin.
      */
     @Schema(description = "The registration request has been approved")
     APPROVED("approved"),
-
     /**
      * The registration request has been rejected by an admin.
      */

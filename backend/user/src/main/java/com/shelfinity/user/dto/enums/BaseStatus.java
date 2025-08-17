@@ -10,5 +10,6 @@ package com.shelfinity.user.dto.enums;
  * Interface for status enums with a string representation.
  */
 public interface BaseStatus {
+
     String getStatusName();
 }
