@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<server description="shelfinity-web">
+
+    <!-- Enable JAX-RS and JPA features -->
+    <featureManager>
+        <!-- Core Jakarta EE Features -->
+        <feature>jakartaee-10.0</feature>
+        <!-- MicroProfile -->
+       <feature>mpOpenAPI-3.1</feature>
+    </featureManager>
+
+    <!-- HTTP port -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*" 
+                  httpPort="9080" 
+                  httpsPort="9443" />
+
+    <!-- DataSource for JPA -->
+    <dataSource id="PostgresDS" jndiName="jdbc/PostgresDS" type="javax.sql.ConnectionPoolDataSource">
+        <jdbcDriver libraryRef="PostgreSQLLib"/>
+        <properties.postgresql 
+            serverName="localhost"
+            portNumber="5432"
+            databaseName="shelfinity_db"
+            user="shelfinity_user"
+            password="shelfinity_pass" />
+    </dataSource>
+
+    <library id="PostgreSQLLib">
+        <fileset dir="${shared.resource.dir}/lib" includes="postgresql-*.jar"/>
+    </library>
+    
+
+    <!-- Deploy the app -->
+    <webApplication id="shelfinity-web" location="shelfinity-web-1.0-SNAPSHOT.war" contextRoot="/" />
+    <basicRegistry id="basicRegistry">
+        <user name="shelfinity_user" password="shelfinity_pass"/>
+    </basicRegistry>
+
+    <orb id="defaultOrb"/>
+</server>

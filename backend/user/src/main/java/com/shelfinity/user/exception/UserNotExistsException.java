@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+package com.shelfinity.user.exception;
+
+public class UserNotExistsException extends RuntimeException{
+    
+    public UserNotExistsException(){
+        super();
+    }
+    
+    public UserNotExistsException(String message) {
+        super(message);
+    }
+}
