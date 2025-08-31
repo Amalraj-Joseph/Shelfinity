@@ -1,0 +1,313 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+
+.admin-panel {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: var(--secondary-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.admin-header p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+  background: var(--primary-color);
+}
+
+.tab.active {
+  color: var(--text-primary);
+  background: var(--accent-color);
+}
+
+.admin-content {
+  background: var(--secondary-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.admin-overview {
+  padding: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: var(--primary-color);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px var(--shadow-medium);
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.stat-card p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.admin-requests,
+.admin-users {
+  padding: 2rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--primary-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table th {
+  background: var(--accent-color);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-table td {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.admin-table tr:hover {
+  background: var(--secondary-color);
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.pending {
+  background: var(--warning-color);
+  color: var(--primary-color);
+}
+
+.status.approved {
+  background: var(--success-color);
+  color: var(--primary-color);
+}
+
+.status.rejected {
+  background: var(--error-color);
+  color: var(--text-primary);
+}
+
+.status.active {
+  background: var(--success-color);
+  color: var(--primary-color);
+}
+
+.status.inactive {
+  background: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.role {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role.admin {
+  background: var(--warning-color);
+  color: var(--primary-color);
+}
+
+.role.user {
+  background: var(--accent-color);
+  color: var(--text-primary);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-approve,
+.btn-reject,
+.btn-edit,
+.btn-delete {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-approve {
+  background: var(--success-color);
+  color: var(--primary-color);
+}
+
+.btn-approve:hover {
+  background: var(--success-color);
+  opacity: 0.8;
+}
+
+.btn-reject {
+  background: var(--error-color);
+  color: var(--text-primary);
+}
+
+.btn-reject:hover {
+  background: var(--error-color);
+  opacity: 0.8;
+}
+
+.btn-edit {
+  background: var(--info-color);
+  color: var(--text-primary);
+}
+
+.btn-edit:hover {
+  background: var(--info-color);
+  opacity: 0.8;
+}
+
+.btn-delete {
+  background: var(--error-color);
+  color: var(--text-primary);
+}
+
+.btn-delete:hover {
+  background: var(--error-color);
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-tabs {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .tab {
+    text-align: center;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-table {
+    font-size: 0.8rem;
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .btn-approve,
+  .btn-reject,
+  .btn-edit,
+  .btn-delete {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .stat-card h3 {
+    font-size: 1.5rem;
+  }
+  
+  .admin-table {
+    font-size: 0.7rem;
+  }
+}

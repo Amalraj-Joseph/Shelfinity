@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2025 Shadow-Codex
+
+  This source code is licensed under the MIT License.
+  See the LICENSE file in the root directory for more information.
+-->
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+
+    <persistence-unit name="shelfinityPU" transaction-type="JTA">
+        <jta-data-source>jdbc/shelfinityDS</jta-data-source>
+        
+        <!-- Entity classes -->
+        <class>com.shelfinity.users.User</class>
+        <class>com.shelfinity.books.Book</class>
+        <class>com.shelfinity.queues.QueueItem</class>
+        <class>com.shelfinity.email.EmailConfig</class>
+        
+        <!-- Properties -->
+        <properties>
+            <!-- Hibernate properties -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            
+
+            
+            <!-- Pool properties -->
+            <property name="hibernate.connection.pool_size" value="10"/>
+            <property name="hibernate.connection.autocommit" value="false"/>
+            
+            <!-- Cache properties -->
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+            <property name="hibernate.cache.use_query_cache" value="false"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>

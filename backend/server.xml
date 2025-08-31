@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2025 Shadow-Codex
+
+  This source code is licensed under the MIT License.
+  See the LICENSE file in the root directory for more information.
+-->
+<server description="Shelfinity Library Management System">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>jaxrs-2.1</feature>
+        <feature>jsonp-1.1</feature>
+        <feature>jsonb-1.0</feature>
+        <feature>jpa-2.2</feature>
+        <feature>jndi-1.0</feature>
+        <feature>jdbc-4.2</feature>
+        <feature>mpHealth-2.2</feature>
+        <feature>beanValidation-2.0</feature>
+        <feature>cdi-2.0</feature>
+        <feature>servlet-4.0</feature>
+    </featureManager>
+
+    <!-- HTTP Endpoint -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="9080" />
+
+    <!-- Database Configuration -->
+    <dataSource id="shelfinityDS" jndiName="jdbc/shelfinityDS">
+        <properties.postgresql
+            serverName="postgres"
+            portNumber="5432"
+            databaseName="shelfinity"
+            user="shelfinity"
+            password="shelfinity"
+            ssl="false"/>
+        <connectionManager maxPoolSize="20" minPoolSize="5"/>
+    </dataSource>
+
+    <!-- Application -->
+    <webApplication id="shelfinity-backend" location="shelfinity-backend.war" name="shelfinity-backend">
+        <classloader apiTypeVisibility="spec, ibm-api, third-party"/>
+        <application-bnd>
+            <security-role name="admin">
+                <user name="admin"/>
+            </security-role>
+        </application-bnd>
+    </webApplication>
+
+</server>

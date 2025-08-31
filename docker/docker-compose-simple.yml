@@ -1,0 +1,50 @@
+# Copyright (c) 2025 Shadow-Codex
+#
+# This source code is licensed under the MIT License.
+# See the LICENSE file in the root directory for more information.
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: shelfinity-postgres-simple
+    environment:
+      POSTGRES_DB: shelfinity
+      POSTGRES_USER: shelfinity
+      POSTGRES_PASSWORD: shelfinity
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: shelfinity-backend-simple
+    ports:
+      - "9080:9080"
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=shelfinity
+      - DB_USER=shelfinity
+      - DB_PASSWORD=shelfinity
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: shelfinity-frontend-simple
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:9080/api
+
+volumes:
+  postgres_data:
