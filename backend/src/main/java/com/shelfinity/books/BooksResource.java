@@ -6,18 +6,46 @@
  */
 package com.shelfinity.books;
 
-import com.shelfinity.books.dto.requests.CreateBookRequest;
-import com.shelfinity.books.dto.responses.BookResponse;
-import com.shelfinity.security.JwtUtil;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
-import jakarta.validation.Valid;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
+import com.shelfinity.books.dto.requests.CreateBookRequest;
+import com.shelfinity.books.dto.responses.BookResponse;
+import com.shelfinity.security.JwtUtil;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.ext.Provider;
 
 /**
  * REST API for book management.
@@ -26,7 +54,9 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequestScoped
-public class BooksResource {
+@Tag(name = "Books")
+@Provider
+public class BooksResource implements ContainerResponseFilter {
     
     @Inject
     private BookRepository bookRepository;
@@ -35,52 +65,130 @@ public class BooksResource {
     private JwtUtil jwtUtil;
     
     @Context
-    private HttpHeaders headers;
+    private SecurityContext securityContext;
+
+    @Override
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+        // Add CORS headers for all responses
+        responseContext.getHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
+        responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        responseContext.getHeaders().add("Access-Control-Allow-Headers", "*");
+        responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
+        responseContext.getHeaders().add("Access-Control-Max-Age", "3600");
+    }
     
     /**
      * Create a new book (admin only).
      */
     @POST
-    public Response createBook(@Valid CreateBookRequest request) {
+    @Tag(name = "Books")
+    @SecurityRequirement(name = "JWT")
+    @Operation(
+        summary = "Create a new book",
+        description = "Creates a new book in the library system. Requires admin privileges."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "201",
+            description = "Book created successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = BookResponse.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid request data",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Invalid book data\"}")
+            )
+        ),
+        @APIResponse(
+            responseCode = "403",
+            description = "Admin access required",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Admin access required\"}")
+            )
+        )
+    })
+    public Response createBook(
+        @RequestBody(
+            description = "Book information to create",
+            required = true,
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = CreateBookRequest.class),
+                examples = @ExampleObject(
+                    name = "Create Book Example",
+                    value = """
+                    {
+                        "title": "The Great Gatsby",
+                        "author": "F. Scott Fitzgerald",
+                        "isbn": "978-0-679-72327-6",
+                        "description": "A novel about the American Dream and the Jazz Age.",
+                        "genre": "CLASSIC",
+                        "publicationYear": 1925,
+                        "totalCopies": 3
+                    }
+                    """
+                )
+            )
+        ) @Valid CreateBookRequest request) {
+        
         // Verify admin access
-        Optional<JwtUtil.UserInfo> userInfo = getCurrentUser();
-        if (userInfo.isEmpty() || !"ADMIN".equals(userInfo.get().getRole())) {
+        if (!jwtUtil.isCurrentUserAdmin()) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"error\": \"Admin access required\"}")
                     .build();
         }
         
-        // Check if book with same ISBN already exists
-        if (request.getIsbn() != null && !request.getIsbn().trim().isEmpty() && 
-            bookRepository.existsByIsbn(request.getIsbn())) {
+        // Check if book already exists
+        Optional<Book> existingBook = bookRepository.findByIsbn(request.getIsbn());
+        if (existingBook.isPresent()) {
             return Response.status(Response.Status.CONFLICT)
                     .entity("{\"error\": \"Book with this ISBN already exists\"}")
                     .build();
         }
         
         // Create new book
-        Book book = new Book(request.getTitle(), request.getAuthor(), 
-                           request.getIsbn(), request.getDescription(), request.getTotalCopies());
+        Book book = new Book();
+        book.setTitle(request.getTitle());
+        book.setAuthor(request.getAuthor());
+        book.setIsbn(request.getIsbn());
+        book.setDescription(request.getDescription());
+        book.setTotalCopies(request.getTotalCopies());
+        book.setAvailableCopies(request.getTotalCopies());
         
         Book savedBook = bookRepository.save(book);
         BookResponse response = new BookResponse(savedBook);
         
-        return Response.status(Response.Status.CREATED)
-                .entity(response)
-                .build();
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
     
     /**
      * Get all books.
      */
     @GET
-    public Response getAllBooks(@QueryParam("search") String search,
-                               @QueryParam("available") Boolean available) {
+    @Tag(name = "Books")
+    @Operation(
+        summary = "Get all books",
+        description = "Retrieves a list of all books in the library system."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Books retrieved successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = BookResponse.class)
+            )
+        )
+    })
+    public Response getAllBooks(@QueryParam("availableOnly") Boolean availableOnly) {
         List<Book> books;
-        
-        if (search != null && !search.trim().isEmpty()) {
-            books = bookRepository.search(search.trim());
-        } else if (available != null && available) {
+        if (availableOnly != null && availableOnly) {
             books = bookRepository.findAvailable();
         } else {
             books = bookRepository.findAll();
@@ -98,6 +206,29 @@ public class BooksResource {
      */
     @GET
     @Path("/{id}")
+    @Tag(name = "Books")
+    @Operation(
+        summary = "Get book by ID",
+        description = "Retrieves a specific book by its ID."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Book retrieved successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = BookResponse.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "404",
+            description = "Book not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Book not found\"}")
+            )
+        )
+    })
     public Response getBookById(@PathParam("id") String id) {
         try {
             UUID bookId = UUID.fromString(id);
@@ -124,10 +255,41 @@ public class BooksResource {
      */
     @PUT
     @Path("/{id}")
+    @Tag(name = "Books")
+    @SecurityRequirement(name = "JWT")
+    @Operation(
+        summary = "Update book by ID",
+        description = "Updates a specific book by its ID. Admin access required."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Book updated successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = BookResponse.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "403",
+            description = "Admin access required",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Admin access required\"}")
+            )
+        ),
+        @APIResponse(
+            responseCode = "404",
+            description = "Book not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Book not found\"}")
+            )
+        )
+    })
     public Response updateBook(@PathParam("id") String id, @Valid CreateBookRequest request) {
         // Verify admin access
-        Optional<JwtUtil.UserInfo> userInfo = getCurrentUser();
-        if (userInfo.isEmpty() || !"ADMIN".equals(userInfo.get().getRole())) {
+        if (!jwtUtil.isCurrentUserAdmin()) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"error\": \"Admin access required\"}")
                     .build();
@@ -167,10 +329,37 @@ public class BooksResource {
      */
     @DELETE
     @Path("/{id}")
+    @Tag(name = "Books")
+    @SecurityRequirement(name = "JWT")
+    @Operation(
+        summary = "Delete book by ID",
+        description = "Deletes a specific book by its ID. Admin access required."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "204",
+            description = "Book deleted successfully"
+        ),
+        @APIResponse(
+            responseCode = "403",
+            description = "Admin access required",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Admin access required\"}")
+            )
+        ),
+        @APIResponse(
+            responseCode = "404",
+            description = "Book not found",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Book not found\"}")
+            )
+        )
+    })
     public Response deleteBook(@PathParam("id") String id) {
         // Verify admin access
-        Optional<JwtUtil.UserInfo> userInfo = getCurrentUser();
-        if (userInfo.isEmpty() || !"ADMIN".equals(userInfo.get().getRole())) {
+        if (!jwtUtil.isCurrentUserAdmin()) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"error\": \"Admin access required\"}")
                     .build();
@@ -201,6 +390,29 @@ public class BooksResource {
      */
     @GET
     @Path("/search")
+    @Tag(name = "Books")
+    @Operation(
+        summary = "Search books",
+        description = "Searches for books by title or author."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Search completed successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = BookResponse.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "400",
+            description = "Search query is required",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Search query is required\"}")
+            )
+        )
+    })
     public Response searchBooks(@QueryParam("q") String query) {
         if (query == null || query.trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -221,6 +433,21 @@ public class BooksResource {
      */
     @GET
     @Path("/available")
+    @Tag(name = "Books")
+    @Operation(
+        summary = "Get available books",
+        description = "Retrieves a list of books that are currently available for borrowing."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Available books retrieved successfully",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = BookResponse.class)
+            )
+        )
+    })
     public Response getAvailableBooks() {
         List<Book> books = bookRepository.findAvailable();
         List<BookResponse> responses = books.stream()
@@ -228,22 +455,5 @@ public class BooksResource {
                 .collect(Collectors.toList());
         
         return Response.ok(responses).build();
-    }
-    
-    /**
-     * Get current user from JWT token.
-     */
-    private Optional<JwtUtil.UserInfo> getCurrentUser() {
-        String authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null) {
-            return Optional.empty();
-        }
-        
-        Optional<String> token = jwtUtil.extractTokenFromHeader(authHeader);
-        if (token.isEmpty()) {
-            return Optional.empty();
-        }
-        
-        return jwtUtil.extractUserInfo(token.get());
     }
 }

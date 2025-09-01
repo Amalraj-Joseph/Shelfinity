@@ -27,23 +27,23 @@ A modern, full-stack library management system built with Jakarta EE, React, and
 │                           Shelfinity Library Management System              │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐          │
-│  │   Frontend      │    │    Backend      │    │   PostgreSQL    │          │
-│  │   (React 18)    │◄──►│  (Jakarta EE)   │◄──►│   Database      │          │
-│  │   Port: 3000    │    │   Port: 9080    │    │   Port: 5432    │          │
-│  │   Nginx         │    │  Open Liberty   │    │   JPA/Hibernate │          │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘          │
-│          │                       │                       │                  │
-│          │                       │                       │                  │
-│          └───────────────────────┼───────────────────────┘                  │
-│                                  │                                          │
-│                     ┌─────────────────┐                                     │
-│                     │    Keycloak     │                                     │
-│                     │  (Identity)     │                                     │
-│                     │   Port: 8080    │                                     │
-│                     │   OAuth 2.0     │                                     │
-│                     │   JWT Tokens    │                                     │
-│                     └─────────────────┘                                     │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐         │
+│  │   Frontend      │    │    Backend      │    │   PostgreSQL    │         │
+│  │   (React 18)    │◄──►│  (Jakarta EE)   │◄──►│   Database      │         │
+│  │   Port: 3000    │    │   Port: 9080    │    │   Port: 5432    │         │
+│  │   Nginx         │    │  Open Liberty   │    │   JPA/Hibernate │         │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘         │
+│          │                       │                       │                 │
+│          │                       │                       │                 │
+│          └───────────────────────┼───────────────────────┘                 │
+│                                  │                                         │
+│                     ┌─────────────────┐                                   │
+│                     │    Keycloak     │                                   │
+│                     │  (Identity)     │                                   │
+│                     │   Port: 8080    │                                   │
+│                     │   OAuth 2.0     │                                   │
+│                     │   JWT Tokens    │                                   │
+│                     └─────────────────┘                                   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -55,18 +55,18 @@ A modern, full-stack library management system built with Jakarta EE, React, and
 │                              Frontend Layer                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │   Login     │  │  Dashboard  │  │  BookList   │  │ AdminPanel  │         │
-│  │ Component   │  │ Component   │  │ Component   │  │ Component   │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
-│         │                │                │                │                │
-│         └────────────────┼────────────────┼────────────────┘                │
-│                          │                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                    React App (Single Page Application)              │    │
-│  │                    Ghost Black & White Theme                        │    │
-│  │                    Responsive Design                                │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │   Login     │  │  Dashboard  │  │  BookList   │  │ AdminPanel  │       │
+│  │ Component   │  │ Component   │  │ Component   │  │ Component   │       │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
+│         │                │                │                │               │
+│         └────────────────┼────────────────┼────────────────┘               │
+│                          │                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    React App (Single Page Application)              │   │
+│  │                    Ghost Black & White Theme                        │   │
+│  │                    Responsive Design                                │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -75,20 +75,20 @@ A modern, full-stack library management system built with Jakarta EE, React, and
 │                              Backend Layer                                  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │   Users     │  │   Books     │  │   Queues    │  │   Health    │         │
-│  │ Resource    │  │ Resource    │  │ Resource    │  │ Resource    │         │
-│  │ (JAX-RS)    │  │ (JAX-RS)    │  │ (JAX-RS)    │  │ (JAX-RS)    │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
-│         │                │                │                │                │
-│         └────────────────┼────────────────┼────────────────┘                │
-│                          │                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                    Jakarta EE 10 Application                        │    │
-│  │                    Open Liberty Server                              │    │
-│  │                    JPA/Hibernate ORM                                │    │
-│  │                    JWT Authentication                               │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │   Users     │  │   Books     │  │   Queues    │  │   Health    │       │
+│  │ Resource    │  │ Resource    │  │ Resource    │  │ Resource    │       │
+│  │ (JAX-RS)    │  │ (JAX-RS)    │  │ (JAX-RS)    │  │ (JAX-RS)    │       │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
+│         │                │                │                │               │
+│         └────────────────┼────────────────┼────────────────┘               │
+│                          │                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    Jakarta EE 10 Application                        │   │
+│  │                    Open Liberty Server                              │   │
+│  │                    JPA/Hibernate ORM                                │   │
+│  │                    JWT Authentication                               │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -97,20 +97,20 @@ A modern, full-stack library management system built with Jakarta EE, React, and
 │                              Data Layer                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │   Users     │  │   Books     │  │   Queues    │  │  Keycloak   │         │
-│  │   Table     │  │   Table     │  │   Table     │  │   Database  │         │
-│  │             │  │             │  │             │  │             │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
-│         │                │                │                │                │
-│         └────────────────┼────────────────┼────────────────┘                │
-│                          │                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                    PostgreSQL Database                              │    │
-│  │                    - shelfinity database (app data)                 │    │
-│  │                    - keycloak database (auth data)                  │    │
-│  │                    - ACID compliance                                │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │   Users     │  │   Books     │  │   Queues    │  │  Keycloak   │       │
+│  │   Table     │  │   Table     │  │   Table     │  │   Database  │       │
+│  │             │  │             │  │             │  │             │       │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
+│         │                │                │                │               │
+│         └────────────────┼────────────────┼────────────────┘               │
+│                          │                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    PostgreSQL Database                               │   │
+│  │                    - shelfinity database (app data)                 │   │
+│  │                    - keycloak database (auth data)                  │   │
+│  │                    - ACID compliance                                 │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -138,20 +138,20 @@ A modern, full-stack library management system built with Jakarta EE, React, and
 │                              Security Layer                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │   OAuth 2.0 │  │   JWT       │  │   Role-     │  │   CORS      │         │
-│  │   Protocol  │  │  Tokens     │  │   Based     │  │  Policy     │         │
-│  │             │  │             │  │   Access    │  │             │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
-│         │                │                │                │                │
-│         └────────────────┼────────────────┼────────────────┘                │
-│                          │                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                    Keycloak Identity Provider                       │    │
-│  │                    - User Authentication                            │    │
-│  │                    - Session Management                             │    │
-│  │                    - Token Validation                               │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │   OAuth 2.0 │  │   JWT       │  │   Role-     │  │   CORS      │       │
+│  │   Protocol  │  │  Tokens     │  │   Based     │  │  Policy     │       │
+│  │             │  │             │  │   Access    │  │             │       │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
+│         │                │                │                │               │
+│         └────────────────┼────────────────┼────────────────┘               │
+│                          │                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    Keycloak Identity Provider                       │   │
+│  │                    - User Authentication                            │   │
+│  │                    - Session Management                             │   │
+│  │                    - Token Validation                               │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -163,28 +163,28 @@ A modern, full-stack library management system built with Jakarta EE, React, and
 │                              Docker Environment                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐          │
-│  │   Frontend      │    │    Backend      │    │   PostgreSQL    │          │
-│  │   Container     │    │   Container     │    │   Container     │          │
-│  │   Port: 3000    │    │   Port: 9080    │    │   Port: 5432    │          │
-│  │   Nginx         │    │  Open Liberty   │    │   Database      │          │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘          │
-│          │                       │                       │                  │
-│          │                       │                       │                  │
-│          └───────────────────────┼───────────────────────┘                  │
-│                                  │                                          │
-│                     ┌─────────────────┐                                     │
-│                     │   Keycloak      │                                     │
-│                     │   Container     │                                     │
-│                     │   Port: 8080    │                                     │
-│                     └─────────────────┘                                     │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐         │
+│  │   Frontend      │    │    Backend      │    │   PostgreSQL    │         │
+│  │   Container     │    │   Container     │    │   Container     │         │
+│  │   Port: 3000    │    │   Port: 9080    │    │   Port: 5432    │         │
+│  │   Nginx         │    │  Open Liberty   │    │   Database      │         │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘         │
+│          │                       │                       │                 │
+│          │                       │                       │                 │
+│          └───────────────────────┼───────────────────────┘                 │
+│                                  │                                         │
+│                     ┌─────────────────┐                                   │
+│                     │   Keycloak      │                                   │
+│                     │   Container     │                                   │
+│                     │   Port: 8080    │                                   │
+│                     └─────────────────┘                                   │
 │                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                    Docker Compose Network                           │    │
-│  │                    - Internal communication                         │    │
-│  │                    - Health checks                                  │    │
-│  │                    - Volume persistence                             │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                    Docker Compose Network                           │   │
+│  │                    - Internal communication                         │   │
+│  │                    - Health checks                                 │   │
+│  │                    - Volume persistence                             │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -277,7 +277,7 @@ Shelfinity/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Shadow-Codex/shelfinity.git
+git clone https://github.com/your-username/shelfinity.git
 cd shelfinity
 ```
 
@@ -292,17 +292,24 @@ cd shelfinity
 
 ### 3. Access the Application
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:9080/api
+- **Backend API**: http://localhost:9080/shelfinity-backend/app
 - **Keycloak Admin**: http://localhost:8080 (admin/admin)
-- **API Documentation**: http://localhost:3000/docs
+- **API Documentation**: http://localhost:9080/openapi/ui/
 
 ## 📚 API Documentation
 
-The API documentation is available at `docs/api/` and includes:
-- OpenAPI 3.0 specification
-- Interactive Swagger UI
-- Complete endpoint documentation
-- Request/response schemas
+The API documentation is available through OpenLiberty's built-in OpenAPI support:
+- **Swagger UI**: http://localhost:9080/openapi/ui/
+- **OpenAPI Spec**: http://localhost:9080/openapi
+- **Health Check**: http://localhost:9080/shelfinity-backend/app/health
+
+### API Endpoints
+- **Books**: `GET/POST/PUT/DELETE /books`
+- **Users**: `GET/POST/PUT/DELETE /users` (Admin only)
+- **Queues**: `GET/POST/PUT/DELETE /queues` (Admin only)
+- **Health**: `GET /health`
+
+> **Note**: The OpenAPI specification currently shows paths with `/app` prefix due to OpenLiberty's automatic context path handling. The actual API endpoints work correctly at the documented URLs.
 
 ## 🔧 Configuration
 
@@ -384,7 +391,8 @@ docker-compose up -d --build
 - ✅ **Database**: PostgreSQL with JPA/Hibernate
 - ✅ **Containerization**: Full Docker support
 - ✅ **Documentation**: API docs and setup guides
-- 🔄 **Keycloak Integration**: Basic setup complete, advanced features in progress
+- ✅ **Keycloak Integration**: Basic setup complete
+- 🔄 **OpenAPI Documentation**: Functional but paths show `/app` prefix (known issue)
 - 🔄 **Testing**: Unit tests in progress
 - 🔄 **CI/CD**: Pipeline setup in progress
 
@@ -423,3 +431,18 @@ For support and questions:
 
 
 
+
+
+## Quickstart (Docker Compose)
+
+**Prereqs:** Docker Desktop 4.x, Docker Compose v2, ports 3000/8080/9080 free.
+
+```bash
+./scripts/dev-up.sh
+# Open:
+#  - Frontend:  http://localhost:3000
+#  - Backend:   http://localhost:9080/openapi/ui
+#  - Keycloak:  http://localhost:8080  (admin/admin)
+# Stop & clean:
+./scripts/dev-down.sh
+```
