@@ -292,17 +292,24 @@ cd shelfinity
 
 ### 3. Access the Application
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:9080/api
+- **Backend API**: http://localhost:9080/shelfinity-backend/app
 - **Keycloak Admin**: http://localhost:8080 (admin/admin)
-- **API Documentation**: http://localhost:3000/docs
+- **API Documentation**: http://localhost:9080/openapi/ui/
 
 ## 📚 API Documentation
 
-The API documentation is available at `docs/api/` and includes:
-- OpenAPI 3.0 specification
-- Interactive Swagger UI
-- Complete endpoint documentation
-- Request/response schemas
+The API documentation is available through OpenLiberty's built-in OpenAPI support:
+- **Swagger UI**: http://localhost:9080/openapi/ui/
+- **OpenAPI Spec**: http://localhost:9080/openapi
+- **Health Check**: http://localhost:9080/shelfinity-backend/app/health
+
+### API Endpoints
+- **Books**: `GET/POST/PUT/DELETE /books`
+- **Users**: `GET/POST/PUT/DELETE /users` (Admin only)
+- **Queues**: `GET/POST/PUT/DELETE /queues` (Admin only)
+- **Health**: `GET /health`
+
+> **Note**: The OpenAPI specification currently shows paths with `/app` prefix due to OpenLiberty's automatic context path handling. The actual API endpoints work correctly at the documented URLs.
 
 ## 🔧 Configuration
 
@@ -384,7 +391,8 @@ docker-compose up -d --build
 - ✅ **Database**: PostgreSQL with JPA/Hibernate
 - ✅ **Containerization**: Full Docker support
 - ✅ **Documentation**: API docs and setup guides
-- 🔄 **Keycloak Integration**: Basic setup complete, advanced features in progress
+- ✅ **Keycloak Integration**: Basic setup complete
+- 🔄 **OpenAPI Documentation**: Functional but paths show `/app` prefix (known issue)
 - 🔄 **Testing**: Unit tests in progress
 - 🔄 **CI/CD**: Pipeline setup in progress
 
@@ -423,3 +431,18 @@ For support and questions:
 
 
 
+
+
+## Quickstart (Docker Compose)
+
+**Prereqs:** Docker Desktop 4.x, Docker Compose v2, ports 3000/8080/9080 free.
+
+```bash
+./scripts/dev-up.sh
+# Open:
+#  - Frontend:  http://localhost:3000
+#  - Backend:   http://localhost:9080/openapi/ui
+#  - Keycloak:  http://localhost:8080  (admin/admin)
+# Stop & clean:
+./scripts/dev-down.sh
+```

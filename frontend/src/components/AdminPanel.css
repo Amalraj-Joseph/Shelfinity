@@ -264,38 +264,131 @@
 @media (max-width: 768px) {
   .admin-tabs {
     flex-direction: column;
-    gap: 0.25rem;
-  }
-  
-  .tab {
-    text-align: center;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
   }
   
   .admin-table {
-    font-size: 0.8rem;
-  }
-  
-  .admin-table th,
-  .admin-table td {
-    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
   }
   
   .action-buttons {
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.5rem;
   }
-  
-  .btn-approve,
-  .btn-reject,
-  .btn-edit,
-  .btn-delete {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.7rem;
-  }
+}
+
+/* Loading and Error States */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--error-bg, #fef2f2);
+  border: 1px solid var(--error-border, #fecaca);
+  border-radius: 12px;
+  margin: 2rem;
+}
+
+.error-message p {
+  color: var(--error-text, #dc2626);
+  font-size: 1.1rem;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+}
+
+.btn-retry {
+  background: var(--accent-color);
+  color: var(--text-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-retry:hover {
+  background: var(--accent-hover, #3b82f6);
+  transform: translateY(-1px);
+}
+
+/* Status Complete */
+.status-complete {
+  color: var(--success-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* Processing States */
+.btn-approve:disabled,
+.btn-reject:disabled,
+.btn-edit:disabled,
+.btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-approve:disabled:hover,
+.btn-reject:disabled:hover,
+.btn-edit:disabled:hover,
+.btn-delete:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Tab Badge Counts */
+.admin-tabs button {
+  position: relative;
+}
+
+.admin-tabs button::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--accent-color);
+  color: var(--text-primary);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
 }
 
 @media (max-width: 480px) {

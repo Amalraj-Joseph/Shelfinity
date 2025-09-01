@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 
 const BookIcon = ({ size = 24 }) => (
@@ -50,20 +50,133 @@ const ArrowRightIcon = ({ size = 24 }) => (
   </svg>
 );
 
-const Dashboard = ({ onViewChange }) => {
-  const mockStats = {
-    totalBooks: 1247,
-    availableNow: 892,
-    yourRequests: 3,
-    recentActivity: 12
+const LoadingSpinner = () => (
+  <div className="loading-spinner">
+    <div className="spinner"></div>
+    <p>Loading...</p>
+  </div>
+);
+
+const ErrorMessage = ({ message, onRetry }) => (
+  <div className="error-message">
+    <p>{message}</p>
+    <button onClick={onRetry} className="btn-retry">Try Again</button>
+  </div>
+);
+
+const Dashboard = ({ onViewChange, authToken }) => {
+  const [stats, setStats] = useState({
+    totalBooks: 0,
+    availableNow: 0,
+    yourRequests: 0,
+    recentActivity: 0
+  });
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:9080/shelfinity-backend/app';
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      if (!authToken) {
+        throw new Error('Authentication required');
+      }
+
+      // Fetch books data
+      const booksResponse = await fetch(`${API_BASE_URL}/books`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!booksResponse.ok) {
+        throw new Error('Failed to fetch books data');
+      }
+      
+      const booksData = await booksResponse.json();
+
+      // Fetch user's queue items
+      const queueResponse = await fetch(`${API_BASE_URL}/queues`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      let userRequests = 0;
+      if (queueResponse.ok) {
+        const queueData = await queueResponse.json();
+        userRequests = queueData.length;
+      }
+
+      // Calculate stats
+      const totalBooks = booksData.length;
+      const availableNow = booksData.filter(book => book.available).length;
+
+      // Mock recent activities (in a real app, this would come from a separate endpoint)
+      const mockActivities = [
+        { id: 1, action: 'Book returned', book: 'The Great Gatsby', time: '2 hours ago' },
+        { id: 2, action: 'New request', book: '1984', time: '1 day ago' },
+        { id: 3, action: 'Book borrowed', book: 'To Kill a Mockingbird', time: '3 days ago' },
+        { id: 4, action: 'Request approved', book: 'Pride and Prejudice', time: '1 week ago' }
+      ];
+
+      setStats({
+        totalBooks,
+        availableNow,
+        yourRequests: userRequests,
+        recentActivity: mockActivities.length
+      });
+
+      setRecentActivities(mockActivities);
+      setLastUpdated(new Date());
+    } catch (err) {
+      setError(err.message);
+      console.error('Dashboard data fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const recentActivities = [
-    { id: 1, action: 'Book returned', book: 'The Great Gatsby', time: '2 hours ago' },
-    { id: 2, action: 'New request', book: '1984', time: '1 day ago' },
-    { id: 3, action: 'Book borrowed', book: 'To Kill a Mockingbird', time: '3 days ago' },
-    { id: 4, action: 'Request approved', book: 'Pride and Prejudice', time: '1 week ago' }
-  ];
+  useEffect(() => {
+    if (authToken) {
+      fetchDashboardData();
+    }
+  }, [authToken]);
+
+  useEffect(() => {
+    if (authToken) {
+      // Set up auto-refresh every 5 minutes
+      const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [authToken]);
+
+  const handleRetry = () => {
+    fetchDashboardData();
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard">
+        <ErrorMessage message={error} onRetry={handleRetry} />
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
@@ -72,6 +185,11 @@ const Dashboard = ({ onViewChange }) => {
         <div className="welcome-content">
           <h1>Welcome back, John!</h1>
           <p>Here's what's happening with your library today.</p>
+          {lastUpdated && (
+            <small className="last-updated">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </small>
+          )}
         </div>
         <div className="user-badge">
           <span className="badge">Administrator</span>
@@ -85,7 +203,7 @@ const Dashboard = ({ onViewChange }) => {
             <BookIcon />
           </div>
           <div className="stat-content">
-            <h3>{mockStats.totalBooks.toLocaleString()}</h3>
+            <h3>{stats.totalBooks.toLocaleString()}</h3>
             <p>Total Books</p>
           </div>
         </div>
@@ -95,7 +213,7 @@ const Dashboard = ({ onViewChange }) => {
             <StatsIcon />
           </div>
           <div className="stat-content">
-            <h3>{mockStats.availableNow.toLocaleString()}</h3>
+            <h3>{stats.availableNow.toLocaleString()}</h3>
             <p>Available Now</p>
           </div>
         </div>
@@ -105,7 +223,7 @@ const Dashboard = ({ onViewChange }) => {
             <RequestIcon />
           </div>
           <div className="stat-content">
-            <h3>{mockStats.yourRequests}</h3>
+            <h3>{stats.yourRequests}</h3>
             <p>Your Requests</p>
           </div>
         </div>
@@ -115,7 +233,7 @@ const Dashboard = ({ onViewChange }) => {
             <SearchIcon />
           </div>
           <div className="stat-content">
-            <h3>{mockStats.recentActivity}</h3>
+            <h3>{stats.recentActivity}</h3>
             <p>Recent Activity</p>
           </div>
         </div>
