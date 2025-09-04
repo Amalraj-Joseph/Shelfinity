@@ -4,6 +4,8 @@
  */
 package com.shelfinity;
 
+import java.util.Set;
+
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
@@ -12,6 +14,11 @@ import org.eclipse.microprofile.openapi.annotations.info.License;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.servers.Server;
 
+import com.shelfinity.books.BooksResource;
+import com.shelfinity.queues.QueueResource;
+import com.shelfinity.users.UsersResource;
+
+import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
 @OpenAPIDefinition(
@@ -38,9 +45,20 @@ import jakarta.ws.rs.core.Application;
     scheme = "bearer",
     bearerFormat = "JWT"
 )
+
+@ApplicationPath("/")
 public class ShelfinityApplication extends Application {
     
-    public ShelfinityApplication() {
-        System.out.println("ShelfinityApplication constructor called!");
+
+    private static final Set<Class<?>> applicationClasses = Set.of(
+        UsersResource.class,
+        QueueResource.class,
+        BooksResource.class,
+        HealthResource.class
+    );
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        return applicationClasses;
     }
 }
