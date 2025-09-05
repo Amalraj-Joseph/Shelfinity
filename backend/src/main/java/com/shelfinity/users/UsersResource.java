@@ -25,6 +25,7 @@ import com.shelfinity.security.JwtUtil;
 import com.shelfinity.users.dto.requests.CreateUserRequest;
 import com.shelfinity.users.dto.responses.UserResponse;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -231,6 +232,7 @@ public class UsersResource {
     @Path("/me")
     @Tag(name = "Users")
     @SecurityRequirement(name = "JWT")
+    @RolesAllowed("user")
     @Operation(
         summary = "Get current user profile",
         description = "Retrieves the profile of the currently authenticated user."
