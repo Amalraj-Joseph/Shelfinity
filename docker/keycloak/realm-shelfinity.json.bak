@@ -5,14 +5,19 @@
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "resetPasswordAllowed": true,
-
+  "smtpServer": {},
   "roles": {
     "realm": [
-      { "name": "user",  "description": "Regular user" },
-      { "name": "admin", "description": "Administrator" }
+      {
+        "name": "user",
+        "description": "Regular user"
+      },
+      {
+        "name": "admin",
+        "description": "Administrator"
+      }
     ]
   },
-
   "clients": [
     {
       "clientId": "shelfinity-frontend",
@@ -21,73 +26,32 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
-      "serviceAccountsEnabled": false,
       "redirectUris": [
-        "http://localhost:3000/*",
-        "http://localhost:9080/*"
+        "http://localhost:3000/*"
       ],
-      "webOrigins": ["*"],
+      "webOrigins": [
+        "*"
+      ],
       "attributes": {
-        "pkce.code.challenge.method": "S256",
-        "oauth2.device.authorization.grant.enabled": "true"
-      },
-      "protocolMappers": [
-        {
-          "name": "groups",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-group-membership-mapper",
-          "consentRequired": false,
-          "config": {
-            "full.path": "false",
-            "access.token.claim": "true",
-            "id.token.claim": "false",
-            "userinfo.token.claim": "false",
-            "claim.name": "groups",
-            "jsonType.label": "String"
-          }
-        },
-        {
-          "name": "audience-shelfinity-backend",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-audience-mapper",
-          "consentRequired": false,
-          "config": {
-            "access.token.claim": "true",
-            "id.token.claim": "false",
-            "included.custom.audience": "shelfinity-backend"
-          }
-        },
-        {
-        "name": "realm-roles-to-groups",
-        "protocol": "openid-connect",
-        "protocolMapper": "oidc-usermodel-realm-role-mapper",
-        "consentRequired": false,
-        "config": {
-            "multivalued": "true",
-            "userinfo.token.claim": "false",
-            "id.token.claim": "false",
-            "access.token.claim": "true",
-            "claim.name": "groups",
-            "jsonType.label": "String"
-        }
-       }
-      ]
+        "pkce.code.challenge.method": "S256"
+      }
     },
     {
       "clientId": "shelfinity-backend",
       "name": "Shelfinity Backend",
       "protocol": "openid-connect",
       "publicClient": false,
-      "serviceAccountsEnabled": true,
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
       "redirectUris": [
         "http://localhost:9080/*"
       ],
-      "webOrigins": ["*"]
+      "webOrigins": [
+        "*"
+      ]
     }
   ],
-
   "users": [
     {
       "id": "20e0e2e1-9f52-4fa9-bd6a-9d2fcd1c7a01",

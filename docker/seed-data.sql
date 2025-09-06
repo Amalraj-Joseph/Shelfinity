@@ -6,14 +6,14 @@
 
 -- Create initial users
 INSERT INTO users (id, keycloak_id, email, name, role, is_active, created_at, updated_at) VALUES
-    (gen_random_uuid(), 'admin-uuid', 'admin@shelfinity.com', 'Shelfinity Admin', 'ADMIN', true, NOW(), NOW()),
-    (gen_random_uuid(), 'john-uuid', 'john.doe@shelfinity.com', 'John Doe', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'jane-uuid', 'jane.smith@shelfinity.com', 'Jane Smith', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'bob-uuid', 'bob.wilson@shelfinity.com', 'Bob Wilson', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'alice-uuid', 'alice.johnson@shelfinity.com', 'Alice Johnson', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'mike-uuid', 'mike.brown@shelfinity.com', 'Mike Brown', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'sarah-uuid', 'sarah.davis@shelfinity.com', 'Sarah Davis', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'david-uuid', 'david.miller@shelfinity.com', 'David Miller', 'USER', true, NOW(), NOW())
+    (gen_random_uuid(), '20e0e2e1-9f52-4fa9-bd6a-9d2fcd1c7a01', 'admin@shelfinity.com', 'Shelfinity Admin', 'ADMIN', true, NOW(), NOW()),
+    (gen_random_uuid(), '6e7e9b5a-1b2c-4aa8-9e86-3dbe49f0f101', 'john.doe@shelfinity.com', 'John Doe', 'USER', true, NOW(), NOW()),
+    (gen_random_uuid(), '2a9c1f88-fb86-44a9-8f6c-0ed9e1a3f202', 'jane.smith@shelfinity.com', 'Jane Smith', 'USER', true, NOW(), NOW()),
+    (gen_random_uuid(), '77c5b8f0-a1c2-4fb3-95d3-1f6a0cf7e303', 'bob.wilson@shelfinity.com', 'Bob Wilson', 'USER', true, NOW(), NOW()),
+    (gen_random_uuid(), '8d0a1b2c-3e4f-5a6b-7c8d-9e0f1a2b3c44', 'alice.johnson@shelfinity.com', 'Alice Johnson', 'USER', true, NOW(), NOW()),
+    (gen_random_uuid(), 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c55', 'mike.brown@shelfinity.com', 'Mike Brown', 'USER', true, NOW(), NOW()),
+    (gen_random_uuid(), 'b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d66', 'sarah.davis@shelfinity.com', 'Sarah Davis', 'USER', true, NOW(), NOW()),
+    (gen_random_uuid(), 'c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e77', 'david.miller@shelfinity.com', 'David Miller', 'USER', true, NOW(), NOW())
 ON CONFLICT (email) DO NOTHING;
 
 -- Create initial books

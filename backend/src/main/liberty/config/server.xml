@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <server description="Shelfinity Backend Server">
 
+    <!-- Feature manager - using Jakarta EE 10 Web Profile with MicroProfile -->
+    <featureManager>
+        <feature>webProfile-10.0</feature>
+        <feature>jdbc-4.3</feature>
+        <feature>mpConfig-3.0</feature>
+        <feature>mpJwt-2.1</feature>
+        <feature>mpOpenAPI-3.1</feature>
+        <feature>mpHealth-4.0</feature>
+        <feature>appSecurity-5.0</feature>
+        <feature>ssl-1.0</feature>
+    </featureManager>
+
+
     <!-- Enable HTTP/2 endpoint -->
     <httpEndpoint id="defaultHttpEndpoint"
                   host="*"
@@ -9,39 +22,25 @@
 
     <!-- Database configuration -->
     <dataSource id="shelfinityDS" jndiName="jdbc/shelfinityDS">
-        <jdbcDriver libraryRef="PostgreSQLLib" />
-        <!-- <properties.postgresql serverName="postgres"  -->
-        <properties.postgresql serverName="127.0.0.1"
-                              portNumber="5432" 
-                              databaseName="shelfinity" 
-                              user="shelfinity" 
-                              password="shelfinity" />
+        <jdbcDriver libraryRef="PostgreSQLLib"/>
+        <properties.postgresql
+            serverName="${env.DB_HOST}"
+            portNumber="${env.DB_PORT}"
+            databaseName="${env.DB_NAME}"
+            user="${env.DB_USER}"
+            password="${env.DB_PASSWORD}"/>
     </dataSource>
+
 
     <!-- PostgreSQL JDBC driver library -->
     <library id="PostgreSQLLib">
         <fileset dir="${shared.resource.dir}/lib" includes="postgresql-*.jar"/>
     </library>
 
-    <!-- Feature manager - using Jakarta EE 10 Web Profile with MicroProfile -->
-    <featureManager>
-        <feature>webProfile-10.0</feature>
-        <feature>jdbc-4.3</feature>
-        <feature>mpJwt-2.1</feature>
-        <feature>mpOpenAPI-3.1</feature>
-        <feature>mpHealth-4.0</feature>
-        <feature>appSecurity-5.0</feature>
-    </featureManager>
-
     <!-- MicroProfile JWT Configuration -->
-    <!--
-    <mpJwt id="jwt" 
-            issuer="http://keycloak:8080/realms/shelfinity"
-            jwksUri="http://keycloak:8080/realms/shelfinity/protocol/openid-connect/certs" />
-    -->
     <mpJwt id="jwt"
         issuer="http://localhost:8080/realms/shelfinity"
-        jwksUri="http://localhost:8080/realms/shelfinity/protocol/openid-connect/certs"
+        jwksUri="${OIDC_ISSUER}/protocol/openid-connect/certs"
         userNameAttribute="preferred_username"
         groupNameAttribute="groups"/>
 
@@ -49,6 +48,6 @@
     <mpOpenAPI />
 
     <!-- Application deployment -->
-    <application id="shelfinity-backend" name="shelfinity-backend" location="shelfinity-backend.war" />
+    <webApplication id="shelfinity-backend" name="shelfinity-backend" location="shelfinity-backend.war" contextRoot="/shelfinity-backend"/>
 
 </server>

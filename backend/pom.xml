@@ -150,17 +150,6 @@
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>3.10.3</version>
-                <!-- commenting
-                <configuration>
-                    <serverName>defaultServer</serverName>
-                    <serverXmlFile>${project.basedir}/server.xml</serverXmlFile>
-                    <appsDirectory>apps</appsDirectory>
-                    <installApps>project</installApps>
-                    <bootstrapProperties>
-                        <shared.resource.dir>${project.basedir}</shared.resource.dir>
-                    </bootstrapProperties>
-                </configuration>
-                 -->
             </plugin>
         </plugins>
     </build>

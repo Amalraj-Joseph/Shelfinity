@@ -25,6 +25,8 @@
             <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
             <property name="jakarta.persistence.schema-generation.create-source" value="metadata"/>
             <property name="jakarta.persistence.schema-generation.drop-source" value="metadata"/>
+            <!-- For EclipseLink (Liberty default JPA): -->
+            <property name="eclipselink.ddl-generation" value="create-tables"/>
         </properties>
     </persistence-unit>
 

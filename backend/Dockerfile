@@ -1,28 +1,32 @@
-# --- Build stage ---
-FROM maven:3.9-eclipse-temurin-21 AS build
+# ---- Build stage -------------------------------------------------------------
+# FROM maven:3.9-eclipse-temurin-21 AS build
+
+ARG MAVEN_IMAGE=public.ecr.aws/docker/library/maven:3.9-eclipse-temurin-21
+FROM ${MAVEN_IMAGE} AS build
+
 WORKDIR /build
+
 COPY pom.xml .
-# Cache deps first
 RUN mvn -B -q -DskipTests dependency:go-offline
 COPY src ./src
-# Package WAR and copy the PostgreSQL JDBC driver into target/lib
-RUN mvn -B -DskipTests package &&         mkdir -p target/lib &&         mvn -q -DskipTests dependency:copy -Dartifact=org.postgresql:postgresql:42.7.5 -DoutputDirectory=target/lib
 
-# --- Runtime stage ---
-FROM icr.io/appcafe/open-liberty:full-java21-openj9-ubi-minimal
+# Build app, package Liberty server ZIP, and prepare wlp/ for copying
+RUN mvn -B -DskipTests clean package liberty:package
 
-# Copy server configuration
-COPY server.xml /opt/ol/wlp/usr/servers/defaultServer/
+# ---- Runtime stage (Open Liberty base) --------------------------------------
+FROM icr.io/appcafe/open-liberty:kernel-slim-java21-openj9-ubi-minimal
 
-# Copy the application
-COPY --from=build /build/target/shelfinity-backend.war /opt/ol/wlp/usr/servers/defaultServer/apps/
+# Copy server config from packaged server into /config (overlay for defaultServer)
+# Also copy shared libs (JDBC driver) and the freshly built WAR
+COPY --chown=1001:0 --from=build /build/target/liberty/wlp/usr/servers/defaultServer/ /config/
+COPY --chown=1001:0 --from=build /build/target/classes/META-INF/microprofile-config.properties /config/microprofile-config.properties
+COPY --chown=1001:0 --from=build /build/target/liberty/wlp/usr/shared/resources/lib/ /opt/ol/wlp/usr/shared/resources/lib/
+COPY --chown=1001:0 --from=build /build/target/shelfinity-backend.war /config/apps/
 
-# Copy JDBC driver to shared library dir
-RUN mkdir -p /opt/ol/wlp/usr/shared/resources/lib
-COPY --from=build /build/target/lib/postgresql-*.jar /opt/ol/wlp/usr/shared/resources/lib/
+# Install features now (runs featureUtility under the hood)
+RUN features.sh
+RUN configure.sh
+# (If you prefer explicitly:)  # RUN /opt/ol/wlp/bin/featureUtility installServerFeatures defaultServer
 
 EXPOSE 9080
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3       CMD wget --no-verbose --tries=1 --spider http://localhost:9080/health || exit 1
-
-CMD ["/opt/ol/wlp/bin/server", "run", "defaultServer"]
+# Base image entrypoint runs the server automatically (no CMD needed)

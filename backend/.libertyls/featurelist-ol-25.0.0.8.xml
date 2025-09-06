@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<featureInfo name="core" location="/home/amalraj/Shadow-Codex/Shelfinity/backend/target/liberty/wlp"> 
+    <kernelFeature> 
+        <symbolicName>com.ibm.websphere.appserver.binary.logging-1.0</symbolicName> 
+        <apiJar>dev/api/ibm/com.ibm.websphere.appserver.api.hpel_2.0.104.jar</apiJar> 
+        <apiPackage type="ibm-api">com.ibm.websphere.logging.hpel.reader</apiPackage> 
+        <apiPackage type="ibm-api">com.ibm.websphere.logging.hpel.reader.filters</apiPackage> 
+        <apiPackage type="ibm-api">com.ibm.websphere.logging.hpel.writer</apiPackage> 
+        <spiPackage>com.ibm.websphere.ras</spiPackage> 
+        <spiPackage>com.ibm.websphere.ras.annotation</spiPackage> 
+        <spiPackage>com.ibm.wsspi.logging</spiPackage> 
+        <spiPackage>com.ibm.ws.ffdc</spiPackage> 
+        <include symbolicName="com.ibm.websphere.appserver.logging-1.0"></include> 
+    </kernelFeature> 
+    <kernelFeature> 
+        <symbolicName>com.ibm.websphere.appserver.kernel-1.0</symbolicName> 
+        <apiJar>dev/api/ibm/com.ibm.websphere.appserver.api.config_1.2.104.jar</apiJar> 
+        <apiJar>dev/api/ibm/com.ibm.websphere.appserver.api.kernel.service_1.1.104.jar</apiJar> 
+        <apiJar>dev/api/spec/com.ibm.websphere.javaee.jsonp.1.0_1.0.104.jar</apiJar> 
+        <spiJar>dev/spi/ibm/com.ibm.websphere.appserver.spi.kernel.embeddable_1.1.104.jar</spiJar> 
+        <spiJar>dev/spi/ibm/com.ibm.websphere.appserver.spi.kernel.filemonitor_1.0.104.jar</spiJar> 
+        <spiJar>dev/spi/ibm/com.ibm.websphere.appserver.spi.kernel.metatype_1.0.104.jar</spiJar> 
+        <spiJar>dev/spi/ibm/com.ibm.websphere.appserver.spi.kernel.service_1.9.104.jar</spiJar> 
+        <spiJar>dev/spi/ibm/com.ibm.websphere.appserver.spi.threading_1.1.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.core_1.2.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.namespace.service_1.0.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.cm_1.1.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.component.annotations_1.0.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.component_1.1.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.coordinator_1.0.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.event_1.0.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.log_1.2.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.metatype.annotations_1.0.104.jar</spiJar> 
+        <spiJar>dev/spi/spec/com.ibm.wsspi.org.osgi.service.metatype_1.1.104.jar</spiJar> 
+        <spiJar>dev/spi/third-party/com.ibm.wsspi.thirdparty.equinox_1.4.104.jar</spiJar> 
+    </kernelFeature> 
+    <kernelFeature> 
+        <symbolicName>com.ibm.websphere.appserver.kernelCore-1.0</symbolicName> 
+        <displayName>Liberty Kernel</displayName> 
+        <description>This feature provides the Liberty kernel, which makes up the core of the Open Liberty runtime.</description> 
+        <apiPackage type="ibm-api">com.ibm.websphere.config.mbeans</apiPackage> 
+        <apiPackage type="ibm-api">com.ibm.websphere.logging</apiPackage> 
+        <apiPackage type="ibm-api">com.ibm.websphere.logging.hpel</apiPackage> 
+        <apiPackage type="ibm-api">com.ibm.websphere.kernel.server</apiPackage> 
+        <spiPackage>com.ibm.websphere.crypto</spiPackage> 
+        <spiPackage>com.ibm.wsspi.config</spiPackage> 
+        <spiPackage>com.ibm.wsspi.kernel.filemonitor</spiPackage> 
+        <spiPackage>com.ibm.wsspi.kernel.service.location</spiPackage> 
+        <spiPackage>com.ibm.wsspi.kernel.service.utils</spiPackage> 
+        <spiPackage>com.ibm.wsspi.security.crypto</spiPackage> 
+        <spiPackage>com.ibm.wsspi.threading</spiPackage> 
+        <spiPackage type="spec">org.osgi.service.cm</spiPackage> 
+        <spiPackage type="spec">org.osgi.service.component</spiPackage> 
+        <spiPackage type="spec">org.osgi.service.coordinator</spiPackage> 
+        <spiPackage type="spec">org.osgi.service.event</spiPackage> 
+        <spiPackage type="spec">org.osgi.service.log</spiPackage> 
+        <spiPackage type="spec">org.osgi.service.metatype</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.framework.console</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.framework.eventmgr</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.framework.log</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.datalocation</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.debug</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.environment</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.localization</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.resolver</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.runnable</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.security</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.service.urlconversion</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.signedcontent</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.storagemanager</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.osgi.util</spiPackage> 
+        <spiPackage type="third-party">org.eclipse.equinox.log</spiPackage> 
+        <configElement>include</configElement> 
+        <configElement>featureManager</configElement> 
+        <configElement>executor</configElement> 
+        <configElement>variable</configElement> 
+        <configElement>fileset</configElement> 
+        <configElement>config</configElement> 
+    </kernelFeature> 
+    <kernelFeature> 
+        <symbolicName>com.ibm.websphere.appserver.logging-1.0</symbolicName> 
+        <spiJar>dev/spi/ibm/com.ibm.websphere.appserver.spi.logging_1.1.104.jar</spiJar> 
+        <spiPackage>com.ibm.websphere.ras</spiPackage> 
+        <spiPackage>com.ibm.websphere.ras.annotation</spiPackage> 
+        <spiPackage>com.ibm.wsspi.logging</spiPackage> 
+        <spiPackage>com.ibm.ws.ffdc</spiPackage> 
+        <spiPackage>com.ibm.ws.ffdc.annotation</spiPackage> 
+        <configElement>logging</configElement> 
+    </kernelFeature> 
+<defaultConfiguration> 
+    <defaultInstance providingFeatures="com.ibm.websphere.appserver.logging-1.0"> 
+        <logging> 
+        </logging> 
+    </defaultInstance> 
+    <defaultInstance providingFeatures="com.ibm.websphere.appserver.kernelCore-1.0"> 
+        <org.apache.felix.scr.ScrService ds.info.service="true" ds.cache.metadata="true"> 
+        </org.apache.felix.scr.ScrService> 
+    </defaultInstance> 
+    <defaultInstance providingFeatures="com.ibm.websphere.appserver.binary.logging-1.0"> 
+        <logging> 
+            <binaryLog> 
+            </binaryLog> 
+            <binaryTrace> 
+            </binaryTrace>
+		 
+        </logging> 
+    </defaultInstance> 
+</defaultConfiguration> 
+</featureInfo>
