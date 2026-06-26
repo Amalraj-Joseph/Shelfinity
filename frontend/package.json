@@ -14,7 +14,10 @@
     "axios": "^1.4.0",
     "keycloak-js": "^22.0.0",
     "@keycloak/keycloak-admin-client": "^22.0.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "@carbon/react": "^1.37.0",
+    "@carbon/icons-react": "^11.25.0",
+    "sass": "^1.69.5"
   },
   "scripts": {
     "start": "react-scripts start",

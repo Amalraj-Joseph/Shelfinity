@@ -1,357 +1,231 @@
-# Shelfinity - Modern Library Management System
+# Shelfinity - Library Management System
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
-[![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/)
-
-A modern, full-stack library management system built with Jakarta EE, React, and Docker. Shelfinity provides a comprehensive solution for managing books, users, and borrowing requests with a beautiful, responsive interface.
-
-## 🚀 Features
-
-- **Modern UI/UX**: Ghost black & white theme with responsive design
-- **User Management**: Registration, authentication, and role-based access control
-- **Book Management**: Add, edit, and manage library books
-- **Request System**: Borrow and return requests with admin approval workflow
-- **Admin Panel**: Comprehensive dashboard for library administrators
-- **API-First Design**: RESTful API with OpenAPI documentation
-- **Containerized**: Full Docker support for easy deployment
-- **Identity Management**: Keycloak integration for enterprise-grade authentication
-
-## 🏗️ Architecture
-
-### System Overview
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           Shelfinity Library Management System              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐         │
-│  │   Frontend      │    │    Backend      │    │   PostgreSQL    │         │
-│  │   (React 18)    │◄──►│  (Jakarta EE)   │◄──►│   Database      │         │
-│  │   Port: 3000    │    │   Port: 9080    │    │   Port: 5432    │         │
-│  │   Nginx         │    │  Open Liberty   │    │   JPA/Hibernate │         │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘         │
-│          │                       │                       │                 │
-│          │                       │                       │                 │
-│          └───────────────────────┼───────────────────────┘                 │
-│                                  │                                         │
-│                     ┌─────────────────┐                                   │
-│                     │    Keycloak     │                                   │
-│                     │  (Identity)     │                                   │
-│                     │   Port: 8080    │                                   │
-│                     │   OAuth 2.0     │                                   │
-│                     │   JWT Tokens    │                                   │
-│                     └─────────────────┘                                   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Component Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Frontend Layer                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │   Login     │  │  Dashboard  │  │  BookList   │  │ AdminPanel  │       │
-│  │ Component   │  │ Component   │  │ Component   │  │ Component   │       │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
-│         │                │                │                │               │
-│         └────────────────┼────────────────┼────────────────┘               │
-│                          │                                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    React App (Single Page Application)              │   │
-│  │                    Ghost Black & White Theme                        │   │
-│  │                    Responsive Design                                │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Backend Layer                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │   Users     │  │   Books     │  │   Queues    │  │   Health    │       │
-│  │ Resource    │  │ Resource    │  │ Resource    │  │ Resource    │       │
-│  │ (JAX-RS)    │  │ (JAX-RS)    │  │ (JAX-RS)    │  │ (JAX-RS)    │       │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
-│         │                │                │                │               │
-│         └────────────────┼────────────────┼────────────────┘               │
-│                          │                                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    Jakarta EE 10 Application                        │   │
-│  │                    Open Liberty Server                              │   │
-│  │                    JPA/Hibernate ORM                                │   │
-│  │                    JWT Authentication                               │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Data Layer                                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │   Users     │  │   Books     │  │   Queues    │  │  Keycloak   │       │
-│  │   Table     │  │   Table     │  │   Table     │  │   Database  │       │
-│  │             │  │             │  │             │  │             │       │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
-│         │                │                │                │               │
-│         └────────────────┼────────────────┼────────────────┘               │
-│                          │                                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    PostgreSQL Database                               │   │
-│  │                    - shelfinity database (app data)                 │   │
-│  │                    - keycloak database (auth data)                  │   │
-│  │                    - ACID compliance                                 │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Data Flow
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   User      │───►│  Frontend   │───►│   Backend   │───►│  Database   │
-│  Browser    │    │   React     │    │ Jakarta EE  │    │ PostgreSQL  │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-       │                   │                   │                   │
-       │                   │                   │                   │
-       ▼                   ▼                   ▼                   ▼
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Keycloak  │◄───│   JWT       │◄───│  Auth       │◄───│   User      │
-│  Identity   │    │  Tokens     │    │  Service    │    │  Sessions   │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-```
-
-### Security Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Security Layer                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │   OAuth 2.0 │  │   JWT       │  │   Role-     │  │   CORS      │       │
-│  │   Protocol  │  │  Tokens     │  │   Based     │  │  Policy     │       │
-│  │             │  │             │  │   Access    │  │             │       │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
-│         │                │                │                │               │
-│         └────────────────┼────────────────┼────────────────┘               │
-│                          │                                                │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    Keycloak Identity Provider                       │   │
-│  │                    - User Authentication                            │   │
-│  │                    - Session Management                             │   │
-│  │                    - Token Validation                               │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Deployment Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Docker Environment                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐         │
-│  │   Frontend      │    │    Backend      │    │   PostgreSQL    │         │
-│  │   Container     │    │   Container     │    │   Container     │         │
-│  │   Port: 3000    │    │   Port: 9080    │    │   Port: 5432    │         │
-│  │   Nginx         │    │  Open Liberty   │    │   Database      │         │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘         │
-│          │                       │                       │                 │
-│          │                       │                       │                 │
-│          └───────────────────────┼───────────────────────┘                 │
-│                                  │                                         │
-│                     ┌─────────────────┐                                   │
-│                     │   Keycloak      │                                   │
-│                     │   Container     │                                   │
-│                     │   Port: 8080    │                                   │
-│                     └─────────────────┘                                   │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    Docker Compose Network                           │   │
-│  │                    - Internal communication                         │   │
-│  │                    - Health checks                                 │   │
-│  │                    - Volume persistence                             │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-## 📁 Project Structure
-
-```
-Shelfinity/
-├── backend/                 # Jakarta EE 10 Backend (Open Liberty)
-│   ├── src/
-│   │   ├── main/java/com/shelfinity/
-│   │   │   ├── users/         # User management
-│   │   │   ├── books/         # Book management
-│   │   │   ├── queues/        # Queue management
-│   │   │   ├── email/         # Email configuration
-│   │   │   └── security/      # JWT utilities
-│   │   └── resources/
-│   │       └── META-INF/
-│   │           └── persistence.xml
-│   ├── pom.xml
-│   ├── Dockerfile
-│   └── server.xml
-├── frontend/               # React 18 Frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/        # React components
-│   │   ├── App.js
-│   │   └── index.js
-│   ├── package.json
-│   ├── Dockerfile
-│   └── nginx.conf
-├── docker/                 # Docker Compose configurations
-│   ├── docker-compose.yml
-│   ├── docker-compose-simple.yml
-│   ├── docker-compose-shelfinity.yml
-│   └── init-db.sql
-├── scripts/                # Utility scripts
-│   ├── start.sh
-│   ├── build-and-start.sh
-│   ├── start-with-dns.sh
-│   └── setup-local-dns.sh
-├── docs/                   # Documentation
-│   ├── api/               # API documentation
-│   │   ├── api.yaml
-│   │   ├── api.html
-│   │   ├── Architecture.md
-│   │   ├── As_is.md
-│   │   ├── Flow_chart.md
-│   │   ├── README.md
-│   │   ├── SRS.md
-│   │   └── User_stories.md
-│   ├── guides/            # Setup and configuration guides
-│   │   ├── KEYCLOAK_SETUP.md
-│   │   └── LOCAL_DNS_GUIDE.md
-│   └── PROJECT_STATUS.md  # Project status and roadmap
-├── .github/               # GitHub workflows and templates
-├── .vscode/               # VS Code configuration
-├── .gitignore            # Git ignore rules
-├── LICENSE.txt           # MIT License
-└── README.md             # This file
-```
-
-## 🛠️ Technology Stack
-
-### Backend
-- **Java 21** with Jakarta EE 10
-- **Open Liberty** application server
-- **PostgreSQL** database
-- **JPA/Hibernate** for data persistence
-- **JWT** for token-based authentication
-- **Keycloak** for identity management
-
-### Frontend
-- **React 18** with modern hooks
-- **CSS3** with custom ghost theme
-- **Nginx** for serving static files
-- **Responsive design** for all devices
-
-### Infrastructure
-- **Docker** and **Docker Compose**
-- **PostgreSQL** for data storage
-- **Keycloak** for authentication
-- **Health checks** and monitoring
+A modern, full-stack library management system built with Jakarta EE 10, React 18, and PostgreSQL.
 
 ## 🚀 Quick Start
 
+Get the system running in 5 minutes:
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd Shelfinity
+
+# 2. Start all services with Docker Compose
+docker-compose -f docker/docker-compose.yml up -d
+
+# 3. Wait for services to initialize (~2 minutes)
+# Access the application at http://localhost:3000
+```
+
+For detailed setup instructions, see [QUICKSTART.md](QUICKSTART.md).
+
+---
+
+## ✨ Features
+
+### Core Functionality
+- ✅ **User Management**: Registration, authentication, and role-based access control
+- ✅ **Book Management**: CRUD operations, search, and availability tracking
+- ✅ **Borrow/Return System**: Request-based workflow with admin approval
+- ✅ **Queue Management**: Admin panel for processing requests
+
+### Advanced Features (New!)
+- ✅ **Email Notifications**: Automated notifications for all library events
+- ✅ **Book Reservations**: Reserve unavailable books with automatic notifications
+- ✅ **Overdue Tracking**: Automated daily checks with email reminders
+- ✅ **Advanced Reports**: Analytics on book popularity, trends, and user activity
+- ✅ **Library Statistics**: Real-time dashboard metrics
+
+---
+
+## 🏗️ Architecture
+
+### Technology Stack
+
+**Backend**
+- Jakarta EE 10 (JAX-RS, JPA, CDI)
+- Open Liberty 24.0.0.1
+- PostgreSQL 15
+- MicroProfile (JWT, OpenAPI, Health)
+- Jakarta Mail for email notifications
+
+**Frontend**
+- React 18
+- React Router for navigation
+- Modern CSS with responsive design
+
+**Infrastructure**
+- Docker & Docker Compose
+- Keycloak for OAuth 2.0/OpenID Connect
+- Nginx for frontend serving
+
+### System Components
+
+```
+┌─────────────────┐
+│   React App     │ (Port 3000)
+│   (Frontend)    │
+└────────┬────────┘
+         │
+         ↓
+┌─────────────────┐
+│   Keycloak      │ (Port 8080)
+│ (Auth Server)   │
+└────────┬────────┘
+         │
+         ↓
+┌─────────────────┐
+│  Open Liberty   │ (Port 9080)
+│   (Backend)     │
+└────────┬────────┘
+         │
+         ↓
+┌─────────────────┐
+│   PostgreSQL    │ (Port 5432)
+│   (Database)    │
+└─────────────────┘
+```
+
+---
+
+## 📚 Documentation
+
+- **[QUICKSTART.md](QUICKSTART.md)** - Get started in 5 minutes
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Deploy to any environment
+- **[docs/COMPLETION_REPORT.md](docs/COMPLETION_REPORT.md)** - Comprehensive deployment guide
+- **[docs/NEW_FEATURES_SUMMARY.md](docs/NEW_FEATURES_SUMMARY.md)** - Detailed feature documentation
+- **[docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md)** - Current implementation status
+- **[docs/api/README.md](docs/api/README.md)** - API documentation
+
+---
+
+## 🔑 Default Credentials
+
+### Admin User
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Role**: Administrator
+
+### Regular User
+- **Username**: `john.doe`
+- **Password**: `john123`
+- **Role**: User
+
+> ⚠️ **Security Note**: Change these credentials in production!
+
+---
+
+## 🌐 API Endpoints
+
+### Authentication
+- `POST /auth/login` - Login and get user info
+- `GET /auth/me` - Get current user profile
+
+### Books
+- `GET /books` - List all books
+- `POST /books` - Create new book (admin)
+- `GET /books/{id}` - Get book details
+- `PUT /books/{id}` - Update book (admin)
+- `DELETE /books/{id}` - Delete book (admin)
+- `GET /books/search?query={query}` - Search books
+
+### Queue Management
+- `GET /queues` - Get all queue items (admin)
+- `POST /queues` - Create queue item
+- `PUT /queues/{id}/status` - Update queue item status (admin)
+- `GET /queues/my` - Get user's queue items
+
+### Reservations (New!)
+- `POST /reservations` - Create reservation
+- `GET /reservations` - Get all reservations (admin)
+- `GET /reservations/my` - Get user's reservations
+- `DELETE /reservations/{id}` - Cancel reservation
+
+### Overdue Tracking (New!)
+- `GET /overdue` - Get all overdue items (admin)
+- `GET /overdue/my` - Get user's overdue items
+- `GET /overdue/stats` - Get overdue statistics (admin)
+
+### Reports (New!)
+- `GET /reports/book-popularity` - Most borrowed books (admin)
+- `GET /reports/borrowing-trends` - Borrowing trends (admin)
+- `GET /reports/user-activity` - User activity (admin)
+- `GET /reports/statistics` - Library statistics (admin)
+- `GET /reports/author-distribution` - Author distribution (admin)
+
+### Email Configuration (New!)
+- `GET /email-config` - Get email configuration (admin)
+- `POST /email-config` - Create email configuration (admin)
+- `PUT /email-config/{id}` - Update configuration (admin)
+- `POST /email-config/test` - Send test email (admin)
+
+For complete API documentation, visit: `http://localhost:9080/openapi/ui/`
+
+---
+
+## 🗄️ Database Schema
+
+### Core Tables
+- **users** - User accounts and profiles
+- **books** - Book catalog with availability tracking
+- **queue_items** - Borrow/return requests with approval workflow
+
+### New Tables
+- **reservations** - Book reservation system
+- **email_config** - SMTP configuration for notifications
+
+### Sample Data
+The system includes 15 pre-loaded books for immediate testing:
+- Classic literature (Pride and Prejudice, Moby Dick, etc.)
+- Fantasy (Harry Potter, Lord of the Rings, etc.)
+- Dystopian fiction (1984, Brave New World, etc.)
+- Science fiction (Dune, Foundation, etc.)
+
+---
+
+## 📧 Email Configuration
+
+### Setup SMTP
+1. Access admin panel at `http://localhost:3000`
+2. Navigate to Email Configuration
+3. Enter your SMTP settings:
+   - Host: `smtp.gmail.com` (for Gmail)
+   - Port: `587` (TLS) or `465` (SSL)
+   - Username: Your email
+   - Password: App-specific password
+4. Test the configuration
+5. Activate it
+
+### Supported Email Notifications
+- User registration confirmation
+- Borrow request approval/rejection
+- Return confirmation
+- Overdue reminders (daily at 9 AM)
+- Book reservation notifications
+- Profile updates
+- Admin alerts
+
+---
+
+## 🔧 Development
+
 ### Prerequisites
-- Docker and Docker Compose
-- Git
+- Docker & Docker Compose
+- Java 17+ (for local development)
+- Node.js 18+ (for frontend development)
+- Maven 3.8+ (for backend development)
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/your-username/shelfinity.git
-cd shelfinity
-```
+### Local Development Setup
 
-### 2. Start the Application
-```bash
-# Start all services
-./scripts/start.sh
-
-# Or build and start (recommended for first run)
-./scripts/build-and-start.sh
-```
-
-### 3. Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:9080/shelfinity-backend/app
-- **Keycloak Admin**: http://localhost:8080 (admin/admin)
-- **API Documentation**: http://localhost:9080/openapi/ui/
-
-## 📚 API Documentation
-
-The API documentation is available through OpenLiberty's built-in OpenAPI support:
-- **Swagger UI**: http://localhost:9080/openapi/ui/
-- **OpenAPI Spec**: http://localhost:9080/openapi
-- **Health Check**: http://localhost:9080/shelfinity-backend/app/health
-
-### API Endpoints
-- **Books**: `GET/POST/PUT/DELETE /books`
-- **Users**: `GET/POST/PUT/DELETE /users` (Admin only)
-- **Queues**: `GET/POST/PUT/DELETE /queues` (Admin only)
-- **Health**: `GET /health`
-
-> **Note**: The OpenAPI specification currently shows paths with `/app` prefix due to OpenLiberty's automatic context path handling. The actual API endpoints work correctly at the documented URLs.
-
-## 🔧 Configuration
-
-### Environment Variables
-Key environment variables can be configured in the Docker Compose files:
-
-```yaml
-# Database
-DB_HOST=postgres
-DB_PORT=5432
-DB_NAME=shelfinity
-DB_USER=shelfinity
-DB_PASSWORD=shelfinity
-
-# Keycloak
-KEYCLOAK_ADMIN=admin
-KEYCLOAK_ADMIN_PASSWORD=admin
-KC_REALM=shelfinity
-KC_CLIENT_ID=shelfinity-frontend
-```
-
-### Docker Compose Options
-- `docker/docker-compose.yml` - Full stack with Keycloak
-- `docker/docker-compose-simple.yml` - Backend + Frontend only
-- `docker/docker-compose-shelfinity.yml` - Production-ready setup
-
-## 📖 Documentation
-
-- **[API Documentation](docs/api/)** - Complete API reference
-- **[Setup Guides](docs/guides/)** - Configuration and deployment guides
-- **[Keycloak Setup](docs/guides/KEYCLOAK_SETUP.md)** - Identity provider configuration
-- **[Local DNS Guide](docs/guides/LOCAL_DNS_GUIDE.md)** - Local domain setup
-
-## 🛠️ Development
-
-### Backend Development
+**Backend**
 ```bash
 cd backend
 mvn clean package
+# Deploy to Open Liberty
 ```
 
-### Frontend Development
+**Frontend**
 ```bash
 cd frontend
 npm install
@@ -361,88 +235,162 @@ npm start
 ### Running Tests
 ```bash
 # Backend tests
-cd backend && mvn test
+cd backend
+mvn test
 
 # Frontend tests
-cd frontend && npm test
+cd frontend
+npm test
 ```
-
-## 🐳 Docker Commands
-
-```bash
-# Start services
-cd docker && docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-
-# Rebuild and start
-docker-compose up -d --build
-```
-
-## 📋 Project Status
-
-- ✅ **Core Features**: User management, book management, request system
-- ✅ **UI/UX**: Modern ghost theme, responsive design
-- ✅ **Backend API**: RESTful endpoints with JWT authentication
-- ✅ **Database**: PostgreSQL with JPA/Hibernate
-- ✅ **Containerization**: Full Docker support
-- ✅ **Documentation**: API docs and setup guides
-- ✅ **Keycloak Integration**: Basic setup complete
-- 🔄 **OpenAPI Documentation**: Functional but paths show `/app` prefix (known issue)
-- 🔄 **Testing**: Unit tests in progress
-- 🔄 **CI/CD**: Pipeline setup in progress
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
-
-## 🙏 Acknowledgments
-
-- [Open Liberty](https://openliberty.io/) for the application server
-- [Keycloak](https://www.keycloak.org/) for identity management
-- [React](https://reactjs.org/) for the frontend framework
-- [PostgreSQL](https://www.postgresql.org/) for the database
-
-## 📞 Support
-
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the [documentation](docs/) for guides and FAQs
-- Review the [API documentation](docs/api/) for technical details
 
 ---
 
-**Shelfinity** - Modern Library Management System  
-*Built with ❤️ using Jakarta EE, React, and Docker*
+## 📊 Monitoring & Health Checks
 
+### Health Endpoints
+- **Liveness**: `http://localhost:9080/health/live`
+- **Readiness**: `http://localhost:9080/health/ready`
 
+### Metrics
+- **Application Metrics**: `http://localhost:9080/metrics`
+- **OpenAPI Spec**: `http://localhost:9080/openapi`
 
+---
 
+## 🐛 Troubleshooting
 
+### Common Issues
 
-
-## Quickstart (Docker Compose)
-
-**Prereqs:** Docker Desktop 4.x, Docker Compose v2, ports 3000/8080/9080 free.
-
+**Services not starting**
 ```bash
-./scripts/dev-up.sh
-# Open:
-#  - Frontend:  http://localhost:3000
-#  - Backend:   http://localhost:9080/openapi/ui
-#  - Keycloak:  http://localhost:8080  (admin/admin)
-# Stop & clean:
-./scripts/dev-down.sh
+# Check logs
+docker-compose -f docker/docker-compose.yml logs
+
+# Restart services
+docker-compose -f docker/docker-compose.yml restart
 ```
+
+**Database connection issues**
+```bash
+# Verify PostgreSQL is running
+docker-compose -f docker/docker-compose.yml ps postgres
+
+# Check database logs
+docker-compose -f docker/docker-compose.yml logs postgres
+```
+
+**Keycloak authentication issues**
+- Ensure Keycloak is fully initialized (takes ~1-2 minutes)
+- Verify realm configuration at `http://localhost:8080`
+- Check that users exist in the Keycloak admin console
+
+For more troubleshooting tips, see [docs/COMPLETION_REPORT.md](docs/COMPLETION_REPORT.md).
+
+---
+
+## 🚀 Deployment
+
+### Quick Deploy to Production
+
+See **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** for complete deployment instructions including:
+- Environment variable configuration
+- Cloud deployment (AWS, GCP, Azure, Kubernetes)
+- SSL/TLS setup
+- Security best practices
+- Monitoring and logging
+
+### Production Checklist
+- [ ] Change default credentials
+- [ ] Configure production database
+- [ ] Set up SSL/TLS certificates
+- [ ] Configure production SMTP server
+- [ ] Set up monitoring and logging
+- [ ] Configure backup strategy
+- [ ] Review security settings
+- [ ] Set up CI/CD pipeline
+- [ ] Update Keycloak realm for production URLs
+- [ ] Configure environment variables (see `.env.example`)
+
+### Environment Variables
+Key environment variables to configure (see `.env.example` for complete list):
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` - Database connection
+- `OIDC_ISSUER` - Keycloak issuer URL
+- `FRONTEND_URL` - Frontend URL for CORS
+- `REACT_APP_KEYCLOAK_URL` - Keycloak URL accessible from browser
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Write/update tests
+5. Submit a pull request
+
+---
+
+## 📞 Support
+
+For issues, questions, or contributions:
+- Create an issue in the repository
+- Check existing documentation in the `docs/` folder
+- Review the API documentation at `/openapi/ui/`
+
+---
+
+## 🎯 Roadmap
+
+### Completed ✅
+- Core library management features
+- User authentication and authorization
+- Email notification system
+- Book reservation system
+- Overdue tracking with automated reminders
+- Advanced reporting and analytics
+
+### In Progress 🚧
+- Frontend components for new features
+- Bulk book upload UI
+- End-to-end testing
+
+### Planned 📋
+- Mobile application
+- Fine management system
+- Multi-library support
+- Advanced search with filters
+- Book recommendations
+- Reading history and statistics
+
+---
+
+## 📈 Project Status
+
+**Current Version**: 1.0.0  
+**Status**: Backend Complete, Frontend Pending  
+**Last Updated**: 2026-03-21
+
+### Feature Completion
+- ✅ Backend API: 100%
+- ✅ Database Schema: 100%
+- ✅ Authentication: 100%
+- ✅ Email System: 100%
+- ✅ Reservations: 100%
+- ✅ Overdue Tracking: 100%
+- ✅ Reports: 100%
+- ⏳ Frontend UI: 60%
+- ⏳ Testing: 40%
+- ⏳ Documentation: 90%
+
+---
+
+**Made with ❤️ for libraries everywhere**

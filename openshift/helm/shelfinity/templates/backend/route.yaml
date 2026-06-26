@@ -1,0 +1,25 @@
+{{- if and .Values.backend.enabled .Values.backend.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.backend.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "shelfinity.backend.labels" . | nindent 4 }}
+spec:
+  host: {{ .Values.backend.route.host | default (printf "backend-%s.%s" .Values.global.namespace .Values.global.domain) }}
+  to:
+    kind: Service
+    name: {{ .Values.backend.name }}
+    weight: 100
+  port:
+    targetPort: http
+  {{- if .Values.backend.route.tls.enabled }}
+  tls:
+    termination: {{ .Values.backend.route.tls.termination }}
+    insecureEdgeTerminationPolicy: {{ .Values.backend.route.tls.insecureEdgeTerminationPolicy }}
+  {{- end }}
+  wildcardPolicy: None
+{{- end }}
+
+# Made with Bob

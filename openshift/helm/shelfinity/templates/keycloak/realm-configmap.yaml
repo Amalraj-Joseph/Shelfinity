@@ -1,0 +1,128 @@
+{{- if and .Values.keycloak.enabled .Values.keycloak.realm.import }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.keycloak.name }}-realm
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "shelfinity.keycloak.labels" . | nindent 4 }}
+data:
+  realm-shelfinity.json: |
+    {
+      "realm": "{{ .Values.keycloak.realm.name }}",
+      "enabled": true,
+      "registrationAllowed": true,
+      "loginWithEmailAllowed": true,
+      "duplicateEmailsAllowed": false,
+      "resetPasswordAllowed": true,
+      "smtpServer": {},
+      "roles": {
+        "realm": [
+          {
+            "name": "user",
+            "description": "Regular user"
+          },
+          {
+            "name": "admin",
+            "description": "Administrator"
+          }
+        ]
+      },
+      "clients": [
+        {
+          "clientId": "{{ .Values.frontend.env.clientId }}",
+          "name": "Shelfinity Frontend",
+          "protocol": "openid-connect",
+          "publicClient": true,
+          "standardFlowEnabled": true,
+          "directAccessGrantsEnabled": true,
+          "redirectUris": [
+            "https://frontend-{{ .Values.global.namespace }}.{{ .Values.global.domain }}/*",
+            "http://localhost:3000/*"
+          ],
+          "webOrigins": [
+            "https://frontend-{{ .Values.global.namespace }}.{{ .Values.global.domain }}",
+            "http://localhost:3000"
+          ],
+          "attributes": {
+            "pkce.code.challenge.method": "S256"
+          }
+        },
+        {
+          "clientId": "{{ .Values.backend.env.oidcAudience }}",
+          "name": "Shelfinity Backend",
+          "protocol": "openid-connect",
+          "publicClient": false,
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": true,
+          "redirectUris": [
+            "https://backend-{{ .Values.global.namespace }}.{{ .Values.global.domain }}/*",
+            "http://localhost:9080/*"
+          ],
+          "webOrigins": [
+            "https://backend-{{ .Values.global.namespace }}.{{ .Values.global.domain }}",
+            "http://localhost:9080"
+          ]
+        }
+      ],
+      "users": [
+        {
+          "username": "admin",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "Shelfinity",
+          "lastName": "Admin",
+          "email": "admin@shelfinity.com",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "admin123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": [
+            "admin"
+          ]
+        },
+        {
+          "username": "john.doe",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "John",
+          "lastName": "Doe",
+          "email": "john.doe@shelfinity.com",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "john123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": [
+            "user"
+          ]
+        },
+        {
+          "username": "jane.smith",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "Jane",
+          "lastName": "Smith",
+          "email": "jane.smith@shelfinity.com",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "jane123",
+              "temporary": false
+            }
+          ],
+          "realmRoles": [
+            "user"
+          ]
+        }
+      ]
+    }
+{{- end }}
+
+# Made with Bob

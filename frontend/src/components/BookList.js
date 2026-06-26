@@ -5,19 +5,38 @@
  * See the LICENSE file in the root directory for more information.
  */
 import React, { useState, useEffect } from 'react';
-import './BookList.css';
+import {
+  Grid,
+  Column,
+  DataTable,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableBody,
+  TableCell,
+  TableToolbar,
+  TableToolbarContent,
+  TableToolbarSearch,
+  Button,
+  Dropdown,
+  Pagination,
+  Tag,
+  Loading
+} from '@carbon/react';
+import './BookList.scss';
 
 const LoadingSpinner = () => (
-  <div className="loading-spinner">
-    <div className="spinner"></div>
-    <p>Loading books...</p>
+  <div className="loading-container">
+    <Loading description="Loading books..." withOverlay={false} />
   </div>
 );
 
 const ErrorMessage = ({ message, onRetry }) => (
-  <div className="error-message">
+  <div className="error-container">
     <p>{message}</p>
-    <button onClick={onRetry} className="btn-retry">Try Again</button>
+    <Button onClick={onRetry} kind="tertiary">Try Again</Button>
   </div>
 );
 
@@ -30,9 +49,15 @@ const BookList = ({ authToken }) => {
   const [error, setError] = useState(null);
   const [requesting, setRequesting] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const [booksPerPage] = useState(12);
+  const [pageSize, setPageSize] = useState(10);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:9080/shelfinity-backend/app';
+  const API_BASE_URL = '/api';
+
+  const filterOptions = [
+    { id: 'all', text: 'All Books' },
+    { id: 'available', text: 'Available' },
+    { id: 'unavailable', text: 'Unavailable' }
+  ];
 
   const fetchBooks = async () => {
     try {
@@ -85,7 +110,7 @@ const BookList = ({ authToken }) => {
     });
     
     setFilteredBooks(filtered);
-    setCurrentPage(1); // Reset to first page when filtering
+    setCurrentPage(1);
   }, [books, searchTerm, filter]);
 
   const handleRequestBook = async (bookId) => {
@@ -94,7 +119,7 @@ const BookList = ({ authToken }) => {
     try {
       setRequesting(prev => new Set(prev).add(bookId));
       
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Please log in to request books');
       }
@@ -117,7 +142,6 @@ const BookList = ({ authToken }) => {
         throw new Error(errorData.message || 'Failed to request book');
       }
 
-      // Update the book availability
       setBooks(prevBooks => 
         prevBooks.map(book => 
           book.id === bookId 
@@ -143,14 +167,6 @@ const BookList = ({ authToken }) => {
     fetchBooks();
   };
 
-  // Pagination
-  const indexOfLastBook = currentPage * booksPerPage;
-  const indexOfFirstBook = indexOfLastBook - booksPerPage;
-  const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
-  const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   if (loading) {
     return (
       <div className="book-list">
@@ -167,121 +183,146 @@ const BookList = ({ authToken }) => {
     );
   }
 
+  const headers = [
+    { key: 'title', header: 'Title' },
+    { key: 'author', header: 'Author' },
+    { key: 'isbn', header: 'ISBN' },
+    { key: 'category', header: 'Category' },
+    { key: 'copies', header: 'Copies' },
+    { key: 'status', header: 'Status' },
+    { key: 'actions', header: 'Actions' }
+  ];
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedBooks = filteredBooks.slice(startIndex, endIndex);
+
+  const rows = paginatedBooks.map(book => ({
+    id: book.id.toString(),
+    title: book.title,
+    author: book.author,
+    isbn: book.isbn,
+    category: book.category || 'N/A',
+    copies: `${book.availableCopies || 0}/${book.copies || 1}`,
+    status: book.available ? 'available' : 'unavailable',
+    available: book.available,
+    bookId: book.id
+  }));
+
   return (
     <div className="book-list">
-      <div className="book-list-header">
-        <h1>Book Collection</h1>
-        <p>Browse and request books from our library</p>
-        <div className="book-count">
-          Showing {filteredBooks.length} of {books.length} books
-        </div>
-      </div>
-
-      <div className="book-controls">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search books by title, author, or ISBN..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        <div className="filter-container">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Books</option>
-            <option value="available">Available</option>
-            <option value="unavailable">Unavailable</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="books-grid">
-        {currentBooks.map(book => (
-          <div key={book.id} className="book-card">
-            <div className="book-header">
-              <h3 className="book-title">{book.title}</h3>
-              <span className={`book-status ${book.available ? 'available' : 'unavailable'}`}>
-                {book.available ? 'Available' : 'Unavailable'}
-              </span>
-            </div>
-            
-            <div className="book-details">
-              <p className="book-author">by {book.author}</p>
-              <p className="book-isbn">ISBN: {book.isbn}</p>
-              <p className="book-category">Category: {book.category}</p>
-              <p className="book-copies">
-                Copies: {book.availableCopies || 0}/{book.copies || 1} available
-              </p>
-            </div>
-
-            <div className="book-actions">
-              {book.available ? (
-                <button
-                  onClick={() => handleRequestBook(book.id)}
-                  className="btn-request"
-                  disabled={requesting.has(book.id)}
-                >
-                  {requesting.has(book.id) ? 'Requesting...' : 'Request Book'}
-                </button>
-              ) : (
-                <button className="btn-unavailable" disabled>
-                  Not Available
-                </button>
-              )}
-            </div>
+      <Grid>
+        <Column sm={4} md={8} lg={16}>
+          <div className="book-list-header">
+            <h1>Book Collection</h1>
+            <p>Browse and request books from our library</p>
           </div>
-        ))}
-      </div>
+        </Column>
+      </Grid>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button 
-            onClick={() => paginate(currentPage - 1)} 
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            Previous
-          </button>
-          
-          <div className="page-numbers">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-              <button
-                key={number}
-                onClick={() => paginate(number)}
-                className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
+      <Grid>
+        <Column sm={4} md={8} lg={16}>
+          <DataTable rows={rows} headers={headers}>
+            {({
+              rows,
+              headers,
+              getHeaderProps,
+              getRowProps,
+              getTableProps,
+              getTableContainerProps
+            }) => (
+              <TableContainer
+                title={`Showing ${filteredBooks.length} of ${books.length} books`}
+                {...getTableContainerProps()}
               >
-                {number}
-              </button>
-            ))}
-          </div>
-          
-          <button 
-            onClick={() => paginate(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {filteredBooks.length === 0 && (
-        <div className="no-books">
-          <p>No books found matching your criteria.</p>
-          <button onClick={() => { setSearchTerm(''); setFilter('all'); }} className="btn-clear-filters">
-            Clear Filters
-          </button>
-        </div>
-      )}
+                <TableToolbar>
+                  <TableToolbarContent>
+                    <TableToolbarSearch
+                      placeholder="Search books by title, author, or ISBN..."
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Dropdown
+                      id="filter-dropdown"
+                      titleText=""
+                      label="Filter by status"
+                      items={filterOptions}
+                      itemToString={(item) => (item ? item.text : '')}
+                      selectedItem={filterOptions.find(opt => opt.id === filter)}
+                      onChange={({ selectedItem }) => setFilter(selectedItem.id)}
+                    />
+                  </TableToolbarContent>
+                </TableToolbar>
+                <Table {...getTableProps()}>
+                  <TableHead>
+                    <TableRow>
+                      {headers.map((header) => (
+                        <TableHeader key={header.key} {...getHeaderProps({ header })}>
+                          {header.header}
+                        </TableHeader>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows.map((row) => (
+                      <TableRow key={row.id} {...getRowProps({ row })}>
+                        {row.cells.map((cell) => {
+                          if (cell.info.header === 'status') {
+                            return (
+                              <TableCell key={cell.id}>
+                                <Tag
+                                  type={cell.value === 'available' ? 'green' : 'red'}
+                                  size="sm"
+                                >
+                                  {cell.value === 'available' ? 'Available' : 'Unavailable'}
+                                </Tag>
+                              </TableCell>
+                            );
+                          }
+                          if (cell.info.header === 'actions') {
+                            const bookData = paginatedBooks.find(b => b.id.toString() === row.id);
+                            return (
+                              <TableCell key={cell.id}>
+                                {bookData?.available ? (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleRequestBook(bookData.id)}
+                                    disabled={requesting.has(bookData.id)}
+                                  >
+                                    {requesting.has(bookData.id) ? 'Requesting...' : 'Request'}
+                                  </Button>
+                                ) : (
+                                  <Button size="sm" kind="ghost" disabled>
+                                    Not Available
+                                  </Button>
+                                )}
+                              </TableCell>
+                            );
+                          }
+                          return <TableCell key={cell.id}>{cell.value}</TableCell>;
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <Pagination
+                  page={currentPage}
+                  pageSize={pageSize}
+                  pageSizes={[10, 20, 30, 40, 50]}
+                  totalItems={filteredBooks.length}
+                  onChange={({ page, pageSize }) => {
+                    setCurrentPage(page);
+                    setPageSize(pageSize);
+                  }}
+                />
+              </TableContainer>
+            )}
+          </DataTable>
+        </Column>
+      </Grid>
     </div>
   );
 };
 
 export default BookList;
+
+// Made with Bob

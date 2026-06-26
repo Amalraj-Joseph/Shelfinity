@@ -1,0 +1,194 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+
+@use '@carbon/react' as *;
+
+.dashboard {
+  padding-top: $spacing-06;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: $spacing-05;
+}
+
+.welcome-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-07;
+  padding: $spacing-06;
+  background-color: $layer-01;
+  border-radius: 4px;
+
+  .welcome-content {
+    h1 {
+      @include type-style('heading-04');
+      color: $text-primary;
+      margin-bottom: $spacing-03;
+    }
+
+    p {
+      @include type-style('body-long-01');
+      color: $text-secondary;
+      margin-bottom: $spacing-03;
+    }
+
+    .last-updated {
+      @include type-style('label-01');
+      color: $text-secondary;
+    }
+  }
+
+  .user-badge {
+    .badge {
+      @include type-style('label-01');
+      background-color: $background-brand;
+      color: $text-on-color;
+      padding: $spacing-02 $spacing-04;
+      border-radius: 4px;
+    }
+  }
+}
+
+.stats-grid {
+  margin-bottom: $spacing-07;
+  row-gap: $spacing-05;
+}
+
+.stat-tile {
+  display: flex;
+  align-items: center;
+  gap: $spacing-05;
+  padding: $spacing-05;
+  min-height: 120px;
+
+  .stat-icon {
+    color: $icon-primary;
+  }
+
+  .stat-content {
+    h3 {
+      @include type-style('heading-05');
+      color: $text-primary;
+      margin-bottom: $spacing-02;
+    }
+
+    p {
+      @include type-style('body-short-01');
+      color: $text-secondary;
+    }
+  }
+}
+
+.section-title {
+  @include type-style('heading-03');
+  color: $text-primary;
+  margin-bottom: $spacing-05;
+}
+
+.action-grid {
+  margin-bottom: $spacing-07;
+  row-gap: $spacing-05;
+}
+
+.action-tile {
+  display: flex;
+  align-items: center;
+  gap: $spacing-04;
+  padding: $spacing-05;
+  min-height: 100px;
+  position: relative;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $layer-hover;
+  }
+
+  .action-icon {
+    color: $icon-primary;
+  }
+
+  .action-content {
+    flex: 1;
+
+    h3 {
+      @include type-style('heading-02');
+      color: $text-primary;
+      margin-bottom: $spacing-02;
+    }
+
+    p {
+      @include type-style('body-short-01');
+      color: $text-secondary;
+    }
+  }
+
+  .action-arrow {
+    color: $icon-secondary;
+  }
+
+  &.admin-tile {
+    border-left: 3px solid $support-info;
+  }
+}
+
+.recent-activity {
+  background-color: $layer-01;
+  padding: $spacing-06;
+  border-radius: 4px;
+
+  .activity-list {
+    margin-top: $spacing-05;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: $spacing-04;
+    padding: $spacing-04 0;
+    border-bottom: 1px solid $border-subtle;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      .activity-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: $support-success;
+      }
+    }
+
+    .activity-content {
+      flex: 1;
+
+      .activity-text {
+        @include type-style('body-short-01');
+        color: $text-primary;
+        margin-bottom: $spacing-02;
+
+        strong {
+          font-weight: 600;
+        }
+      }
+
+      .activity-time {
+        @include type-style('label-01');
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+// Made with Bob

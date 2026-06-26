@@ -5,66 +5,38 @@
  * See the LICENSE file in the root directory for more information.
  */
 import React, { useState, useEffect } from 'react';
-import './Dashboard.css';
-
-const BookIcon = ({ size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const SearchIcon = ({ size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-    <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const RequestIcon = ({ size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const AdminIcon = ({ size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 17l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const StatsIcon = ({ size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 3v18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="m9 9 3 3 3-3 3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const ArrowRightIcon = ({ size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="m12 5 7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
+import { 
+  Grid, 
+  Column, 
+  Tile, 
+  ClickableTile,
+  Loading,
+  Button
+} from '@carbon/react';
+import { 
+  Book, 
+  ChartLine, 
+  CheckmarkOutline, 
+  Search,
+  Settings,
+  ArrowRight
+} from '@carbon/icons-react';
+import './Dashboard.scss';
 
 const LoadingSpinner = () => (
-  <div className="loading-spinner">
-    <div className="spinner"></div>
-    <p>Loading...</p>
+  <div className="loading-container">
+    <Loading description="Loading dashboard data..." withOverlay={false} />
   </div>
 );
 
 const ErrorMessage = ({ message, onRetry }) => (
-  <div className="error-message">
+  <div className="error-container">
     <p>{message}</p>
-    <button onClick={onRetry} className="btn-retry">Try Again</button>
+    <Button onClick={onRetry} kind="tertiary">Try Again</Button>
   </div>
 );
 
-const Dashboard = ({ onViewChange, authToken }) => {
+const Dashboard = ({ onViewChange, authToken, currentUser }) => {
   const [stats, setStats] = useState({
     totalBooks: 0,
     availableNow: 0,
@@ -76,7 +48,7 @@ const Dashboard = ({ onViewChange, authToken }) => {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:9080/shelfinity-backend/app';
+  const API_BASE_URL = '/api';
 
   const fetchDashboardData = async () => {
     try {
@@ -119,22 +91,14 @@ const Dashboard = ({ onViewChange, authToken }) => {
       const totalBooks = booksData.length;
       const availableNow = booksData.filter(book => book.available).length;
 
-      // Mock recent activities (in a real app, this would come from a separate endpoint)
-      const mockActivities = [
-        { id: 1, action: 'Book returned', book: 'The Great Gatsby', time: '2 hours ago' },
-        { id: 2, action: 'New request', book: '1984', time: '1 day ago' },
-        { id: 3, action: 'Book borrowed', book: 'To Kill a Mockingbird', time: '3 days ago' },
-        { id: 4, action: 'Request approved', book: 'Pride and Prejudice', time: '1 week ago' }
-      ];
-
       setStats({
         totalBooks,
         availableNow,
         yourRequests: userRequests,
-        recentActivity: mockActivities.length
+        recentActivity: 0
       });
 
-      setRecentActivities(mockActivities);
+      setRecentActivities([]);
       setLastUpdated(new Date());
     } catch (err) {
       setError(err.message);
@@ -152,7 +116,6 @@ const Dashboard = ({ onViewChange, authToken }) => {
 
   useEffect(() => {
     if (authToken) {
-      // Set up auto-refresh every 5 minutes
       const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
       return () => clearInterval(interval);
     }
@@ -181,147 +144,168 @@ const Dashboard = ({ onViewChange, authToken }) => {
   return (
     <div className="dashboard">
       {/* Welcome Section */}
-      <div className="welcome-section">
-        <div className="welcome-content">
-          <h1>Welcome back, John!</h1>
-          <p>Here's what's happening with your library today.</p>
-          {lastUpdated && (
-            <small className="last-updated">
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </small>
-          )}
-        </div>
-        <div className="user-badge">
-          <span className="badge">Administrator</span>
-        </div>
-      </div>
+      <Grid>
+        <Column sm={4} md={8} lg={16}>
+          <div className="welcome-section">
+            <div className="welcome-content">
+              <h1>Welcome back, {currentUser?.name || 'User'}!</h1>
+              <p>Here's what's happening with your library today.</p>
+              {lastUpdated && (
+                <small className="last-updated">
+                  Last updated: {lastUpdated.toLocaleTimeString()}
+                </small>
+              )}
+            </div>
+            {currentUser?.role === 'admin' && (
+              <div className="user-badge">
+                <span className="badge">Administrator</span>
+              </div>
+            )}
+          </div>
+        </Column>
+      </Grid>
 
       {/* Statistics Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">
-            <BookIcon />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.totalBooks.toLocaleString()}</h3>
-            <p>Total Books</p>
-          </div>
-        </div>
+      <Grid narrow className="stats-grid">
+        <Column sm={4} md={4} lg={4}>
+          <Tile className="stat-tile">
+            <div className="stat-icon">
+              <Book size={32} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.totalBooks.toLocaleString()}</h3>
+              <p>Total Books</p>
+            </div>
+          </Tile>
+        </Column>
         
-        <div className="stat-card">
-          <div className="stat-icon">
-            <StatsIcon />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.availableNow.toLocaleString()}</h3>
-            <p>Available Now</p>
-          </div>
-        </div>
+        <Column sm={4} md={4} lg={4}>
+          <Tile className="stat-tile">
+            <div className="stat-icon">
+              <ChartLine size={32} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.availableNow.toLocaleString()}</h3>
+              <p>Available Now</p>
+            </div>
+          </Tile>
+        </Column>
         
-        <div className="stat-card">
-          <div className="stat-icon">
-            <RequestIcon />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.yourRequests}</h3>
-            <p>Your Requests</p>
-          </div>
-        </div>
+        <Column sm={4} md={4} lg={4}>
+          <Tile className="stat-tile">
+            <div className="stat-icon">
+              <CheckmarkOutline size={32} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.yourRequests}</h3>
+              <p>Your Requests</p>
+            </div>
+          </Tile>
+        </Column>
         
-        <div className="stat-card">
-          <div className="stat-icon">
-            <SearchIcon />
-          </div>
-          <div className="stat-content">
-            <h3>{stats.recentActivity}</h3>
-            <p>Recent Activity</p>
-          </div>
-        </div>
-      </div>
+        <Column sm={4} md={4} lg={4}>
+          <Tile className="stat-tile">
+            <div className="stat-icon">
+              <Search size={32} />
+            </div>
+            <div className="stat-content">
+              <h3>{stats.recentActivity}</h3>
+              <p>Recent Activity</p>
+            </div>
+          </Tile>
+        </Column>
+      </Grid>
 
       {/* Quick Actions */}
-      <div className="quick-actions">
-        <h2>Quick Actions</h2>
-        <div className="action-grid">
-          <button 
-            className="action-card"
-            onClick={() => onViewChange('books')}
-          >
+      <Grid>
+        <Column sm={4} md={8} lg={16}>
+          <h2 className="section-title">Quick Actions</h2>
+        </Column>
+      </Grid>
+
+      <Grid narrow className="action-grid">
+        <Column sm={4} md={4} lg={4}>
+          <ClickableTile onClick={() => onViewChange('books')} className="action-tile">
             <div className="action-icon">
-              <BookIcon />
+              <Book size={24} />
             </div>
             <div className="action-content">
               <h3>Browse Books</h3>
               <p>Explore our collection</p>
             </div>
-            <ArrowRightIcon />
-          </button>
-          
-          <button 
-            className="action-card"
-            onClick={() => onViewChange('books')}
-          >
+            <ArrowRight size={20} className="action-arrow" />
+          </ClickableTile>
+        </Column>
+        
+        <Column sm={4} md={4} lg={4}>
+          <ClickableTile onClick={() => onViewChange('books')} className="action-tile">
             <div className="action-icon">
-              <SearchIcon />
+              <Search size={24} />
             </div>
             <div className="action-content">
               <h3>Search Library</h3>
               <p>Find specific books</p>
             </div>
-            <ArrowRightIcon />
-          </button>
-          
-          <button 
-            className="action-card"
-            onClick={() => onViewChange('books')}
-          >
+            <ArrowRight size={20} className="action-arrow" />
+          </ClickableTile>
+        </Column>
+        
+        <Column sm={4} md={4} lg={4}>
+          <ClickableTile onClick={() => onViewChange('books')} className="action-tile">
             <div className="action-icon">
-              <RequestIcon />
+              <CheckmarkOutline size={24} />
             </div>
             <div className="action-content">
               <h3>My Requests</h3>
               <p>View your requests</p>
             </div>
-            <ArrowRightIcon />
-          </button>
-          
-          <button 
-            className="action-card admin-action"
-            onClick={() => onViewChange('admin')}
-          >
-            <div className="action-icon">
-              <AdminIcon />
-            </div>
-            <div className="action-content">
-              <h3>Admin Panel</h3>
-              <p>Manage the library</p>
-            </div>
-            <ArrowRightIcon />
-          </button>
-        </div>
-      </div>
+            <ArrowRight size={20} className="action-arrow" />
+          </ClickableTile>
+        </Column>
+        
+        {currentUser?.role === 'admin' && (
+          <Column sm={4} md={4} lg={4}>
+            <ClickableTile onClick={() => onViewChange('admin')} className="action-tile admin-tile">
+              <div className="action-icon">
+                <Settings size={24} />
+              </div>
+              <div className="action-content">
+                <h3>Admin Panel</h3>
+                <p>Manage the library</p>
+              </div>
+              <ArrowRight size={20} className="action-arrow" />
+            </ClickableTile>
+          </Column>
+        )}
+      </Grid>
 
       {/* Recent Activity */}
-      <div className="recent-activity">
-        <h2>Recent Activity</h2>
-        <div className="activity-list">
-          {recentActivities.map(activity => (
-            <div key={activity.id} className="activity-item">
-              <div className="activity-icon">
-                <div className="activity-dot"></div>
-              </div>
-              <div className="activity-content">
-                <p className="activity-text">
-                  <strong>{activity.action}</strong> - {activity.book}
-                </p>
-                <span className="activity-time">{activity.time}</span>
-              </div>
+      <Grid>
+        <Column sm={4} md={8} lg={16}>
+          <div className="recent-activity">
+            <h2 className="section-title">Recent Activity</h2>
+            <div className="activity-list">
+              {recentActivities.map(activity => (
+                <div key={activity.id} className="activity-item">
+                  <div className="activity-icon">
+                    <div className="activity-dot"></div>
+                  </div>
+                  <div className="activity-content">
+                    <p className="activity-text">
+                      <strong>{activity.action}</strong> - {activity.book}
+                    </p>
+                    <span className="activity-time">{activity.time}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </Column>
+      </Grid>
     </div>
   );
 };
 
 export default Dashboard;
+
+// Made with Bob

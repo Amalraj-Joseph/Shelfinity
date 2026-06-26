@@ -10,11 +10,11 @@
     <!-- Database configuration -->
     <dataSource id="shelfinityDS" jndiName="jdbc/shelfinityDS">
         <jdbcDriver libraryRef="PostgreSQLLib" />
-        <properties.postgresql serverName="postgres" 
-                              portNumber="5432" 
-                              databaseName="shelfinity" 
-                              user="shelfinity" 
-                              password="shelfinity" />
+        <properties.postgresql serverName="${env.DB_HOST}"
+                              portNumber="${env.DB_PORT}"
+                              databaseName="${env.DB_NAME}"
+                              user="${env.DB_USER}"
+                              password="${env.DB_PASSWORD}" />
     </dataSource>
 
     <!-- PostgreSQL JDBC driver library -->
@@ -32,9 +32,9 @@
     </featureManager>
 
     <!-- MicroProfile JWT Configuration -->
-    <mpJwt id="jwt" 
-            issuer="http://keycloak:8080/realms/shelfinity"
-            jwksUri="http://keycloak:8080/realms/shelfinity/protocol/openid-connect/certs" />
+    <mpJwt id="jwt"
+            issuer="${env.OIDC_ISSUER}"
+            jwksUri="${env.OIDC_ISSUER}/protocol/openid-connect/certs" />
 
     <!-- OpenAPI Configuration -->
     <mpOpenAPI />

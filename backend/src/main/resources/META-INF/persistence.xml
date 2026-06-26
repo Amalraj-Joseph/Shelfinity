@@ -18,6 +18,7 @@
         <class>com.shelfinity.books.Book</class>
         <class>com.shelfinity.queues.QueueItem</class>
         <class>com.shelfinity.email.EmailConfig</class>
+        <class>com.shelfinity.reservations.Reservation</class>
         
         <!-- Properties -->
         <properties>

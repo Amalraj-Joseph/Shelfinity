@@ -1,0 +1,184 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+
+@use '@carbon/react' as *;
+
+.bulk-upload {
+  padding-top: $spacing-06;
+}
+
+.bulk-upload-header {
+  margin-bottom: $spacing-07;
+
+  h1 {
+    @include type-style('heading-04');
+    color: $text-primary;
+    margin-bottom: $spacing-03;
+  }
+
+  p {
+    @include type-style('body-long-01');
+    color: $text-secondary;
+  }
+}
+
+.upload-section,
+.instructions-section {
+  padding: $spacing-06;
+}
+
+.template-section,
+.file-upload-section {
+  margin-bottom: $spacing-06;
+
+  h3 {
+    @include type-style('heading-02');
+    color: $text-primary;
+    margin-bottom: $spacing-04;
+  }
+
+  p {
+    @include type-style('body-short-01');
+    color: $text-secondary;
+    margin-bottom: $spacing-04;
+  }
+}
+
+.upload-progress {
+  margin: $spacing-05 0;
+}
+
+.upload-button {
+  width: 100%;
+  margin-top: $spacing-05;
+}
+
+.instructions-section {
+  h3 {
+    @include type-style('heading-02');
+    color: $text-primary;
+    margin-bottom: $spacing-04;
+  }
+
+  p {
+    @include type-style('body-short-01');
+    color: $text-secondary;
+    margin-bottom: $spacing-04;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: $spacing-05;
+
+    li {
+      @include type-style('body-short-01');
+      color: $text-secondary;
+      padding: $spacing-03 0;
+      border-bottom: 1px solid $border-subtle;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      strong {
+        color: $text-primary;
+      }
+    }
+  }
+
+  .note {
+    @include type-style('label-01');
+    color: $text-secondary;
+    padding: $spacing-04;
+    background-color: $layer-accent;
+    border-radius: 4px;
+  }
+}
+
+.result-section {
+  padding: $spacing-06;
+  margin-top: $spacing-06;
+
+  h3 {
+    @include type-style('heading-03');
+    color: $text-primary;
+    margin-bottom: $spacing-05;
+  }
+
+  .result-summary {
+    display: flex;
+    gap: $spacing-06;
+    margin-bottom: $spacing-06;
+    flex-wrap: wrap;
+
+    .result-stat {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-02;
+
+      .result-label {
+        @include type-style('label-01');
+        color: $text-secondary;
+      }
+
+      .result-value {
+        @include type-style('heading-04');
+        color: $text-primary;
+      }
+
+      &.success .result-value {
+        color: $support-success;
+      }
+
+      &.error .result-value {
+        color: $support-error;
+      }
+    }
+  }
+
+  .messages {
+    margin-top: $spacing-05;
+
+    h4 {
+      @include type-style('heading-02');
+      margin-bottom: $spacing-04;
+    }
+
+    ul {
+      list-style: disc;
+      padding-left: $spacing-06;
+
+      li {
+        @include type-style('body-short-01');
+        padding: $spacing-02 0;
+      }
+    }
+
+    &.success-messages {
+      h4 {
+        color: $support-success;
+      }
+
+      li {
+        color: $text-secondary;
+      }
+    }
+
+    &.error-messages {
+      h4 {
+        color: $support-error;
+      }
+
+      li {
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+// Made with Bob

@@ -5,24 +5,43 @@
  * See the LICENSE file in the root directory for more information.
  */
 import React, { useState, useEffect } from 'react';
-import './AdminPanel.css';
+import {
+  Grid,
+  Column,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  Tile,
+  DataTable,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableBody,
+  TableCell,
+  Button,
+  Tag,
+  Loading
+} from '@carbon/react';
+import './AdminPanel.scss';
 
 const LoadingSpinner = () => (
-  <div className="loading-spinner">
-    <div className="spinner"></div>
-    <p>Loading admin data...</p>
+  <div className="loading-container">
+    <Loading description="Loading admin data..." withOverlay={false} />
   </div>
 );
 
 const ErrorMessage = ({ message, onRetry }) => (
-  <div className="error-message">
+  <div className="error-container">
     <p>{message}</p>
-    <button onClick={onRetry} className="btn-retry">Try Again</button>
+    <Button onClick={onRetry} kind="tertiary">Try Again</Button>
   </div>
 );
 
 const AdminPanel = ({ authToken }) => {
-  const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [overviewData, setOverviewData] = useState({
@@ -35,7 +54,7 @@ const AdminPanel = ({ authToken }) => {
   const [users, setUsers] = useState([]);
   const [processing, setProcessing] = useState(new Set());
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:9080/shelfinity-backend/app';
+  const API_BASE_URL = '/api';
 
   const fetchAdminData = async () => {
     try {
@@ -46,7 +65,6 @@ const AdminPanel = ({ authToken }) => {
         throw new Error('Authentication required');
       }
 
-      // Fetch overview data
       const [booksResponse, usersResponse, queuesResponse] = await Promise.all([
         fetch(`${API_BASE_URL}/books`, {
           headers: {
@@ -78,7 +96,6 @@ const AdminPanel = ({ authToken }) => {
         queuesResponse.json()
       ]);
 
-      // Calculate overview stats
       const totalBooks = booksData.length;
       const totalUsers = usersData.length;
       const pendingRequests = queuesData.filter(q => q.status === 'PENDING').length;
@@ -113,7 +130,7 @@ const AdminPanel = ({ authToken }) => {
     try {
       setProcessing(prev => new Set(prev).add(requestId));
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Authentication required');
       }
@@ -135,7 +152,6 @@ const AdminPanel = ({ authToken }) => {
         throw new Error(`Failed to ${action} request`);
       }
 
-      // Update local state
       setRequests(prev => 
         prev.map(req => 
           req.id === requestId 
@@ -144,9 +160,7 @@ const AdminPanel = ({ authToken }) => {
         )
       );
 
-      // Refresh overview data
       fetchAdminData();
-      
       alert(`Request ${action}d successfully!`);
     } catch (err) {
       alert(err.message);
@@ -166,7 +180,7 @@ const AdminPanel = ({ authToken }) => {
     try {
       setProcessing(prev => new Set(prev).add(userId));
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Authentication required');
       }
@@ -183,11 +197,9 @@ const AdminPanel = ({ authToken }) => {
           throw new Error('Failed to delete user');
         }
 
-        // Remove user from local state
         setUsers(prev => prev.filter(user => user.id !== userId));
         alert('User deleted successfully!');
       } else if (action === 'edit') {
-        // TODO: Implement user editing modal
         alert('User editing feature coming soon!');
       }
     } catch (err) {
@@ -206,146 +218,6 @@ const AdminPanel = ({ authToken }) => {
     fetchAdminData();
   };
 
-  const renderOverview = () => (
-    <div className="admin-overview">
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h3>{overviewData.totalBooks.toLocaleString()}</h3>
-          <p>Total Books</p>
-        </div>
-        <div className="stat-card">
-          <h3>{overviewData.totalUsers.toLocaleString()}</h3>
-          <p>Total Users</p>
-        </div>
-        <div className="stat-card">
-          <h3>{overviewData.pendingRequests}</h3>
-          <p>Pending Requests</p>
-        </div>
-        <div className="stat-card">
-          <h3>{overviewData.overdueBooks}</h3>
-          <p>Overdue Books</p>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderRequests = () => (
-    <div className="admin-requests">
-      <div className="table-container">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Book</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map(request => (
-              <tr key={request.id}>
-                <td>{request.userName || 'Unknown User'}</td>
-                <td>{request.bookTitle || 'Unknown Book'}</td>
-                <td>{request.type || 'BORROW'}</td>
-                <td>
-                  <span className={`status ${request.status?.toLowerCase()}`}>
-                    {request.status || 'PENDING'}
-                  </span>
-                </td>
-                <td>{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}</td>
-                <td>
-                  <div className="action-buttons">
-                    {request.status === 'PENDING' && (
-                      <>
-                        <button 
-                          className="btn-approve"
-                          onClick={() => handleRequestAction(request.id, 'approve')}
-                          disabled={processing.has(request.id)}
-                        >
-                          {processing.has(request.id) ? 'Processing...' : 'Approve'}
-                        </button>
-                        <button 
-                          className="btn-reject"
-                          onClick={() => handleRequestAction(request.id, 'reject')}
-                          disabled={processing.has(request.id)}
-                        >
-                          {processing.has(request.id) ? 'Processing...' : 'Reject'}
-                        </button>
-                      </>
-                    )}
-                    {request.status !== 'PENDING' && (
-                      <span className="status-complete">Processed</span>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-
-  const renderUsers = () => (
-    <div className="admin-users">
-      <div className="table-container">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id}>
-                <td>{user.name || 'N/A'}</td>
-                <td>{user.email || 'N/A'}</td>
-                <td>
-                  <span className={`role ${user.role?.toLowerCase()}`}>
-                    {user.role || 'USER'}
-                  </span>
-                </td>
-                <td>
-                  <span className={`status ${user.status?.toLowerCase() || 'active'}`}>
-                    {user.status || 'ACTIVE'}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button 
-                      className="btn-edit"
-                      onClick={() => handleUserAction(user.id, 'edit')}
-                      disabled={processing.has(user.id)}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="btn-delete"
-                      onClick={() => {
-                        if (window.confirm(`Are you sure you want to delete user ${user.name || user.email}?`)) {
-                          handleUserAction(user.id, 'delete');
-                        }
-                      }}
-                      disabled={processing.has(user.id)}
-                    >
-                      {processing.has(user.id) ? 'Processing...' : 'Delete'}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
       <div className="admin-panel">
@@ -362,41 +234,268 @@ const AdminPanel = ({ authToken }) => {
     );
   }
 
+  const requestHeaders = [
+    { key: 'userName', header: 'User' },
+    { key: 'bookTitle', header: 'Book' },
+    { key: 'type', header: 'Type' },
+    { key: 'status', header: 'Status' },
+    { key: 'createdAt', header: 'Date' },
+    { key: 'actions', header: 'Actions' }
+  ];
+
+  const requestRows = requests.map(request => ({
+    id: request.id.toString(),
+    userName: request.userName || 'Unknown User',
+    bookTitle: request.bookTitle || 'Unknown Book',
+    type: request.type || 'BORROW',
+    status: request.status || 'PENDING',
+    createdAt: request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A',
+    requestId: request.id,
+    isPending: request.status === 'PENDING'
+  }));
+
+  const userHeaders = [
+    { key: 'name', header: 'Name' },
+    { key: 'email', header: 'Email' },
+    { key: 'role', header: 'Role' },
+    { key: 'status', header: 'Status' },
+    { key: 'actions', header: 'Actions' }
+  ];
+
+  const userRows = users.map(user => ({
+    id: user.id.toString(),
+    name: user.name || 'N/A',
+    email: user.email || 'N/A',
+    role: user.role || 'USER',
+    status: user.status || 'ACTIVE',
+    userId: user.id
+  }));
+
   return (
     <div className="admin-panel">
-      <div className="admin-header">
-        <h1>Admin Panel</h1>
-        <p>Manage your library system</p>
-      </div>
+      <Grid>
+        <Column sm={4} md={8} lg={16}>
+          <div className="admin-header">
+            <h1>Admin Panel</h1>
+            <p>Manage your library system</p>
+          </div>
+        </Column>
+      </Grid>
 
-      <div className="admin-tabs">
-        <button
-          className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          Overview
-        </button>
-        <button
-          className={`tab ${activeTab === 'requests' ? 'active' : ''}`}
-          onClick={() => setActiveTab('requests')}
-        >
-          Requests ({overviewData.pendingRequests})
-        </button>
-        <button
-          className={`tab ${activeTab === 'users' ? 'active' : ''}`}
-          onClick={() => setActiveTab('users')}
-        >
-          Users ({overviewData.totalUsers})
-        </button>
-      </div>
-
-      <div className="admin-content">
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'requests' && renderRequests()}
-        {activeTab === 'users' && renderUsers()}
-      </div>
+      <Tabs>
+        <TabList aria-label="Admin tabs">
+          <Tab>Overview</Tab>
+          <Tab>Requests ({overviewData.pendingRequests})</Tab>
+          <Tab>Users ({overviewData.totalUsers})</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <Grid narrow className="stats-grid">
+              <Column sm={4} md={4} lg={4}>
+                <Tile className="stat-tile">
+                  <h3>{overviewData.totalBooks.toLocaleString()}</h3>
+                  <p>Total Books</p>
+                </Tile>
+              </Column>
+              <Column sm={4} md={4} lg={4}>
+                <Tile className="stat-tile">
+                  <h3>{overviewData.totalUsers.toLocaleString()}</h3>
+                  <p>Total Users</p>
+                </Tile>
+              </Column>
+              <Column sm={4} md={4} lg={4}>
+                <Tile className="stat-tile">
+                  <h3>{overviewData.pendingRequests}</h3>
+                  <p>Pending Requests</p>
+                </Tile>
+              </Column>
+              <Column sm={4} md={4} lg={4}>
+                <Tile className="stat-tile">
+                  <h3>{overviewData.overdueBooks}</h3>
+                  <p>Overdue Books</p>
+                </Tile>
+              </Column>
+            </Grid>
+          </TabPanel>
+          <TabPanel>
+            <Grid>
+              <Column sm={4} md={8} lg={16}>
+                <DataTable rows={requestRows} headers={requestHeaders}>
+                  {({
+                    rows,
+                    headers,
+                    getHeaderProps,
+                    getRowProps,
+                    getTableProps,
+                    getTableContainerProps
+                  }) => (
+                    <TableContainer {...getTableContainerProps()}>
+                      <Table {...getTableProps()}>
+                        <TableHead>
+                          <TableRow>
+                            {headers.map((header) => (
+                              <TableHeader key={header.key} {...getHeaderProps({ header })}>
+                                {header.header}
+                              </TableHeader>
+                            ))}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {rows.map((row) => (
+                            <TableRow key={row.id} {...getRowProps({ row })}>
+                              {row.cells.map((cell) => {
+                                if (cell.info.header === 'status') {
+                                  const statusType = 
+                                    cell.value === 'PENDING' ? 'blue' :
+                                    cell.value === 'APPROVED' ? 'green' :
+                                    cell.value === 'REJECTED' ? 'red' : 'gray';
+                                  return (
+                                    <TableCell key={cell.id}>
+                                      <Tag type={statusType} size="sm">
+                                        {cell.value}
+                                      </Tag>
+                                    </TableCell>
+                                  );
+                                }
+                                if (cell.info.header === 'actions') {
+                                  const requestData = requests.find(r => r.id.toString() === row.id);
+                                  return (
+                                    <TableCell key={cell.id}>
+                                      {requestData?.status === 'PENDING' ? (
+                                        <div className="action-buttons">
+                                          <Button
+                                            size="sm"
+                                            kind="primary"
+                                            onClick={() => handleRequestAction(requestData.id, 'approve')}
+                                            disabled={processing.has(requestData.id)}
+                                          >
+                                            {processing.has(requestData.id) ? 'Processing...' : 'Approve'}
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            kind="danger"
+                                            onClick={() => handleRequestAction(requestData.id, 'reject')}
+                                            disabled={processing.has(requestData.id)}
+                                          >
+                                            {processing.has(requestData.id) ? 'Processing...' : 'Reject'}
+                                          </Button>
+                                        </div>
+                                      ) : (
+                                        <span className="status-complete">Processed</span>
+                                      )}
+                                    </TableCell>
+                                  );
+                                }
+                                return <TableCell key={cell.id}>{cell.value}</TableCell>;
+                              })}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </DataTable>
+              </Column>
+            </Grid>
+          </TabPanel>
+          <TabPanel>
+            <Grid>
+              <Column sm={4} md={8} lg={16}>
+                <DataTable rows={userRows} headers={userHeaders}>
+                  {({
+                    rows,
+                    headers,
+                    getHeaderProps,
+                    getRowProps,
+                    getTableProps,
+                    getTableContainerProps
+                  }) => (
+                    <TableContainer {...getTableContainerProps()}>
+                      <Table {...getTableProps()}>
+                        <TableHead>
+                          <TableRow>
+                            {headers.map((header) => (
+                              <TableHeader key={header.key} {...getHeaderProps({ header })}>
+                                {header.header}
+                              </TableHeader>
+                            ))}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {rows.map((row) => (
+                            <TableRow key={row.id} {...getRowProps({ row })}>
+                              {row.cells.map((cell) => {
+                                if (cell.info.header === 'role') {
+                                  return (
+                                    <TableCell key={cell.id}>
+                                      <Tag
+                                        type={cell.value === 'admin' ? 'purple' : 'gray'}
+                                        size="sm"
+                                      >
+                                        {cell.value}
+                                      </Tag>
+                                    </TableCell>
+                                  );
+                                }
+                                if (cell.info.header === 'status') {
+                                  return (
+                                    <TableCell key={cell.id}>
+                                      <Tag
+                                        type={cell.value === 'ACTIVE' ? 'green' : 'red'}
+                                        size="sm"
+                                      >
+                                        {cell.value}
+                                      </Tag>
+                                    </TableCell>
+                                  );
+                                }
+                                if (cell.info.header === 'actions') {
+                                  const userData = users.find(u => u.id.toString() === row.id);
+                                  return (
+                                    <TableCell key={cell.id}>
+                                      <div className="action-buttons">
+                                        <Button
+                                          size="sm"
+                                          kind="tertiary"
+                                          onClick={() => handleUserAction(userData.id, 'edit')}
+                                          disabled={processing.has(userData.id)}
+                                        >
+                                          Edit
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          kind="danger--tertiary"
+                                          onClick={() => {
+                                            if (window.confirm(`Are you sure you want to delete user ${userData.name || userData.email}?`)) {
+                                              handleUserAction(userData.id, 'delete');
+                                            }
+                                          }}
+                                          disabled={processing.has(userData.id)}
+                                        >
+                                          {processing.has(userData.id) ? 'Processing...' : 'Delete'}
+                                        </Button>
+                                      </div>
+                                    </TableCell>
+                                  );
+                                }
+                                return <TableCell key={cell.id}>{cell.value}</TableCell>;
+                              })}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </DataTable>
+              </Column>
+            </Grid>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </div>
   );
 };
 
 export default AdminPanel;
+
+// Made with Bob

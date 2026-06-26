@@ -27,10 +27,7 @@ import jakarta.ws.rs.core.Application;
             name = "MIT License",
             url = "https://opensource.org/licenses/MIT"
         )
-    ),
-    servers = {
-        @Server(url = "http://localhost:9080/shelfinity-backend", description = "Development Server")
-    }
+    )
 )
 @SecurityScheme(
     securitySchemeName = "JWT",
@@ -39,8 +36,4 @@ import jakarta.ws.rs.core.Application;
     bearerFormat = "JWT"
 )
 public class ShelfinityApplication extends Application {
-    
-    public ShelfinityApplication() {
-        System.out.println("ShelfinityApplication constructor called!");
-    }
 }

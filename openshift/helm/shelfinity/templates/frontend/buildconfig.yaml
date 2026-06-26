@@ -1,0 +1,32 @@
+{{- if and .Values.frontend.enabled .Values.frontend.build.enabled }}
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "shelfinity.frontend.labels" . | nindent 4 }}
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: "{{ .Values.frontend.image.name }}:{{ .Values.frontend.image.tag }}"
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: {{ .Values.frontend.build.strategy | title }}
+    {{- if eq .Values.frontend.build.strategy "docker" }}
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+      env:
+      - name: BUILD_LOGLEVEL
+        value: "5"
+    {{- end }}
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+  runPolicy: Serial
+{{- end }}
+
+# Made with Bob

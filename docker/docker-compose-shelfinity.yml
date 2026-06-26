@@ -51,6 +51,8 @@ services:
       DB_PASSWORD: shelfinity
       OIDC_ISSUER: http://keycloak:8080/realms/shelfinity
       OIDC_AUDIENCE: shelfinity-backend
+      FRONTEND_URL: http://localhost:3000
+      OPENAPI_SERVER_URL: http://localhost:9080/shelfinity-backend
     depends_on:
       postgres:
         condition: service_healthy

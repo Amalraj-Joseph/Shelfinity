@@ -5,7 +5,7 @@
  * See the LICENSE file in the root directory for more information.
  */
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import './App.scss';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import AdminPanel from './components/AdminPanel';
@@ -21,6 +21,7 @@ function App() {
   const KEYCLOAK_URL = process.env.REACT_APP_KEYCLOAK_URL || 'http://localhost:8080';
   const REALM = process.env.REACT_APP_REALM || 'shelfinity';
   const CLIENT_ID = process.env.REACT_APP_CLIENT_ID || 'shelfinity-frontend';
+  const API_BASE_URL = '/api';
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -33,7 +34,7 @@ function App() {
 
   const validateToken = async (token) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/validate`, {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -86,7 +87,7 @@ function App() {
       const accessToken = tokenData.access_token;
 
       // Now authenticate with our backend using the Keycloak token
-      const authResponse = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
+      const authResponse = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -127,7 +128,7 @@ function App() {
       case 'books':
         return <BookList authToken={authToken} />;
       default:
-        return <Dashboard onViewChange={setCurrentView} authToken={authToken} />;
+        return <Dashboard onViewChange={setCurrentView} authToken={authToken} currentUser={currentUser} />;
     }
   };
 
@@ -151,3 +152,5 @@ function App() {
 }
 
 export default App;
+
+// Made with Bob

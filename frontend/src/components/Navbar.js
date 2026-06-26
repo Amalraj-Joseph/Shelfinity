@@ -4,72 +4,73 @@
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
  */
-import React, { useState } from 'react';
-import './Navbar.css';
+import React from 'react';
+import {
+  Header,
+  HeaderContainer,
+  HeaderName,
+  HeaderNavigation,
+  HeaderMenuItem,
+  HeaderGlobalBar,
+  HeaderGlobalAction,
+  SkipToContent
+} from '@carbon/react';
+import { Logout, UserAvatar } from '@carbon/icons-react';
+import './Navbar.scss';
 
 const Navbar = ({ user, onLogout, onViewChange, currentView }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const handleViewChange = (view) => {
-    onViewChange(view);
-    setIsMenuOpen(false);
-  };
-
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <div className="navbar-brand">
-          <h1 className="navbar-logo">Shelfinity</h1>
-        </div>
-
-        <div className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
-          <button
-            className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => handleViewChange('dashboard')}
-          >
-            Dashboard
-          </button>
-          
-          <button
-            className={`nav-item ${currentView === 'books' ? 'active' : ''}`}
-            onClick={() => handleViewChange('books')}
-          >
-            Books
-          </button>
-          
-          {user?.role === 'admin' && (
-            <button
-              className={`nav-item admin-nav ${currentView === 'admin' ? 'active' : ''}`}
-              onClick={() => handleViewChange('admin')}
+    <HeaderContainer
+      render={() => (
+        <Header aria-label="Shelfinity">
+          <SkipToContent />
+          <HeaderName prefix="">
+            Shelfinity
+          </HeaderName>
+          <HeaderNavigation aria-label="Shelfinity">
+            <HeaderMenuItem
+              isActive={currentView === 'dashboard'}
+              onClick={() => onViewChange('dashboard')}
             >
-              Admin
-            </button>
-          )}
-        </div>
-
-        <div className="navbar-user">
-          <div className="user-info">
-            <span className="user-name">{user?.name || 'User'}</span>
+              Dashboard
+            </HeaderMenuItem>
+            <HeaderMenuItem
+              isActive={currentView === 'books'}
+              onClick={() => onViewChange('books')}
+            >
+              Books
+            </HeaderMenuItem>
             {user?.role === 'admin' && (
-              <span className="user-role">Admin</span>
+              <HeaderMenuItem
+                isActive={currentView === 'admin'}
+                onClick={() => onViewChange('admin')}
+              >
+                Admin
+              </HeaderMenuItem>
             )}
-          </div>
-          
-          <button className="logout-btn" onClick={onLogout}>
-            Logout
-          </button>
-        </div>
-
-        <button className="navbar-toggle" onClick={toggleMenu}>
-          <span className="hamburger"></span>
-        </button>
-      </div>
-    </nav>
+          </HeaderNavigation>
+          <HeaderGlobalBar>
+            <div className="user-info-header">
+              <UserAvatar size={20} />
+              <span className="user-name">{user?.name || 'User'}</span>
+              {user?.role === 'admin' && (
+                <span className="user-role-badge">Admin</span>
+              )}
+            </div>
+            <HeaderGlobalAction
+              aria-label="Logout"
+              tooltipAlignment="end"
+              onClick={onLogout}
+            >
+              <Logout size={20} />
+            </HeaderGlobalAction>
+          </HeaderGlobalBar>
+        </Header>
+      )}
+    />
   );
 };
 
 export default Navbar;
+
+// Made with Bob

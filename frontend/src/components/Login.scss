@@ -1,0 +1,76 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+
+@use '@carbon/react' as *;
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $layer-01 0%, $layer-02 100%);
+  padding: $spacing-05;
+}
+
+.login-column {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.login-card {
+  background-color: $layer;
+  padding: $spacing-09;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 480px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: $spacing-07;
+
+  h1 {
+    @include type-style('heading-05');
+    margin-top: $spacing-05;
+    margin-bottom: $spacing-03;
+    color: $text-primary;
+  }
+
+  .login-subtitle {
+    @include type-style('body-long-01');
+    color: $text-secondary;
+  }
+}
+
+.login-form {
+  margin-bottom: $spacing-06;
+
+  .login-button {
+    width: 100%;
+    margin-top: $spacing-05;
+  }
+}
+
+.login-footer {
+  text-align: center;
+  padding-top: $spacing-05;
+  border-top: 1px solid $border-subtle;
+
+  p {
+    @include type-style('body-short-01');
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  .toggle-button {
+    margin-left: $spacing-03;
+  }
+}
+
+// Made with Bob

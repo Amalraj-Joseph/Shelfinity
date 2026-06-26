@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+
+// Import Carbon styles
+@use '@carbon/react';
+
+// Include Carbon styles
+@include react.theme();
+@include react.reset();
+
+// Custom app styles
+.App {
+  min-height: 100vh;
+  background-color: react.$background;
+}
+
+.main-content {
+  padding: react.$spacing-06;
+  max-width: 1584px;
+  margin: 0 auto;
+}
+
+// Made with Bob

@@ -1,0 +1,81 @@
+# Production environment values for Shelfinity
+global:
+  namespace: shelfinity-prod
+  environment: prod
+  domain: apps.prod.example.com
+
+database:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: "gp3-csi"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+keycloak:
+  replicas: 2
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+backend:
+  replicas: 3
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  health:
+    liveness:
+      initialDelaySeconds: 180
+      periodSeconds: 30
+    readiness:
+      initialDelaySeconds: 90
+      periodSeconds: 10
+
+frontend:
+  replicas: 3
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+autoscaling:
+  backend:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  frontend:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+
+security:
+  networkPolicy:
+    enabled: true
+
+# Made with Bob

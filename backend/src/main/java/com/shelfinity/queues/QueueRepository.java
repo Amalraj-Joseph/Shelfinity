@@ -142,4 +142,36 @@ public class QueueRepository {
         query.setParameter("type", type);
         return query.getSingleResult();
     }
+    
+    /**
+     * Find all overdue items (approved borrows past their due date).
+     */
+    public List<QueueItem> findOverdueItems() {
+        TypedQuery<QueueItem> query = entityManager.createQuery(
+            "SELECT q FROM QueueItem q WHERE q.type = :type AND q.status = :status " +
+            "AND q.dueDate IS NOT NULL AND q.dueDate < :now ORDER BY q.dueDate ASC",
+            QueueItem.class
+        );
+        query.setParameter("type", QueueType.BOOK_BORROW);
+        query.setParameter("status", QueueStatus.APPROVED);
+        query.setParameter("now", java.time.LocalDateTime.now());
+        return query.getResultList();
+    }
+    
+    /**
+     * Find overdue items for a specific user.
+     */
+    public List<QueueItem> findOverdueItemsByUser(String userKeycloakId) {
+        TypedQuery<QueueItem> query = entityManager.createQuery(
+            "SELECT q FROM QueueItem q WHERE q.userKeycloakId = :userKeycloakId " +
+            "AND q.type = :type AND q.status = :status " +
+            "AND q.dueDate IS NOT NULL AND q.dueDate < :now ORDER BY q.dueDate ASC",
+            QueueItem.class
+        );
+        query.setParameter("userKeycloakId", userKeycloakId);
+        query.setParameter("type", QueueType.BOOK_BORROW);
+        query.setParameter("status", QueueStatus.APPROVED);
+        query.setParameter("now", java.time.LocalDateTime.now());
+        return query.getResultList();
+    }
 }

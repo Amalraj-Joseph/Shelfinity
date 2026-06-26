@@ -1,0 +1,72 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+
+@use '@carbon/react' as *;
+
+.admin-panel {
+  padding-top: $spacing-06;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: $spacing-05;
+}
+
+.admin-header {
+  margin-bottom: $spacing-07;
+
+  h1 {
+    @include type-style('heading-04');
+    color: $text-primary;
+    margin-bottom: $spacing-03;
+  }
+
+  p {
+    @include type-style('body-long-01');
+    color: $text-secondary;
+  }
+}
+
+.stats-grid {
+  margin-top: $spacing-06;
+  margin-bottom: $spacing-06;
+  row-gap: $spacing-05;
+}
+
+.stat-tile {
+  padding: $spacing-06;
+  text-align: center;
+
+  h3 {
+    @include type-style('heading-05');
+    color: $text-primary;
+    margin-bottom: $spacing-03;
+  }
+
+  p {
+    @include type-style('body-short-01');
+    color: $text-secondary;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: $spacing-03;
+  flex-wrap: wrap;
+}
+
+.status-complete {
+  @include type-style('label-01');
+  color: $text-secondary;
+}
+
+// Made with Bob

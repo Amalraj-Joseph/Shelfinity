@@ -53,6 +53,8 @@ services:
       DB_PASSWORD: shelfinity
       OIDC_ISSUER: http://keycloak:8080/realms/shelfinity
       OIDC_AUDIENCE: shelfinity-backend
+      FRONTEND_URL: http://localhost:3000
+      OPENAPI_SERVER_URL: http://localhost:9080/shelfinity-backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,8 +78,7 @@ services:
       dockerfile: Dockerfile
     container_name: shelfinity-frontend
     environment:
-      - REACT_APP_API_URL=http://localhost:9080
-      - REACT_APP_KEYCLOAK_URL=http://keycloak:8080
+      - REACT_APP_KEYCLOAK_URL=http://localhost:8080
       - REACT_APP_REALM=shelfinity
       - REACT_APP_CLIENT_ID=shelfinity-frontend
     ports:

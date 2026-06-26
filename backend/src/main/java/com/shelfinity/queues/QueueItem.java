@@ -76,6 +76,9 @@ public class QueueItem {
     @Column(name = "processed_by")
     private String processedBy;
     
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+    
     // Default constructor
     public QueueItem() {
         // JPA will handle createdAt through @PrePersist
@@ -182,6 +185,14 @@ public class QueueItem {
     
     public void setProcessedBy(String processedBy) {
         this.processedBy = processedBy;
+    }
+    
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+    
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
     
     @PreUpdate

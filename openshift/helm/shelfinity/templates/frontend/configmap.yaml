@@ -1,0 +1,15 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.frontend.name }}-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "shelfinity.frontend.labels" . | nindent 4 }}
+data:
+  REACT_APP_KEYCLOAK_URL: {{ .Values.frontend.env.keycloakUrl | default (printf "https://keycloak-%s.%s" .Values.global.namespace .Values.global.domain) | quote }}
+  REACT_APP_REALM: {{ .Values.frontend.env.realm | quote }}
+  REACT_APP_CLIENT_ID: {{ .Values.frontend.env.clientId | quote }}
+{{- end }}
+
+# Made with Bob

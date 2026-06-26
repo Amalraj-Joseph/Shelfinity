@@ -1,0 +1,11 @@
+FROM rancher/mirrored-library-busybox:1.36.1
+
+# This is a minimal PostgreSQL setup for local development
+# In production, use a proper PostgreSQL image
+
+RUN echo "PostgreSQL would run here in production"
+RUN echo "For local development without image restrictions,"
+RUN echo "please disable Rancher Desktop's allowed-images list"
+RUN echo "or use the backend with an external PostgreSQL instance"
+
+CMD ["sh", "-c", "echo 'PostgreSQL container placeholder'; sleep infinity"]

@@ -1,0 +1,61 @@
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "shelfinity.backend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      {{- include "shelfinity.backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "shelfinity.backend.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "shelfinity.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.security.podSecurityContext | nindent 8 }}
+      containers:
+      - name: backend
+        image: "{{ .Values.backend.image.repository }}/{{ .Values.global.namespace }}/{{ .Values.backend.image.name }}:{{ .Values.backend.image.tag }}"
+        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.security.containerSecurityContext | nindent 10 }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.backend.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.backend.name }}-secret
+              key: DB_PASSWORD
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.backend.name }}-config
+        resources:
+          {{- toYaml .Values.backend.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.backend.health.liveness.path }}
+            port: {{ .Values.backend.service.targetPort }}
+          initialDelaySeconds: {{ .Values.backend.health.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.health.liveness.periodSeconds }}
+          timeoutSeconds: {{ .Values.backend.health.liveness.timeoutSeconds }}
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.backend.health.readiness.path }}
+            port: {{ .Values.backend.service.targetPort }}
+          initialDelaySeconds: {{ .Values.backend.health.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.health.readiness.periodSeconds }}
+          timeoutSeconds: {{ .Values.backend.health.readiness.timeoutSeconds }}
+          failureThreshold: 3
+{{- end }}
+
+# Made with Bob

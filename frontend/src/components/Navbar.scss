@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2025 Shadow-Codex
+ *
+ * This source code is licensed under the MIT License.
+ * See the LICENSE file in the root directory for more information.
+ */
+
+@use '@carbon/react' as *;
+
+.user-info-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-03;
+  padding: 0 $spacing-05;
+  color: $text-secondary;
+
+  .user-name {
+    @include type-style('body-short-01');
+    color: $text-primary;
+  }
+
+  .user-role-badge {
+    @include type-style('label-01');
+    background-color: $background-brand;
+    color: $text-on-color;
+    padding: 2px $spacing-03;
+    border-radius: 4px;
+  }
+}
+
+// Made with Bob
