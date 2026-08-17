@@ -21,21 +21,25 @@ public class CreateBookRequest {
     private String author;
     
     private String isbn;
-    
+
     private String description;
-    
+
+    private String genre;
+
+    private Integer publicationYear;
+
     @Positive(message = "Total copies must be positive")
     private int totalCopies = 1;
-    
+
     // Default constructor
     public CreateBookRequest() {}
-    
+
     // Constructor with required fields
     public CreateBookRequest(String title, String author) {
         this.title = title;
         this.author = author;
     }
-    
+
     // Constructor with all fields
     public CreateBookRequest(String title, String author, String isbn, String description, int totalCopies) {
         this.title = title;
@@ -73,11 +77,27 @@ public class CreateBookRequest {
     public String getDescription() {
         return description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public Integer getPublicationYear() {
+        return publicationYear;
+    }
+
+    public void setPublicationYear(Integer publicationYear) {
+        this.publicationYear = publicationYear;
+    }
+
     public int getTotalCopies() {
         return totalCopies;
     }

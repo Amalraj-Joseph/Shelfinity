@@ -9,6 +9,9 @@ package com.shelfinity.email;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.shelfinity.email.dto.EmailConfigResponse;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -70,7 +73,7 @@ public class EmailConfigResource {
             description = "Email configuration saved successfully",
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = EmailConfig.class)
+                schema = @Schema(implementation = EmailConfigResponse.class)
             )
         ),
         @APIResponse(
@@ -91,11 +94,11 @@ public class EmailConfigResource {
         }
         
         EmailConfig savedConfig = emailConfigRepository.save(config);
-        
+
         // Refresh email service with new configuration
         emailService.refreshMailSession();
-        
-        return Response.ok(savedConfig).build();
+
+        return Response.ok(new EmailConfigResponse(savedConfig)).build();
     }
     
     /**
@@ -115,7 +118,7 @@ public class EmailConfigResource {
             description = "Active configuration retrieved successfully",
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = EmailConfig.class)
+                schema = @Schema(implementation = EmailConfigResponse.class)
             )
         ),
         @APIResponse(
@@ -150,7 +153,7 @@ public class EmailConfigResource {
                     .build();
         }
         
-        return Response.ok(config.get()).build();
+        return Response.ok(new EmailConfigResponse(config.get())).build();
     }
     
     /**
@@ -169,7 +172,7 @@ public class EmailConfigResource {
             description = "Configurations retrieved successfully",
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = EmailConfig.class)
+                schema = @Schema(implementation = EmailConfigResponse.class)
             )
         ),
         @APIResponse(
@@ -190,7 +193,10 @@ public class EmailConfigResource {
         }
         
         List<EmailConfig> configs = emailConfigRepository.findAll();
-        return Response.ok(configs).build();
+        List<EmailConfigResponse> responses = configs.stream()
+                .map(EmailConfigResponse::new)
+                .collect(Collectors.toList());
+        return Response.ok(responses).build();
     }
     
     /**
@@ -210,7 +216,7 @@ public class EmailConfigResource {
             description = "Configuration updated successfully",
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = EmailConfig.class)
+                schema = @Schema(implementation = EmailConfigResponse.class)
             )
         ),
         @APIResponse(
@@ -249,6 +255,12 @@ public class EmailConfigResource {
             }
             
             config.setId(configId);
+            // The password is never echoed back by any GET (EmailConfigResponse
+            // omits it), so a typical edit-then-submit flow arrives with no
+            // password field set. Treat that as "leave unchanged", not "clear it".
+            if (config.getPassword() == null || config.getPassword().isEmpty()) {
+                config.setPassword(existingConfig.get().getPassword());
+            }
             EmailConfig updatedConfig = emailConfigRepository.update(config);
             
             // Refresh email service if this is the active configuration
@@ -256,8 +268,8 @@ public class EmailConfigResource {
                 emailService.refreshMailSession();
             }
             
-            return Response.ok(updatedConfig).build();
-            
+            return Response.ok(new EmailConfigResponse(updatedConfig)).build();
+
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\": \"Invalid configuration ID format\"}")

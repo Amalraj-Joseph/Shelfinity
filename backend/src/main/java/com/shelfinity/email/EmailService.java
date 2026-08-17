@@ -139,6 +139,24 @@ public class EmailService {
     }
     
     /**
+     * Send registration decline notification.
+     */
+    @Asynchronous
+    public void sendRegistrationDeclined(String to, String userName, String reason) {
+        String subject = "Your Shelfinity Registration Request";
+        String body = String.format(
+            "Dear %s,\n\n" +
+            "We are unable to approve your registration request at this time.\n\n" +
+            "Reason: %s\n\n" +
+            "If you believe this is a mistake, please contact the library directly.\n\n" +
+            "Best regards,\n" +
+            "Shelfinity Library Team",
+            userName, reason != null ? reason : "Not specified"
+        );
+        sendEmail(to, subject, body);
+    }
+
+    /**
      * Send borrow request acknowledgment email.
      */
     @Asynchronous

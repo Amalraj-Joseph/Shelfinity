@@ -1,3 +1,5 @@
+> **SUPERSEDED — kept for historical context only.** This document mandates Apache Kafka as core infrastructure, versioned `/api/v1` endpoints, and a refresh-token/lockout auth model — none of which match the actual running system, and none of which were reconciled with `SRS.md` or `api.yaml` before this was written. **`SPEC.md` in this directory is now authoritative.** Do not implement against this file.
+
 # System Architecture Document : Library Management System (LMS) - Jakarta EE Backend
 
 ## 1. Introduction

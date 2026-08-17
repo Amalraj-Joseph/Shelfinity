@@ -25,7 +25,6 @@ import com.shelfinity.users.UserRepository;
 import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 /**
  * Service for tracking and managing overdue books.
@@ -53,7 +52,6 @@ public class OverdueService {
      * Sends email notifications to users with overdue books.
      */
     @Schedule(hour = "9", minute = "0", persistent = false)
-    @Transactional
     public void checkOverdueBooks() {
         LOGGER.info("Starting overdue books check...");
         
@@ -119,7 +117,6 @@ public class OverdueService {
     /**
      * Get all currently overdue items.
      */
-    @Transactional
     public List<QueueItem> getOverdueItems() {
         return queueRepository.findOverdueItems();
     }
@@ -127,7 +124,6 @@ public class OverdueService {
     /**
      * Get overdue items for a specific user.
      */
-    @Transactional
     public List<QueueItem> getOverdueItemsForUser(String userKeycloakId) {
         return queueRepository.findOverdueItemsByUser(userKeycloakId);
     }
@@ -165,7 +161,6 @@ public class OverdueService {
     /**
      * Get overdue statistics.
      */
-    @Transactional
     public OverdueStats getOverdueStats() {
         List<QueueItem> overdueItems = queueRepository.findOverdueItems();
         

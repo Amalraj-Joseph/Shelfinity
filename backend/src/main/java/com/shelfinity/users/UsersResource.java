@@ -21,6 +21,9 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import com.shelfinity.queues.QueueItem;
+import com.shelfinity.queues.QueueRepository;
+import com.shelfinity.queues.QueueType;
 import com.shelfinity.security.JwtUtil;
 import com.shelfinity.users.dto.requests.CreateUserRequest;
 import com.shelfinity.users.dto.responses.UserResponse;
@@ -54,10 +57,13 @@ public class UsersResource {
     
     @Inject
     private UserRepository userRepository;
-    
+
+    @Inject
+    private QueueRepository queueRepository;
+
     @Inject
     private JwtUtil jwtUtil;
-    
+
     @Context
     private SecurityContext securityContext;
     
@@ -109,7 +115,32 @@ public class UsersResource {
                 )
             )
         ) @Valid CreateUserRequest request) {
-        
+
+        // Caller must be authenticated. Previously this endpoint had no auth check
+        // at all, which combined with the client-supplied `role` field below made
+        // it possible for anyone to create an ADMIN account. SPEC.md §10.1.
+        Optional<JwtUtil.UserInfo> callerInfo = jwtUtil.getCurrentUserInfo();
+        if (callerInfo.isEmpty()) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("{\"error\": \"Authentication required\"}")
+                    .build();
+        }
+        boolean callerIsAdmin = jwtUtil.isCurrentUserAdmin();
+
+        // A non-admin caller may only sync a profile record for their own Keycloak
+        // identity, never for someone else's keycloakId.
+        if (!callerIsAdmin && !callerInfo.get().getKeycloakId().equals(request.getKeycloakId())) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Cannot create a user record for another account\"}")
+                    .build();
+        }
+
+        // Only an existing admin may grant the ADMIN role. Any role value supplied
+        // by a non-admin caller is ignored and forced to USER.
+        UserRole role = (callerIsAdmin && "ADMIN".equalsIgnoreCase(request.getRole()))
+                ? UserRole.ADMIN
+                : UserRole.USER;
+
         // Check if user already exists
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
         if (existingUser.isPresent()) {
@@ -117,17 +148,31 @@ public class UsersResource {
                     .entity("{\"error\": \"User already exists\"}")
                     .build();
         }
-        
-        // Create new user
+
+        // Create new user. SPEC.md §6.1/§10.3 (resolved): a self-service caller
+        // creating their own record is gated behind admin approval; an admin
+        // explicitly creating a user has already vetted them, so that account is
+        // active immediately.
         User user = new User();
         user.setKeycloakId(request.getKeycloakId());
         user.setEmail(request.getEmail());
         user.setName(request.getName());
-        user.setRole("ADMIN".equalsIgnoreCase(request.getRole()) ? UserRole.ADMIN : UserRole.USER);
-        
+        user.setRole(role);
+        user.setActive(callerIsAdmin);
+
         User createdUser = userRepository.save(user);
+
+        if (!callerIsAdmin) {
+            QueueItem registrationRequest = new QueueItem(
+                    QueueType.USER_REGISTRATION,
+                    createdUser.getKeycloakId(),
+                    "Registration approval for " + createdUser.getEmail()
+            );
+            queueRepository.save(registrationRequest);
+        }
+
         UserResponse response = new UserResponse(createdUser);
-        
+
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
     

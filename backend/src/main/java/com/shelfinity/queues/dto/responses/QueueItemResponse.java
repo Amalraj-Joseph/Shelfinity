@@ -24,15 +24,21 @@ public class QueueItemResponse {
     private QueueStatus status;
     private String description;
     private String adminRemark;
+    private LocalDateTime dueDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime processedAt;
     private String processedBy;
-    
+
     // Default constructor
     public QueueItemResponse() {}
-    
-    // Constructor from QueueItem entity
+
+    // Constructor from QueueItem entity.
+    // dueDate was missing entirely here until an end-to-end smoke test showed
+    // the API response never carrying it, even though QueueApprovalService
+    // correctly sets and persists it on borrow approval — no unit/mock test
+    // caught this because none of them serialize a real QueueItemResponse and
+    // inspect the JSON a client actually receives.
     public QueueItemResponse(QueueItem queueItem) {
         this.id = queueItem.getId();
         this.type = queueItem.getType();
@@ -41,6 +47,7 @@ public class QueueItemResponse {
         this.status = queueItem.getStatus();
         this.description = queueItem.getDescription();
         this.adminRemark = queueItem.getAdminRemark();
+        this.dueDate = queueItem.getDueDate();
         this.createdAt = queueItem.getCreatedAt();
         this.updatedAt = queueItem.getUpdatedAt();
         this.processedAt = queueItem.getProcessedAt();
@@ -103,7 +110,15 @@ public class QueueItemResponse {
     public void setAdminRemark(String adminRemark) {
         this.adminRemark = adminRemark;
     }
-    
+
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }

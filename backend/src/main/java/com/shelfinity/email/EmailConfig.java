@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,6 +24,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
+import com.shelfinity.persistence.UuidStringConverter;
+
 /**
  * Email configuration entity for SMTP server settings.
  */
@@ -33,9 +36,13 @@ import jakarta.validation.constraints.Positive;
     @NamedQuery(name = "EmailConfig.findAll", query = "SELECT e FROM EmailConfig e ORDER BY e.createdAt DESC")
 })
 public class EmailConfig {
-    
+
+    // See UuidStringConverter for why (SPEC.md §10.8). Now a plain standard
+    // jakarta.persistence.Convert, same as the password field below — no more
+    // need for the fully-qualified-annotation workaround this used to require.
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Convert(converter = UuidStringConverter.class)
     private UUID id;
     
     @NotBlank
@@ -57,7 +64,9 @@ public class EmailConfig {
     @Column(name = "username")
     private String username;
     
-    @Column(name = "password")
+    // Encrypted at rest — SPEC.md §10.6 (resolved).
+    @Column(name = "password", length = 512)
+    @Convert(converter = EncryptedStringConverter.class)
     private String password;
     
     @Column(name = "use_tls", nullable = false)

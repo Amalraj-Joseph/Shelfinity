@@ -147,9 +147,11 @@ public class BooksResource {
         book.setAuthor(request.getAuthor());
         book.setIsbn(request.getIsbn());
         book.setDescription(request.getDescription());
+        book.setGenre(request.getGenre());
+        book.setPublicationYear(request.getPublicationYear());
         book.setTotalCopies(request.getTotalCopies());
         book.setAvailableCopies(request.getTotalCopies());
-        
+
         Book savedBook = bookRepository.save(book);
         BookResponse response = new BookResponse(savedBook);
         
@@ -175,14 +177,21 @@ public class BooksResource {
             )
         )
     })
-    public Response getAllBooks(@QueryParam("availableOnly") Boolean availableOnly) {
+    public Response getAllBooks(@QueryParam("availableOnly") Boolean availableOnly,
+                                 @QueryParam("genre") String genre) {
         List<Book> books;
-        if (availableOnly != null && availableOnly) {
+        if (genre != null && !genre.trim().isEmpty()) {
+            books = bookRepository.findByGenre(genre.trim());
+        } else if (availableOnly != null && availableOnly) {
             books = bookRepository.findAvailable();
         } else {
             books = bookRepository.findAll();
         }
-        
+
+        if (genre != null && !genre.trim().isEmpty() && availableOnly != null && availableOnly) {
+            books = books.stream().filter(Book::isAvailable).collect(Collectors.toList());
+        }
+
         List<BookResponse> responses = books.stream()
                 .map(BookResponse::new)
                 .collect(Collectors.toList());
@@ -299,8 +308,10 @@ public class BooksResource {
             book.setAuthor(request.getAuthor());
             book.setIsbn(request.getIsbn());
             book.setDescription(request.getDescription());
+            book.setGenre(request.getGenre());
+            book.setPublicationYear(request.getPublicationYear());
             book.setTotalCopies(request.getTotalCopies());
-            
+
             Book updatedBook = bookRepository.update(book);
             BookResponse response = new BookResponse(updatedBook);
             

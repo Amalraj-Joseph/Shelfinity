@@ -29,6 +29,10 @@ import com.shelfinity.security.JwtUtil;
 import com.shelfinity.users.User;
 import com.shelfinity.users.UserRepository;
 
+import java.time.LocalDateTime;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -66,7 +70,11 @@ public class ReservationResource {
     
     @Inject
     private JwtUtil jwtUtil;
-    
+
+    @Inject
+    @ConfigProperty(name = "reservation.expiry.days", defaultValue = "7")
+    private int reservationExpiryDays;
+
     /**
      * Create a new reservation.
      */
@@ -111,7 +119,15 @@ public class ReservationResource {
                     .entity("{\"error\": \"Authentication required\"}")
                     .build();
         }
-        
+
+        // SPEC.md §6.1 step 3: block transacting until registration is approved.
+        Optional<User> requester = userRepository.findByKeycloakId(userInfo.get().getKeycloakId());
+        if (requester.isEmpty() || !requester.get().isActive()) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Account pending approval\"}")
+                    .build();
+        }
+
         // Check if book exists
         Optional<Book> book = bookRepository.findById(request.getBookId());
         if (book.isEmpty()) {
@@ -139,18 +155,17 @@ public class ReservationResource {
         reservation.setUserKeycloakId(userInfo.get().getKeycloakId());
         reservation.setBookId(request.getBookId());
         reservation.setNotes(request.getNotes());
-        
+        // SPEC.md §10.5 (resolved): expiry is set here, not hardcoded in the entity.
+        reservation.setExpiresAt(LocalDateTime.now().plusDays(reservationExpiryDays));
+
         Reservation savedReservation = reservationRepository.save(reservation);
-        
-        // Send confirmation email
-        Optional<User> user = userRepository.findByKeycloakId(userInfo.get().getKeycloakId());
-        if (user.isPresent()) {
-            emailService.sendReservationConfirmation(
-                user.get().getEmail(),
-                user.get().getName(),
-                book.get().getTitle()
-            );
-        }
+
+        // Send confirmation email (requester is guaranteed present — checked above)
+        emailService.sendReservationConfirmation(
+            requester.get().getEmail(),
+            requester.get().getName(),
+            book.get().getTitle()
+        );
         
         ReservationResponse response = new ReservationResponse(savedReservation, book.get());
         return Response.status(Response.Status.CREATED).entity(response).build();

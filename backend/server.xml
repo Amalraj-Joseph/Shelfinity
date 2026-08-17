@@ -31,15 +31,35 @@
         <feature>mpHealth-4.0</feature>
     </featureManager>
 
-    <!-- MicroProfile JWT Configuration -->
+    <!-- MicroProfile JWT Configuration.
+         userNameAttribute must be set to a claim Keycloak actually issues:
+         Keycloak access tokens carry "preferred_username", not the "upn"
+         claim Liberty looks for by default, so without this every request
+         fails authentication with CWWKS5506E regardless of the token's
+         validity.
+
+         issuer and jwksUri are deliberately two separate variables, not one
+         derived from the other: the browser can only ever reach Keycloak via
+         its externally-mapped hostname (so that's what ends up in every
+         token's "iss" claim, and issuer must match it exactly), but this
+         backend container can only reach Keycloak via its internal Docker
+         network hostname to fetch the JWKS for signature verification.
+         Coupling them (jwksUri derived from issuer) meant every real
+         browser-based login failed with CWWKS6022E "issuer not trusted" —
+         found via an end-to-end smoke test through the actual running
+         stack, not caught by any unit or repository-tier test since those
+         never hit real Keycloak. -->
     <mpJwt id="jwt"
             issuer="${env.OIDC_ISSUER}"
-            jwksUri="${env.OIDC_ISSUER}/protocol/openid-connect/certs" />
+            jwksUri="${env.OIDC_JWKS_URI}"
+            userNameAttribute="preferred_username" />
 
     <!-- OpenAPI Configuration -->
     <mpOpenAPI />
 
-    <!-- Application deployment -->
-    <application id="shelfinity-backend" name="shelfinity-backend" location="shelfinity-backend.war" />
+    <!-- Application deployment. contextRoot="/" so REST endpoints are reachable at
+         /api/... directly, matching the frontend's hardcoded API_BASE_URL and the
+         nginx reverse proxy, instead of being nested under /shelfinity-backend/api. -->
+    <application id="shelfinity-backend" name="shelfinity-backend" location="shelfinity-backend.war" context-root="/" />
 
 </server>

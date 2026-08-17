@@ -1,3 +1,5 @@
+> **SUPERSEDED — kept for historical context only.** Several stories here (reservations, inventory management, queue viewing) were never given a matching use case. `SPEC.md` §6 now gives every one of these a concrete state machine and endpoint. **`SPEC.md` in this directory is now authoritative.**
+
 # Library Management System: User Stories and Use Cases
 
 ## 1. Introduction

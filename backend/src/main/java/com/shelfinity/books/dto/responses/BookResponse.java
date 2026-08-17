@@ -20,6 +20,8 @@ public class BookResponse {
     private String author;
     private String isbn;
     private String description;
+    private String genre;
+    private Integer publicationYear;
     private boolean available;
     private int totalCopies;
     private int availableCopies;
@@ -36,6 +38,8 @@ public class BookResponse {
         this.author = book.getAuthor();
         this.isbn = book.getIsbn();
         this.description = book.getDescription();
+        this.genre = book.getGenre();
+        this.publicationYear = book.getPublicationYear();
         this.available = book.isAvailable();
         this.totalCopies = book.getTotalCopies();
         this.availableCopies = book.getAvailableCopies();
@@ -83,7 +87,23 @@ public class BookResponse {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public Integer getPublicationYear() {
+        return publicationYear;
+    }
+
+    public void setPublicationYear(Integer publicationYear) {
+        this.publicationYear = publicationYear;
+    }
+
     public boolean isAvailable() {
         return available;
     }

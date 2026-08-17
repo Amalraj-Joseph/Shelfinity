@@ -87,6 +87,7 @@ public class ReservationRepository {
         TypedQuery<Reservation> query = entityManager.createNamedQuery(
             "Reservation.findActiveByBookId", Reservation.class);
         query.setParameter("bookId", bookId);
+        query.setParameter("status", ReservationStatus.ACTIVE);
         return query.getResultList();
     }
     
@@ -150,14 +151,18 @@ public class ReservationRepository {
     }
     
     /**
-     * Mark reservation as notified.
+     * Mark reservation as notified and reset its claim-window expiry.
+     * SPEC.md §6.4 step 2: the claim window restarts from the moment of
+     * notification, using the same configurable reservation.expiry.days
+     * the caller used to compute newExpiresAt.
      */
     @Transactional
-    public void markAsNotified(UUID id) {
+    public void markAsNotified(UUID id, LocalDateTime newExpiresAt) {
         Reservation reservation = entityManager.find(Reservation.class, id);
         if (reservation != null) {
             reservation.setStatus(ReservationStatus.NOTIFIED);
             reservation.setNotifiedAt(LocalDateTime.now());
+            reservation.setExpiresAt(newExpiresAt);
             entityManager.merge(reservation);
         }
     }

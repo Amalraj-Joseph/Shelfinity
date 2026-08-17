@@ -23,6 +23,9 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Base URL for the *ApiIT (REST-assured) e2e suite; override with
+             -Dapi.base.url=... to point at a different running stack. -->
+        <api.base.url>http://localhost:9080/api</api.base.url>
     </properties>
 
     <dependencies>
@@ -86,18 +89,112 @@
             <version>42.7.5</version>
         </dependency>
 
-        <!-- EclipseLink JPA Provider -->
+        <!-- EclipseLink JPA Provider. `provided`, not bundled into the WAR:
+             Liberty's webProfile-10.0 feature already ships its own EclipseLink
+             (a different version — 4.0.7 in the current Liberty image vs 4.0.2
+             here). Packaging our own alongside it put two different, ABI-
+             incompatible `Converter` interface classes on the runtime
+             classpath at once — PostgresUuidConverter, compiled against ours,
+             got a ClassCastException when Liberty tried to load it against
+             its own. `provided` keeps these available for compiling and for
+             the standalone repository-tier tests (Maven's `provided` scope is
+             on the test classpath too) without shipping a second copy into
+             the deployed app, where only Liberty's own must be used. -->
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.jpa</artifactId>
             <version>4.0.2</version>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- EclipseLink Core -->
+        <!-- EclipseLink Core — see above. -->
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.core</artifactId>
             <version>4.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Test: JUnit 5 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test: Mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test: fluent assertions -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.25.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test: jakarta.jakartaee-api (provided, above) is API-only — JwtUtilTest
+             needs a real JSON-P implementation to build JsonObject claim values. -->
+        <dependency>
+            <groupId>org.eclipse.parsson</groupId>
+            <artifactId>parsson</artifactId>
+            <version>1.1.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test: jakarta.jakartaee-api has no jakarta.ws.rs.ext.RuntimeDelegate
+             implementation, so JAX-RS Response.status()/.ok() throw outside a real
+             server. Resource-class unit tests need one on the classpath. -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>3.1.6</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test: MicroProfile Config is API-only too — EncryptedStringConverter
+             calls ConfigProvider.getConfig() directly, which needs a real
+             implementation on the classpath (Open Liberty uses SmallRye Config
+             at runtime, so this matches production behavior, not just a test shim). -->
+        <dependency>
+            <groupId>io.smallrye.config</groupId>
+            <artifactId>smallrye-config</artifactId>
+            <version>3.13.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test: repository-tier integration tests against a real Postgres -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.19.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>1.19.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test: API/e2e black-box tests (mvn verify -Pe2e) -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>5.4.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -118,28 +215,72 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
             </plugin>
-            <!-- Copy PostgreSQL driver to server.config.dir/lib for Liberty to pick up -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.1</version>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <!-- Every *IT.java (the standard Maven integration-test naming
+                         convention — RepositoryIT, ServiceIT, ApiIT, anything) needs
+                         either Testcontainers/Docker or a running stack, so all of
+                         them are excluded from the default fast `test` phase; they
+                         run explicitly via the repository-it/e2e profiles below.
+                         Using the broad *IT.java suffix (not just *RepositoryIT) is
+                         deliberate — a narrower pattern here once let ReportServiceIT
+                         match neither this exclude nor Surefire's own default include
+                         patterns, so it silently never ran in any profile. -->
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
-                        <id>copy-postgresql-driver</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
+                        <id>prepare-agent</id>
+                        <goals><goal>prepare-agent</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals><goal>report</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals><goal>check</goal></goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.postgresql</groupId>
-                                    <artifactId>postgresql</artifactId>
-                                    <version>42.7.5</version>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.basedir}/lib</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                            <!-- DTOs/entities are mostly getters/setters; excluded from the
+                                 coverage denominator so the threshold reflects logic, not
+                                 boilerplate. Repository interfaces (named-query only, no
+                                 logic of their own) are exercised by the *RepositoryIT suite
+                                 under the repository-it profile, not this default unit run —
+                                 excluded here so this gate measures unit-tested logic; the
+                                 repository-it profile is the source of truth for their
+                                 coverage. ShelfinityApplication is a declarative JAX-RS
+                                 Application subclass with no executable logic. -->
+                            <excludes>
+                                <exclude>**/dto/**</exclude>
+                                <exclude>**/*Response.class</exclude>
+                                <exclude>**/*Request.class</exclude>
+                                <exclude>**/*Repository.class</exclude>
+                                <exclude>com/shelfinity/ShelfinityApplication.class</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
@@ -154,11 +295,82 @@
                     <serverXmlFile>${project.basedir}/server.xml</serverXmlFile>
                     <appsDirectory>apps</appsDirectory>
                     <installApps>project</installApps>
-                    <bootstrapProperties>
-                        <shared.resource.dir>${project.basedir}</shared.resource.dir>
-                    </bootstrapProperties>
+                    <!-- Copy the PostgreSQL driver into Liberty's own default shared.resource.dir
+                         (usr/shared/resources/lib) instead of overriding shared.resource.dir via
+                         bootstrapProperties: overriding it caused the fileset in server.xml to
+                         intermittently resolve to zero jars (DSRA4000E) because the overridden
+                         variable isn't reliably available yet when the JDBC library is resolved
+                         during liberty:run/liberty:dev startup. This mirrors what the Dockerfile
+                         does for the production image. -->
+                    <copyDependencies>
+                        <dependencyGroup>
+                            <location>${project.build.directory}/liberty/wlp/usr/shared/resources/lib</location>
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>42.7.5</version>
+                            </dependency>
+                        </dependencyGroup>
+                    </copyDependencies>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- mvn test -Prepository-it : runs every *IT.java except *ApiIT
+             (Testcontainers Postgres, plain EntityManagerFactory, no app
+             server). Requires Docker. -->
+        <profile>
+            <id>repository-it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.2.5</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*ApiIT.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- mvn verify -Pe2e : runs *ApiIT (REST-assured) black-box against an
+             already-running stack. Base URL: -Dapi.base.url, default below. -->
+        <profile>
+            <id>e2e</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>3.2.5</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*ApiIT.java</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <api.base.url>${api.base.url}</api.base.url>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

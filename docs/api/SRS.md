@@ -1,3 +1,5 @@
+> **SUPERSEDED — kept for historical context only.** This document contains requirements that were never reconciled with `Architecture.md`, `User_stories.md`, `Flow_chart.md`, or the actual implementation (e.g. it assumes local password storage where the system actually uses Keycloak, describes a UI it explicitly disclaims covering, and its API contract in Appendix A3 does not match what was built). **`SPEC.md` in this directory is now authoritative.** Do not implement against this file.
+
 # Software Requirement Specification (SRS) for Library Management System
 
 ## 📘 1. Introduction

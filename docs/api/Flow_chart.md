@@ -1,3 +1,5 @@
+> **SUPERSEDED — kept for historical context only.** Flow #1 (registration) omits the admin-approval step required elsewhere; flow #4 (return) shows an automatic return where the rest of the system requires admin sign-off; flow #17 (payments/fees) is scope that appears nowhere else in the documentation set and has been cut from v1. **`SPEC.md` in this directory is now authoritative** — see its §6 and §11 for the reconciled flows and the reasoning. Do not implement against this file.
+
 # Library Management System: Flow Charts
 
 ## 1. User Registration Flow

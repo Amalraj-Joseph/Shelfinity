@@ -68,6 +68,15 @@ public class BookRepository {
         TypedQuery<Book> query = entityManager.createNamedQuery("Book.findAvailable", Book.class);
         return query.getResultList();
     }
+
+    /**
+     * Find books by genre (case-insensitive exact match).
+     */
+    public List<Book> findByGenre(String genre) {
+        TypedQuery<Book> query = entityManager.createNamedQuery("Book.findByGenre", Book.class);
+        query.setParameter("genre", genre);
+        return query.getResultList();
+    }
     
     /**
      * Find all books.

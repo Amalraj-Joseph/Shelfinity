@@ -12,8 +12,10 @@ import org.eclipse.microprofile.openapi.annotations.info.License;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.servers.Server;
 
+import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
+@ApplicationPath("/api")
 @OpenAPIDefinition(
     info = @Info(
         title = "Shelfinity API",

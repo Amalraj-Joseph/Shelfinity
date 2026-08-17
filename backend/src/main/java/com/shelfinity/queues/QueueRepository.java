@@ -64,6 +64,7 @@ public class QueueRepository {
      */
     public List<QueueItem> findPending() {
         TypedQuery<QueueItem> query = entityManager.createNamedQuery("QueueItem.findPending", QueueItem.class);
+        query.setParameter("status", QueueStatus.PENDING);
         return query.getResultList();
     }
     
@@ -121,13 +122,31 @@ public class QueueRepository {
     }
     
     /**
+     * Check whether the user already has a PENDING item of the given type for
+     * the given book (duplicate-request guard — SPEC.md §6 execution plan).
+     */
+    public boolean existsPendingForUserAndBook(String userKeycloakId, UUID bookId, QueueType type) {
+        TypedQuery<Long> query = entityManager.createQuery(
+            "SELECT COUNT(q) FROM QueueItem q WHERE q.userKeycloakId = :userKeycloakId " +
+            "AND q.bookId = :bookId AND q.type = :type AND q.status = :status",
+            Long.class
+        );
+        query.setParameter("userKeycloakId", userKeycloakId);
+        query.setParameter("bookId", bookId);
+        query.setParameter("type", type);
+        query.setParameter("status", QueueStatus.PENDING);
+        return query.getSingleResult() > 0;
+    }
+
+    /**
      * Count pending queue items.
      */
     public long countPending() {
         TypedQuery<Long> query = entityManager.createQuery(
-            "SELECT COUNT(q) FROM QueueItem q WHERE q.status = 'PENDING'",
+            "SELECT COUNT(q) FROM QueueItem q WHERE q.status = :status",
             Long.class
         );
+        query.setParameter("status", QueueStatus.PENDING);
         return query.getSingleResult();
     }
     
