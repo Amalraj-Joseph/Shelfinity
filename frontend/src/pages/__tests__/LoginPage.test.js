@@ -9,12 +9,17 @@ import { MemoryRouter } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginPage from '../LoginPage';
-import { AuthProvider } from '../../context/AuthContext';
+import { AuthProvider, keycloakRegistrationUrl } from '../../context/AuthContext';
 import { auth } from '../../api/client';
 
 jest.mock('../../api/client', () => {
   const actual = jest.requireActual('../../api/client');
   return { ...actual, auth: { login: jest.fn(), me: jest.fn() }, setAuthToken: jest.fn() };
+});
+
+jest.mock('../../context/AuthContext', () => {
+  const actual = jest.requireActual('../../context/AuthContext');
+  return { ...actual, keycloakRegistrationUrl: jest.fn() };
 });
 
 function renderLoginPage() {
@@ -66,10 +71,19 @@ describe('LoginPage', () => {
     expect(await screen.findByText(/invalid username or password/i)).toBeInTheDocument();
   });
 
-  test('offers a registration link pointing at Keycloak, not an in-app sign-up form', () => {
-    renderLoginPage();
+  test('offers a registration link that sends the browser to Keycloak, not an in-app sign-up form', async () => {
+    const registrationUrl = 'http://localhost:8080/realms/shelfinity/protocol/openid-connect/registrations'
+      + '?client_id=shelfinity-frontend&response_type=code&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%2Flogin'
+      + '&code_challenge=abc123&code_challenge_method=S256';
+    keycloakRegistrationUrl.mockResolvedValue(registrationUrl);
+    delete window.location;
+    window.location = { href: '' };
 
-    const link = screen.getByText('Register');
-    expect(link.closest('a')).toHaveAttribute('href', expect.stringContaining('/protocol/openid-connect/registrations'));
+    renderLoginPage();
+    const link = screen.getByTestId('register-link');
+    await userEvent.click(link);
+
+    await waitFor(() => expect(keycloakRegistrationUrl).toHaveBeenCalled());
+    await waitFor(() => expect(window.location.href).toBe(registrationUrl));
   });
 });

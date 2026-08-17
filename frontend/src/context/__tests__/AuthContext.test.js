@@ -7,7 +7,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AuthProvider, useAuth } from '../AuthContext';
+import { AuthProvider, keycloakRegistrationUrl, useAuth } from '../AuthContext';
 import { ApiError, auth, users } from '../../api/client';
 
 jest.mock('../../api/client', () => {
@@ -93,5 +93,39 @@ describe('AuthContext', () => {
     await userEvent.click(screen.getByText('Login'));
 
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('anon'));
+  });
+
+  describe('keycloakRegistrationUrl', () => {
+    const originalCrypto = global.crypto;
+    const originalTextEncoder = global.TextEncoder;
+
+    beforeEach(() => {
+      // jsdom's test environment doesn't provide TextEncoder globally.
+      global.TextEncoder = require('util').TextEncoder;
+      Object.defineProperty(global, 'crypto', {
+        configurable: true,
+        value: {
+          getRandomValues: (arr) => arr.fill(1),
+          subtle: { digest: jest.fn().mockResolvedValue(new Uint8Array(32).fill(7).buffer) },
+        },
+      });
+    });
+
+    afterEach(() => {
+      Object.defineProperty(global, 'crypto', { configurable: true, value: originalCrypto });
+      global.TextEncoder = originalTextEncoder;
+    });
+
+    test('builds a PKCE-protected URL pointing at Keycloak registration, redirecting back to /login', async () => {
+      const url = await keycloakRegistrationUrl();
+
+      expect(url).toContain('/realms/shelfinity/protocol/openid-connect/registrations');
+      expect(url).toContain('client_id=shelfinity-frontend');
+      expect(url).toContain('code_challenge_method=S256');
+      expect(url).toMatch(/code_challenge=[^&]+/);
+      // Regression guard: a bare-origin redirect_uri doesn't match the realm
+      // client's "http://localhost:3000/*" wildcard (requires a path segment).
+      expect(url).toContain(`redirect_uri=${encodeURIComponent(`${window.location.origin}/login`)}`);
+    });
   });
 });
