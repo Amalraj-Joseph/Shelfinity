@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -26,6 +26,7 @@ import com.shelfinity.books.dto.requests.CreateBookRequest;
 import com.shelfinity.books.dto.responses.BookResponse;
 import com.shelfinity.security.JwtUtil;
 
+import com.shelfinity.books.BulkUploadService.BulkUploadResult;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -38,14 +39,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ContainerResponseContext;
-import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
-import jakarta.ws.rs.ext.Provider;
 
 /**
  * REST API for book management.
@@ -55,8 +52,7 @@ import jakarta.ws.rs.ext.Provider;
 @Consumes(MediaType.APPLICATION_JSON)
 @RequestScoped
 @Tag(name = "Books")
-@Provider
-public class BooksResource implements ContainerResponseFilter {
+public class BooksResource {
     
     @Inject
     private BookRepository bookRepository;
@@ -64,19 +60,12 @@ public class BooksResource implements ContainerResponseFilter {
     @Inject
     private JwtUtil jwtUtil;
     
+    @Inject
+    private BulkUploadService bulkUploadService;
+    
     @Context
     private SecurityContext securityContext;
 
-    @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
-        // Add CORS headers for all responses
-        responseContext.getHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
-        responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        responseContext.getHeaders().add("Access-Control-Allow-Headers", "*");
-        responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
-        responseContext.getHeaders().add("Access-Control-Max-Age", "3600");
-    }
-    
     /**
      * Create a new book (admin only).
      */
@@ -158,9 +147,11 @@ public class BooksResource implements ContainerResponseFilter {
         book.setAuthor(request.getAuthor());
         book.setIsbn(request.getIsbn());
         book.setDescription(request.getDescription());
+        book.setGenre(request.getGenre());
+        book.setPublicationYear(request.getPublicationYear());
         book.setTotalCopies(request.getTotalCopies());
         book.setAvailableCopies(request.getTotalCopies());
-        
+
         Book savedBook = bookRepository.save(book);
         BookResponse response = new BookResponse(savedBook);
         
@@ -186,14 +177,21 @@ public class BooksResource implements ContainerResponseFilter {
             )
         )
     })
-    public Response getAllBooks(@QueryParam("availableOnly") Boolean availableOnly) {
+    public Response getAllBooks(@QueryParam("availableOnly") Boolean availableOnly,
+                                 @QueryParam("genre") String genre) {
         List<Book> books;
-        if (availableOnly != null && availableOnly) {
+        if (genre != null && !genre.trim().isEmpty()) {
+            books = bookRepository.findByGenre(genre.trim());
+        } else if (availableOnly != null && availableOnly) {
             books = bookRepository.findAvailable();
         } else {
             books = bookRepository.findAll();
         }
-        
+
+        if (genre != null && !genre.trim().isEmpty() && availableOnly != null && availableOnly) {
+            books = books.stream().filter(Book::isAvailable).collect(Collectors.toList());
+        }
+
         List<BookResponse> responses = books.stream()
                 .map(BookResponse::new)
                 .collect(Collectors.toList());
@@ -310,8 +308,10 @@ public class BooksResource implements ContainerResponseFilter {
             book.setAuthor(request.getAuthor());
             book.setIsbn(request.getIsbn());
             book.setDescription(request.getDescription());
+            book.setGenre(request.getGenre());
+            book.setPublicationYear(request.getPublicationYear());
             book.setTotalCopies(request.getTotalCopies());
-            
+
             Book updatedBook = bookRepository.update(book);
             BookResponse response = new BookResponse(updatedBook);
             
@@ -427,6 +427,95 @@ public class BooksResource implements ContainerResponseFilter {
         
         return Response.ok(responses).build();
     }
+    
+    /**
+     * Bulk upload books from CSV file (admin only).
+     */
+    @POST
+    @Path("/bulk-upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Tag(name = "Books")
+    @SecurityRequirement(name = "JWT")
+    @Operation(
+        summary = "Bulk upload books from CSV",
+        description = "Upload multiple books at once from a CSV file. Admin access required."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Bulk upload completed",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = BulkUploadResult.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "403",
+            description = "Admin access required",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Admin access required\"}")
+            )
+        ),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid file format",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                examples = @ExampleObject(value = "{\"error\": \"Invalid file format\"}")
+            )
+        )
+    })
+    public Response bulkUploadBooks(java.io.InputStream fileInputStream) {
+        // Verify admin access
+        if (!jwtUtil.isCurrentUserAdmin()) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+        }
+        
+        try {
+            if (fileInputStream == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\": \"No file provided\"}")
+                        .build();
+            }
+            
+            BulkUploadResult result = bulkUploadService.uploadFromCSV(fileInputStream);
+            return Response.ok(result).build();
+            
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Failed to process file: " + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+    
+    /**
+     * Download CSV template for bulk upload.
+     */
+    @GET
+    @Path("/bulk-upload/template")
+    @Produces("text/csv")
+    @Tag(name = "Books")
+    @Operation(
+        summary = "Download CSV template",
+        description = "Download a CSV template file for bulk book upload."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Template downloaded successfully",
+            content = @Content(mediaType = "text/csv")
+        )
+    })
+    public Response downloadCSVTemplate() {
+        String template = bulkUploadService.generateCSVTemplate();
+        return Response.ok(template)
+                .header("Content-Disposition", "attachment; filename=\"books_template.csv\"")
+                .build();
+    }
+    
     
     /**
      * Get available books only.

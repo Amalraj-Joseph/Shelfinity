@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -13,76 +13,63 @@ import java.util.UUID;
 
 /**
  * DTO for creating a new queue item.
+ *
+ * Deliberately has no userKeycloakId field: QueueResource.createQueueItem()
+ * always derives the requester's identity from the authenticated JWT and
+ * never trusts client-supplied identity (this field previously existed with
+ * a @NotBlank constraint that nothing ever populated or read — every real
+ * request omits it, since a caller shouldn't be asserting whose request this
+ * is — which meant bean validation rejected every legitimate call with a 400
+ * before the resource method ever ran. Found via an end-to-end smoke test
+ * through the real running stack; no unit or mock-based test caught it
+ * because none of them exercise the actual Bean Validation interceptor.
  */
 public class CreateQueueItemRequest {
-    
+
     @NotNull(message = "Queue type is required")
     private QueueType type;
-    
-    @NotBlank(message = "User Keycloak ID is required")
-    private String userKeycloakId;
-    
+
     private UUID bookId;
-    
+
     @NotBlank(message = "Description is required")
     private String description;
-    
-    // Default constructor
+
     public CreateQueueItemRequest() {}
-    
-    // Constructor for user registration
-    public CreateQueueItemRequest(QueueType type, String userKeycloakId, String description) {
+
+    public CreateQueueItemRequest(QueueType type, UUID bookId, String description) {
         this.type = type;
-        this.userKeycloakId = userKeycloakId;
-        this.description = description;
-    }
-    
-    // Constructor for book operations
-    public CreateQueueItemRequest(QueueType type, String userKeycloakId, UUID bookId, String description) {
-        this.type = type;
-        this.userKeycloakId = userKeycloakId;
         this.bookId = bookId;
         this.description = description;
     }
-    
-    // Getters and Setters
+
     public QueueType getType() {
         return type;
     }
-    
+
     public void setType(QueueType type) {
         this.type = type;
     }
-    
-    public String getUserKeycloakId() {
-        return userKeycloakId;
-    }
-    
-    public void setUserKeycloakId(String userKeycloakId) {
-        this.userKeycloakId = userKeycloakId;
-    }
-    
+
     public UUID getBookId() {
         return bookId;
     }
-    
+
     public void setBookId(UUID bookId) {
         this.bookId = bookId;
     }
-    
+
     public String getDescription() {
         return description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     @Override
     public String toString() {
         return "CreateQueueItemRequest{" +
                 "type=" + type +
-                ", userKeycloakId='" + userKeycloakId + '\'' +
                 ", bookId=" + bookId +
                 ", description='" + description + '\'' +
                 '}';

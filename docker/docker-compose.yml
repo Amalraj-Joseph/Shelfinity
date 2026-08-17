@@ -13,13 +13,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
-      - ./seed-data.sql:/docker-entrypoint-initdb.d/seed-data.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.4
@@ -51,8 +49,24 @@ services:
       DB_NAME: shelfinity
       DB_USER: shelfinity
       DB_PASSWORD: shelfinity
-      OIDC_ISSUER: http://keycloak:8080/realms/shelfinity
+      # Must match the "iss" claim on tokens Keycloak actually issues — since
+      # only the browser's network path (host-mapped localhost:8080) ever
+      # produces a token, that's what's in it, even though this backend
+      # container reaches Keycloak via the internal `keycloak` hostname.
+      OIDC_ISSUER: http://localhost:8080/realms/shelfinity
+      # Separate from OIDC_ISSUER on purpose: this is where the backend
+      # container actually fetches the JWKS from, which must be the
+      # internal Docker network hostname, not localhost (this container's
+      # own loopback, not Keycloak's).
+      OIDC_JWKS_URI: http://keycloak:8080/realms/shelfinity/protocol/openid-connect/certs
       OIDC_AUDIENCE: shelfinity-backend
+      FRONTEND_URL: http://localhost:3000
+      OPENAPI_SERVER_URL: http://localhost:9080
+      # SPEC.md §10.6 — dev-only value. Never reuse this in a real deployment;
+      # generate a real secret (e.g. `openssl rand -base64 32`).
+      EMAIL_CONFIG_ENCRYPTION_KEY: dev-only-insecure-default-change-me
+      BORROW_LOAN_DAYS: "14"
+      RESERVATION_EXPIRY_DAYS: "7"
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,32 +79,29 @@ services:
         - CMD-SHELL
         - >
           curl -s http://localhost:9080/health | grep -q '"status":"UP"'
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 120s
+
 
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+      # CRA bakes REACT_APP_* into the static bundle at build time — an
+      # `environment:` block below would be silently ignored by the already-
+      # built, nginx-served image. These must be build args instead.
+      args:
+        REACT_APP_KEYCLOAK_URL: http://localhost:8080
+        REACT_APP_REALM: shelfinity
+        REACT_APP_CLIENT_ID: shelfinity-frontend
+        REACT_APP_API_BASE_URL: /api
     container_name: shelfinity-frontend
-    environment:
-      - REACT_APP_API_URL=http://localhost:9080
-      - REACT_APP_KEYCLOAK_URL=http://keycloak:8080
-      - REACT_APP_REALM=shelfinity
-      - REACT_APP_CLIENT_ID=shelfinity-frontend
     ports:
       - "3000:80"
     depends_on:
       backend:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
 volumes:
   postgres_data:

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2025 Amalraj Joseph
+
+  This source code is licensed under the MIT License.
+  See the LICENSE file in the root directory for more information.
+
+  Test-only persistence unit for the repository-tier tests (*RepositoryIT).
+  The main persistence.xml uses a JTA data source resolved by JNDI, which only
+  exists inside a running Liberty server. This unit is RESOURCE_LOCAL instead,
+  with connection properties supplied at runtime by RepositoryTestBase from a
+  Testcontainers-managed Postgres instance — see SPEC.md decisions log for why
+  this tier avoids trying to boot the actual app server in the Maven build.
+-->
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <persistence-unit name="shelfinityTestPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+        <class>com.shelfinity.users.User</class>
+        <class>com.shelfinity.books.Book</class>
+        <class>com.shelfinity.queues.QueueItem</class>
+        <class>com.shelfinity.email.EmailConfig</class>
+        <class>com.shelfinity.email.EncryptedStringConverter</class>
+        <class>com.shelfinity.persistence.UuidStringConverter</class>
+        <class>com.shelfinity.reservations.Reservation</class>
+
+        <properties>
+            <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
+            <property name="jakarta.persistence.schema-generation.create-source" value="metadata"/>
+            <property name="jakarta.persistence.schema-generation.drop-source" value="metadata"/>
+            <!-- jakarta.persistence.jdbc.* connection properties are supplied
+                 programmatically by RepositoryTestBase, not hardcoded here. -->
+        </properties>
+    </persistence-unit>
+
+</persistence>

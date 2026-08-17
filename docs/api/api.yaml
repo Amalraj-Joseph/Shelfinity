@@ -1,24 +1,42 @@
-# Copyright (c) 2025 Shadow-Codex
+# Copyright (c) 2025 Amalraj Joseph
 #
 # This source code is licensed under the MIT License.
 # See the LICENSE file in the root directory for more information.
+#
+# This file is the machine-readable companion to SPEC.md, which is authoritative
+# for narrative requirements, business rules, and decisions. Keep both in sync.
 
 openapi: 3.0.3
 info:
   title: Shelfinity Library Management System API
-  description: RESTful API for managing library books, users, and requests
+  description: >
+    RESTful API for managing library books, users, borrow/return requests,
+    reservations, overdue tracking, email configuration, and reports.
+    Authentication is delegated entirely to Keycloak (OIDC) — this API validates
+    bearer tokens, it does not issue them or store credentials.
   version: 1.0.0
   contact:
-    name: Shadow-Codex
+    name: Amalraj Joseph
 servers:
   - url: http://localhost:9080/api
-    description: Development server
+    description: Local development server
+
+tags:
+  - name: Health
+  - name: Authentication
+  - name: Users
+  - name: Books
+  - name: Queue
+  - name: Reservations
+  - name: Overdue
+  - name: Email Configuration
+  - name: Reports
 
 paths:
   /health:
     get:
-      summary: Health check endpoint
-      description: Returns the health status of the application
+      tags: [Health]
+      summary: Health check
       responses:
         '200':
           description: Application is healthy
@@ -27,226 +45,780 @@ paths:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
-                    example: "UP"
-                  timestamp:
-                    type: string
-                    format: date-time
+                  status: { type: string, example: "UP" }
+                  timestamp: { type: string, format: date-time }
 
-  /users:
-    get:
-      summary: Get all users
-      description: Retrieve a list of all users in the system
-      security:
-        - bearerAuth: []
+  # ---------------------------------------------------------------- Auth
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Validate the current Keycloak token and return the local user record
+      description: >
+        Does not authenticate — Keycloak does that. This validates the bearer token
+        already presented and looks up (or, per SPEC.md §6.1, will provision-pending)
+        the corresponding local User row.
+      security: [{ bearerAuth: [] }]
       responses:
         '200':
-          description: List of users retrieved successfully
+          description: Token valid, user found
           content:
             application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserResponse'
+              schema: { $ref: '#/components/schemas/UserResponse' }
         '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Authenticated in Keycloak but no local user record exists yet
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
 
+  /auth/validate:
+    get:
+      tags: [Authentication]
+      summary: Validate the current token
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get the current authenticated user's profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ---------------------------------------------------------------- Users
+  /users:
     post:
-      summary: Create a new user
-      description: Create a new user account
+      tags: [Users]
+      summary: Create a user record
+      description: >
+        SPEC.md §10.1/§10.3 (both resolved): a non-admin caller may only create a
+        record for their own keycloakId, with a caller-supplied role of ADMIN only
+        honored when the caller is already an admin; a self-service caller is
+        created with `active=false` plus a USER_REGISTRATION queue item, while an
+        admin-created account is `active=true` immediately.
+      security: [{ bearerAuth: [] }]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+            schema: { $ref: '#/components/schemas/CreateUserRequest' }
       responses:
         '201':
-          description: User created successfully
+          description: User created
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        '400':
-          description: Bad request
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '409':
           description: User already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+    get:
+      tags: [Users]
+      summary: List all users (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Users retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserResponse' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get the current user's profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
     get:
-      summary: Get user by ID
-      description: Retrieve a specific user by their ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      security:
-        - bearerAuth: []
+      tags: [Users]
+      summary: Get a user by ID
+      security: [{ bearerAuth: [] }]
       responses:
         '200':
-          description: User retrieved successfully
+          description: User retrieved
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
+              schema: { $ref: '#/components/schemas/UserResponse' }
         '404':
-          description: User not found
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Users]
+      summary: Update a user, including role reassignment (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserRequest' }
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Users]
+      summary: Delete a user (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: User deleted }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
+  # ---------------------------------------------------------------- Books
   /books:
     get:
-      summary: Get all books
-      description: Retrieve a list of all books in the library
+      tags: [Books]
+      summary: List books
       parameters:
-        - name: search
+        - name: availableOnly
           in: query
-          description: Search term for book title or author
-          schema:
-            type: string
-        - name: available
+          schema: { type: boolean }
+        - name: genre
           in: query
-          description: Filter by availability
-          schema:
-            type: boolean
-      security:
-        - bearerAuth: []
+          description: "Filter by genre (case-insensitive exact match) — SPEC.md §10.4, resolved"
+          schema: { type: string }
       responses:
         '200':
-          description: List of books retrieved successfully
+          description: Books retrieved
           content:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/BookResponse'
-        '401':
-          description: Unauthorized
-
+                items: { $ref: '#/components/schemas/BookResponse' }
     post:
-      summary: Create a new book
-      description: Add a new book to the library
+      tags: [Books]
+      summary: Create a book (admin only)
+      security: [{ bearerAuth: [] }]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/CreateBookRequest'
-      security:
-        - bearerAuth: []
+            schema: { $ref: '#/components/schemas/CreateBookRequest' }
       responses:
         '201':
-          description: Book created successfully
+          description: Book created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BookResponse' }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: A book with this ISBN already exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /books/available:
+    get:
+      tags: [Books]
+      summary: List currently available books
+      responses:
+        '200':
+          description: Available books retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookResponse'
+                type: array
+                items: { $ref: '#/components/schemas/BookResponse' }
+
+  /books/search:
+    get:
+      tags: [Books]
+      summary: Search books by title or author
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BookResponse' }
         '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
+          description: Search query is required
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /books/bulk-upload:
+    post:
+      tags: [Books]
+      summary: Bulk-upload books from a CSV file (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: Upload processed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BulkUploadResult' }
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
+
+  /books/bulk-upload/template:
+    get:
+      tags: [Books]
+      summary: Download the CSV template for bulk upload
+      responses:
+        '200':
+          description: CSV template
+          content:
+            text/csv:
+              schema: { type: string }
 
   /books/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
     get:
-      summary: Get book by ID
-      description: Retrieve a specific book by its ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      security:
-        - bearerAuth: []
+      tags: [Books]
+      summary: Get a book by ID
       responses:
         '200':
-          description: Book retrieved successfully
+          description: Book retrieved
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/BookResponse'
+              schema: { $ref: '#/components/schemas/BookResponse' }
         '404':
-          description: Book not found
-
-  /queues:
-    get:
-      summary: Get all queue items
-      description: Retrieve all queue items (admin only)
-      security:
-        - bearerAuth: []
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Books]
+      summary: Update a book (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateBookRequest' }
       responses:
         '200':
-          description: List of queue items retrieved successfully
+          description: Book updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BookResponse' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Books]
+      summary: Delete a book (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Book deleted }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ---------------------------------------------------------------- Queue
+  /queues:
+    post:
+      tags: [Queue]
+      summary: Submit a borrow, return, or registration-approval request
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateQueueItemRequest' }
+      responses:
+        '201':
+          description: Queue item created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QueueItemResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      tags: [Queue]
+      summary: List all queue items (admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/QueueStatus' }
+        - name: type
+          in: query
+          schema: { $ref: '#/components/schemas/QueueType' }
+      responses:
+        '200':
+          description: Queue items retrieved
           content:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/QueueItemResponse'
-        '401':
-          description: Unauthorized
+                items: { $ref: '#/components/schemas/QueueItemResponse' }
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Forbidden'
 
-    post:
-      summary: Create a new queue item
-      description: Submit a new request (borrow, return, etc.)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateQueueItemRequest'
-      security:
-        - bearerAuth: []
-      responses:
-        '201':
-          description: Queue item created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QueueItemResponse'
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-
-  /queues/{id}:
-    patch:
-      summary: Update queue item
-      description: Update the status of a queue item (admin only)
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateQueueItemRequest'
-      security:
-        - bearerAuth: []
+  /queues/my:
+    get:
+      tags: [Queue]
+      summary: List the current user's queue items
+      security: [{ bearerAuth: [] }]
       responses:
         '200':
-          description: Queue item updated successfully
+          description: Queue items retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QueueItemResponse'
+                type: array
+                items: { $ref: '#/components/schemas/QueueItemResponse' }
         '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
+          $ref: '#/components/responses/Unauthorized'
+
+  /queues/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
+    get:
+      tags: [Queue]
+      summary: Get a queue item by ID
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Queue item retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QueueItemResponse' }
         '404':
-          description: Queue item not found
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Queue]
+      summary: Delete a queue item (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Queue item deleted }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /queues/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
+    patch:
+      tags: [Queue]
+      summary: Approve or reject a queue item (admin only)
+      description: >
+        Behavior per SPEC.md §6.1/§6.2/§6.3, all resolved: on BOOK_BORROW
+        approval, decrements book availability (409 if none left) and sets a due
+        date; on BOOK_RETURN approval, increments availability and promotes the
+        oldest active reservation if one exists, resetting its claim-window
+        expiry; on USER_REGISTRATION approval, activates the user account.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateQueueItemRequest' }
+      responses:
+        '200':
+          description: Queue item updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QueueItemResponse' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ---------------------------------------------------------------- Reservations
+  /reservations:
+    post:
+      tags: [Reservations]
+      summary: Reserve a currently unavailable book
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateReservationRequest' }
+      responses:
+        '201':
+          description: Reservation created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReservationResponse' }
+        '400':
+          description: Book is currently available, or already reserved by this user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      tags: [Reservations]
+      summary: List all reservations (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Reservations retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ReservationResponse' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /reservations/my:
+    get:
+      tags: [Reservations]
+      summary: List the current user's reservations
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Reservations retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ReservationResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /reservations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
+    delete:
+      tags: [Reservations]
+      summary: Cancel a reservation (owner or admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Reservation cancelled }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /reservations/{id}/fulfill:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
+    post:
+      tags: [Reservations]
+      summary: Mark a reservation as fulfilled (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Reservation fulfilled }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ---------------------------------------------------------------- Overdue
+  /overdue:
+    get:
+      tags: [Overdue]
+      summary: List all overdue items (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Overdue items retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/QueueItemResponse' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /overdue/my:
+    get:
+      tags: [Overdue]
+      summary: List the current user's overdue items
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Overdue items retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/QueueItemResponse' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /overdue/stats:
+    get:
+      tags: [Overdue]
+      summary: Get overdue statistics (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OverdueStats' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ---------------------------------------------------------------- Email config
+  /email/config:
+    post:
+      tags: [Email Configuration]
+      summary: Create or replace the email configuration (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailConfig' }
+      responses:
+        '200':
+          description: Configuration saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailConfig' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags: [Email Configuration]
+      summary: List all email configurations (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Configurations retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/EmailConfig' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /email/config/active:
+    get:
+      tags: [Email Configuration]
+      summary: Get the currently active email configuration (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Active configuration retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailConfig' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No active configuration
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /email/config/test:
+    post:
+      tags: [Email Configuration]
+      summary: Send a test email using the active configuration (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to: { type: string, format: email }
+      responses:
+        '200': { description: Test email sent }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          description: Failed to send test email
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /email/config/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
+    put:
+      tags: [Email Configuration]
+      summary: Update an email configuration (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailConfig' }
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailConfig' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Email Configuration]
+      summary: Delete an email configuration (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Configuration deleted }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /email/config/{id}/activate:
+    parameters:
+      - $ref: '#/components/parameters/UuidId'
+    post:
+      tags: [Email Configuration]
+      summary: Activate a specific email configuration (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Configuration activated }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ---------------------------------------------------------------- Reports
+  /reports/book-popularity:
+    get:
+      tags: [Reports]
+      summary: Most-borrowed books (admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: Report retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BookPopularityReport' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /reports/borrowing-trends:
+    get:
+      tags: [Reports]
+      summary: Borrowing trends over a time window (admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 30 }
+      responses:
+        '200':
+          description: Report retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BorrowingTrendsReport' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /reports/user-activity:
+    get:
+      tags: [Reports]
+      summary: Most active users (admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: Report retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserActivityReport' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /reports/statistics:
+    get:
+      tags: [Reports]
+      summary: Overall library statistics (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LibraryStatistics' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /reports/author-distribution:
+    get:
+      tags: [Reports]
+      summary: Book count by author (admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Report retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AuthorDistribution' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
 components:
   securitySchemes:
@@ -254,178 +826,247 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: Keycloak-issued OIDC access token.
+
+  parameters:
+    UuidId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Forbidden:
+      description: Authenticated but not permitted (e.g. admin-only endpoint)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    BadRequest:
+      description: Invalid request data
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
 
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+
+    UserRole:
+      type: string
+      enum: [USER, ADMIN]
+
+    QueueType:
+      type: string
+      enum: [USER_REGISTRATION, BOOK_BORROW, BOOK_RETURN, BOOK_RESERVATION]
+      description: >
+        BOOK_RESERVATION exists in the enum but is legacy/unused — reservations
+        are modeled as their own resource. See SPEC.md §5.3.
+
+    QueueStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
+
+    ReservationStatus:
+      type: string
+      enum: [ACTIVE, NOTIFIED, FULFILLED, CANCELLED, EXPIRED]
+
     UserResponse:
       type: object
       properties:
-        id:
-          type: integer
-          description: User ID
-        email:
-          type: string
-          format: email
-          description: User email address
-        firstName:
-          type: string
-          description: User first name
-        lastName:
-          type: string
-          description: User last name
-        role:
-          type: string
-          enum: [USER, ADMIN]
-          description: User role
-        createdAt:
-          type: string
-          format: date-time
-          description: Account creation timestamp
+        id: { type: string, format: uuid }
+        keycloakId: { type: string }
+        email: { type: string, format: email }
+        name: { type: string }
+        role: { $ref: '#/components/schemas/UserRole' }
+        active:
+          type: boolean
+          description: "false while a USER_REGISTRATION queue item is pending — see SPEC.md §6.1"
+        createdAt: { type: string, format: date-time }
 
     CreateUserRequest:
       type: object
-      required:
-        - email
-        - firstName
-        - lastName
-        - password
+      required: [keycloakId, email, name]
       properties:
-        email:
-          type: string
-          format: email
-          description: User email address
-        firstName:
-          type: string
-          description: User first name
-        lastName:
-          type: string
-          description: User last name
-        password:
-          type: string
-          minLength: 6
-          description: User password
+        keycloakId: { type: string, example: "123e4567-e89b-12d3-a456-426614174000" }
+        email: { type: string, format: email }
+        name: { type: string }
         role:
-          type: string
-          enum: [USER, ADMIN]
-          default: USER
-          description: User role
+          $ref: '#/components/schemas/UserRole'
+          description: "Ignored/forced to USER unless the caller is already an admin — enforced, see SPEC.md §10.1 (resolved)"
 
     BookResponse:
       type: object
       properties:
-        id:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        author: { type: string }
+        isbn: { type: string }
+        description: { type: string }
+        genre:
+          type: string
+          description: "SPEC.md §10.4, resolved"
+        publicationYear:
           type: integer
-          description: Book ID
-        title:
-          type: string
-          description: Book title
-        author:
-          type: string
-          description: Book author
-        isbn:
-          type: string
-          description: Book ISBN
-        description:
-          type: string
-          description: Book description
-        totalCopies:
-          type: integer
-          description: Total number of copies
-        availableCopies:
-          type: integer
-          description: Number of available copies
-        available:
-          type: boolean
-          description: Whether the book is available for borrowing
-        createdAt:
-          type: string
-          format: date-time
-          description: Book creation timestamp
+          description: "SPEC.md §10.4, resolved"
+        totalCopies: { type: integer }
+        availableCopies: { type: integer }
+        available: { type: boolean }
+        createdAt: { type: string, format: date-time }
 
     CreateBookRequest:
       type: object
-      required:
-        - title
-        - author
-        - totalCopies
+      required: [title, author, totalCopies]
       properties:
-        title:
+        title: { type: string }
+        author: { type: string }
+        isbn: { type: string }
+        description: { type: string }
+        genre:
           type: string
-          description: Book title
-        author:
-          type: string
-          description: Book author
-        isbn:
-          type: string
-          description: Book ISBN
-        description:
-          type: string
-          description: Book description
-        totalCopies:
+          description: "SPEC.md §10.4, resolved"
+        publicationYear:
           type: integer
-          minimum: 1
-          description: Total number of copies
+          description: "SPEC.md §10.4, resolved"
+        totalCopies: { type: integer, minimum: 1 }
+
+    BulkUploadResult:
+      type: object
+      properties:
+        totalRows: { type: integer }
+        successCount: { type: integer }
+        errorCount: { type: integer }
+        errors:
+          type: array
+          items: { type: string }
 
     QueueItemResponse:
       type: object
       properties:
-        id:
-          type: integer
-          description: Queue item ID
-        type:
-          type: string
-          enum: [BOOK_BORROW, BOOK_RETURN, BOOK_REQUEST]
-          description: Type of request
-        status:
-          type: string
-          enum: [PENDING, APPROVED, REJECTED]
-          description: Request status
-        userId:
-          type: integer
-          description: User ID who made the request
-        bookId:
-          type: integer
-          description: Book ID (if applicable)
-        description:
-          type: string
-          description: Request description
-        adminRemark:
-          type: string
-          description: Admin remarks
-        createdAt:
-          type: string
-          format: date-time
-          description: Request creation timestamp
-        updatedAt:
-          type: string
-          format: date-time
-          description: Last update timestamp
+        id: { type: string, format: uuid }
+        type: { $ref: '#/components/schemas/QueueType' }
+        status: { $ref: '#/components/schemas/QueueStatus' }
+        userKeycloakId: { type: string }
+        bookId: { type: string, format: uuid, nullable: true }
+        description: { type: string }
+        adminRemark: { type: string, nullable: true }
+        dueDate: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time, nullable: true }
+        processedAt: { type: string, format: date-time, nullable: true }
+        processedBy: { type: string, nullable: true }
 
     CreateQueueItemRequest:
       type: object
-      required:
-        - type
-        - description
+      required: [type, description]
       properties:
-        type:
-          type: string
-          enum: [BOOK_BORROW, BOOK_RETURN, BOOK_REQUEST]
-          description: Type of request
+        type: { $ref: '#/components/schemas/QueueType' }
         bookId:
-          type: integer
-          description: Book ID (required for book-related requests)
-        description:
           type: string
-          description: Request description
+          format: uuid
+          description: Required for BOOK_BORROW / BOOK_RETURN
+        description: { type: string }
 
     UpdateQueueItemRequest:
       type: object
-      required:
-        - status
+      required: [status]
       properties:
-        status:
+        status: { $ref: '#/components/schemas/QueueStatus' }
+        adminRemark: { type: string }
+
+    ReservationResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        bookId: { type: string, format: uuid }
+        bookTitle: { type: string }
+        userKeycloakId: { type: string }
+        status: { $ref: '#/components/schemas/ReservationStatus' }
+        notes: { type: string, nullable: true }
+        notifiedAt: { type: string, format: date-time, nullable: true }
+        expiresAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    CreateReservationRequest:
+      type: object
+      required: [bookId]
+      properties:
+        bookId: { type: string, format: uuid }
+        notes: { type: string }
+
+    OverdueStats:
+      type: object
+      properties:
+        totalOverdueItems: { type: integer }
+        totalDaysOverdue: { type: integer, format: int64 }
+        averageDaysOverdue: { type: number, format: double }
+
+    EmailConfig:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        smtpHost: { type: string }
+        smtpPort: { type: integer, default: 587 }
+        senderEmail: { type: string, format: email }
+        senderName: { type: string, nullable: true }
+        username: { type: string, nullable: true }
+        password:
           type: string
-          enum: [PENDING, APPROVED, REJECTED]
-          description: New status for the request
-        adminRemark:
-          type: string
-          description: Admin remarks
+          writeOnly: true
+          description: "Encrypted at rest via EncryptedStringConverter — SPEC.md §10.6, resolved. Never returned in responses (EmailConfigResponse omits it)."
+        useTls: { type: boolean, default: true }
+        useSsl: { type: boolean, default: false }
+        requireAuth: { type: boolean, default: true }
+        active: { type: boolean, default: true }
+
+    BookPopularityReport:
+      type: object
+      properties:
+        bookId: { type: string, format: uuid }
+        title: { type: string }
+        author: { type: string }
+        borrowCount: { type: integer }
+
+    BorrowingTrendsReport:
+      type: object
+      properties:
+        startDate: { type: string, format: date-time }
+        endDate: { type: string, format: date-time }
+        totalBorrows: { type: integer }
+        totalReturns: { type: integer }
+        currentlyBorrowed: { type: integer }
+
+    UserActivityReport:
+      type: object
+      properties:
+        userId: { type: string, format: uuid }
+        userName: { type: string }
+        userEmail: { type: string, format: email }
+        activityCount: { type: integer }
+
+    LibraryStatistics:
+      type: object
+      properties:
+        totalBooks: { type: integer }
+        availableBooks: { type: integer }
+        totalUsers: { type: integer }
+        activeBorrows: { type: integer }
+        pendingRequests: { type: integer }
+        overdueItems: { type: integer }
+
+    AuthorDistribution:
+      type: object
+      properties:
+        author: { type: string }
+        count: { type: integer }

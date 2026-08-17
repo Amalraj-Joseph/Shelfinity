@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
+import com.shelfinity.persistence.UuidStringConverter;
+
 /**
  * Book entity for the library management system.
  */
@@ -32,12 +35,20 @@ import jakarta.validation.constraints.Positive;
     @NamedQuery(name = "Book.findByTitle", query = "SELECT b FROM Book b WHERE LOWER(b.title) LIKE LOWER(:title)"),
     @NamedQuery(name = "Book.findByAuthor", query = "SELECT b FROM Book b WHERE LOWER(b.author) LIKE LOWER(:author)"),
     @NamedQuery(name = "Book.findByIsbn", query = "SELECT b FROM Book b WHERE b.isbn = :isbn"),
-    @NamedQuery(name = "Book.findAvailable", query = "SELECT b FROM Book b WHERE b.available = true ORDER BY b.title")
+    // Matches isAvailable() below: nothing in the borrow/return flow ever
+    // flips `available` itself (QueueApprovalService only touches
+    // availableCopies), so filtering on `available` alone let a book with zero
+    // copies left keep showing up as available in list results — discovered
+    // via BookRepositoryIT.
+    @NamedQuery(name = "Book.findAvailable", query = "SELECT b FROM Book b WHERE b.available = true AND b.availableCopies > 0 ORDER BY b.title"),
+    @NamedQuery(name = "Book.findByGenre", query = "SELECT b FROM Book b WHERE LOWER(b.genre) = LOWER(:genre) ORDER BY b.title")
 })
 public class Book {
     
+    // See UuidStringConverter for why (SPEC.md §10.8).
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Convert(converter = UuidStringConverter.class)
     private UUID id;
     
     @NotBlank
@@ -53,7 +64,13 @@ public class Book {
     
     @Column(length = 1000)
     private String description;
-    
+
+    /** Free-text genre/category — SPEC.md §10.4. No fixed vocabulary is mandated. */
+    private String genre;
+
+    @Column(name = "publication_year")
+    private Integer publicationYear;
+
     @Column(nullable = false)
     private boolean available = true;
     
@@ -127,11 +144,27 @@ public class Book {
     public String getDescription() {
         return description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public Integer getPublicationYear() {
+        return publicationYear;
+    }
+
+    public void setPublicationYear(Integer publicationYear) {
+        this.publicationYear = publicationYear;
+    }
+
     public boolean isAvailable() {
         return available && availableCopies > 0;
     }

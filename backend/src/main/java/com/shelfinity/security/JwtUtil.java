@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -8,11 +8,13 @@ package com.shelfinity.security;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.SecurityContext;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -23,10 +25,7 @@ public class JwtUtil {
     
     @Inject
     private JsonWebToken jwt;
-    
-    @Context
-    private SecurityContext securityContext;
-    
+
     /**
      * Get the current authenticated user's email from JWT token.
      */
@@ -49,10 +48,36 @@ public class JwtUtil {
     
     /**
      * Get the current authenticated user's role from JWT token.
+     * Keycloak puts realm roles under the nested "realm_access.roles" claim
+     * rather than the flat "groups" claim JsonWebToken#getGroups() reads, so
+     * that claim has to be unpacked directly.
      */
     public Optional<String> getCurrentUserRole() {
-        if (jwt != null && jwt.getGroups() != null && !jwt.getGroups().isEmpty()) {
-            return Optional.of(jwt.getGroups().iterator().next());
+        if (jwt == null) {
+            return Optional.empty();
+        }
+        Object realmAccess = jwt.getClaim("realm_access");
+        Collection<?> roles = null;
+        if (realmAccess instanceof JsonObject) {
+            roles = ((JsonObject) realmAccess).getJsonArray("roles");
+        } else if (realmAccess instanceof Map) {
+            Object rolesClaim = ((Map<?, ?>) realmAccess).get("roles");
+            if (rolesClaim instanceof Collection) {
+                roles = (Collection<?>) rolesClaim;
+            }
+        }
+        if (roles != null) {
+            // Keycloak may include other realm roles (e.g. offline_access,
+            // uma_authorization) alongside ours, so look for a known
+            // application role rather than assuming array order/position.
+            for (Object roleValue : roles) {
+                String role = roleValue instanceof JsonString
+                        ? ((JsonString) roleValue).getString()
+                        : String.valueOf(roleValue);
+                if ("admin".equals(role) || "user".equals(role)) {
+                    return Optional.of(role);
+                }
+            }
         }
         return Optional.empty();
     }
@@ -77,11 +102,13 @@ public class JwtUtil {
     
     /**
      * Check if the current user is authenticated.
+     * Deliberately checks the injected JsonWebToken rather than
+     * SecurityContext#getUserPrincipal(): @Context-injected SecurityContext
+     * is not reliably populated in an @ApplicationScoped bean, which made
+     * this always return false even for validly authenticated requests.
      */
     public boolean isAuthenticated() {
-        return securityContext != null && 
-               securityContext.getUserPrincipal() != null && 
-               jwt != null;
+        return jwt != null && jwt.getSubject() != null;
     }
     
     /**

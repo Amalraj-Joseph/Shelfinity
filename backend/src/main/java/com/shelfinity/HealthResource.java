@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -30,10 +30,6 @@ import jakarta.ws.rs.core.Response;
 @Tag(name = "Health")
 public class HealthResource {
     
-    public HealthResource() {
-        System.out.println("HealthResource constructor called");
-    }
-    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
@@ -61,7 +57,6 @@ public class HealthResource {
         )
     })
     public Response getHealth() {
-        System.out.println("HealthResource.getHealth() called");
         Map<String, Object> health = new HashMap<>();
         health.put("status", "UP");
         health.put("timestamp", LocalDateTime.now().toString());

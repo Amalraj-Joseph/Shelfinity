@@ -1,0 +1,25 @@
+title: Shelfinity
+tagline: Library management, done properly
+description: >-
+  Public documentation for Shelfinity, an open-source library management
+  system built on Jakarta EE, React, PostgreSQL, and Keycloak.
+baseurl: ""
+url: "https://shelfinity.amalraj.dev"
+repository: Amalraj-Joseph/Shelfinity
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  * Licensed under the MIT License.
  */
 package com.shelfinity.security;
@@ -14,22 +14,20 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class CorsFilter implements ContainerResponseFilter {
 
-    public CorsFilter() {
-        System.out.println("CorsFilter constructor called - filter is being instantiated");
-    }
-
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
-        System.out.println("CorsFilter.filter() called for path: " + requestContext.getUriInfo().getPath());
+        // Get frontend URL from environment variable, default to localhost for development
+        String frontendUrl = System.getenv("FRONTEND_URL");
+        if (frontendUrl == null || frontendUrl.isEmpty()) {
+            frontendUrl = "http://localhost:3000";
+        }
         
         // Add CORS headers for all responses
-        responseContext.getHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
+        responseContext.getHeaders().add("Access-Control-Allow-Origin", frontendUrl);
         responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         responseContext.getHeaders().add("Access-Control-Allow-Headers", "*");
         responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
         responseContext.getHeaders().add("Access-Control-Max-Age", "3600");
-        
-        System.out.println("CORS headers added to response");
     }
 }
 

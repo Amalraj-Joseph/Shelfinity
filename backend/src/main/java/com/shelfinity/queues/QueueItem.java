@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import com.shelfinity.persistence.UuidStringConverter;
+
 /**
  * Queue item entity for admin approval queue.
  */
@@ -33,12 +36,21 @@ import jakarta.validation.constraints.NotNull;
     @NamedQuery(name = "QueueItem.findAll", query = "SELECT q FROM QueueItem q ORDER BY q.createdAt DESC"),
     @NamedQuery(name = "QueueItem.findByStatus", query = "SELECT q FROM QueueItem q WHERE q.status = :status ORDER BY q.createdAt DESC"),
     @NamedQuery(name = "QueueItem.findByType", query = "SELECT q FROM QueueItem q WHERE q.type = :type ORDER BY q.createdAt DESC"),
-    @NamedQuery(name = "QueueItem.findPending", query = "SELECT q FROM QueueItem q WHERE q.status = 'PENDING' ORDER BY q.createdAt ASC")
+    // Was a bare 'PENDING' string literal instead of a bound :status parameter
+    // (same defect class as Reservation.findActiveByBookId and the original
+    // QueueRepository.countPending bug) — EclipseLink can't compare a String
+    // literal against an enum-mapped column. Not currently called from any
+    // resource (QueueRepository.findPending() has no callers), so this was
+    // latent rather than broken-in-production, but left as-is it's a landmine
+    // for whoever wires it up next.
+    @NamedQuery(name = "QueueItem.findPending", query = "SELECT q FROM QueueItem q WHERE q.status = :status ORDER BY q.createdAt ASC")
 })
 public class QueueItem {
     
+    // See UuidStringConverter for why (SPEC.md §10.8).
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Convert(converter = UuidStringConverter.class)
     private UUID id;
     
     @NotNull
@@ -50,7 +62,10 @@ public class QueueItem {
     @Column(name = "user_keycloak_id", nullable = false)
     private String userKeycloakId;
     
+    // Nullable (null for USER_REGISTRATION items) — see UuidStringConverter
+    // (SPEC.md §10.8).
     @Column(name = "book_id")
+    @Convert(converter = UuidStringConverter.class)
     private UUID bookId;
     
     @NotNull
@@ -75,6 +90,9 @@ public class QueueItem {
     
     @Column(name = "processed_by")
     private String processedBy;
+    
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
     
     // Default constructor
     public QueueItem() {
@@ -182,6 +200,14 @@ public class QueueItem {
     
     public void setProcessedBy(String processedBy) {
         this.processedBy = processedBy;
+    }
+    
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+    
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
     
     @PreUpdate

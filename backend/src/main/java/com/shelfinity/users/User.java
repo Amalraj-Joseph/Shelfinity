@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import com.shelfinity.persistence.UuidStringConverter;
+
 /**
  * User entity for the library management system.
  * Stores minimal user data since Keycloak handles identity management.
@@ -37,9 +40,12 @@ import jakarta.validation.constraints.NotBlank;
     @NamedQuery(name = "User.findAll", query = "SELECT u FROM User u ORDER BY u.createdAt DESC")
 })
 public class User {
-    
+
+    // See UuidStringConverter for why (SPEC.md §10.8) — discovered via
+    // UserRepositoryIT and confirmed against a real Liberty deployment.
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Convert(converter = UuidStringConverter.class)
     private UUID id;
     
     @NotBlank
@@ -59,8 +65,11 @@ public class User {
     @Column(nullable = false)
     private UserRole role = UserRole.USER;
     
+    // Defaults to false (fail-closed) — SPEC.md §6.1/§10.3: a self-registered
+    // user can't transact until an admin approves their USER_REGISTRATION queue
+    // item. UsersResource explicitly sets this true for admin-created accounts.
     @Column(name = "is_active", nullable = false)
-    private boolean active = true;
+    private boolean active = false;
     
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -22,10 +22,14 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import com.shelfinity.books.Book;
+import com.shelfinity.books.BookRepository;
 import com.shelfinity.queues.dto.requests.CreateQueueItemRequest;
 import com.shelfinity.queues.dto.requests.UpdateQueueItemRequest;
 import com.shelfinity.queues.dto.responses.QueueItemResponse;
 import com.shelfinity.security.JwtUtil;
+import com.shelfinity.users.User;
+import com.shelfinity.users.UserRepository;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -56,13 +60,33 @@ public class QueueResource {
     
     @Inject
     private QueueRepository queueRepository;
-    
+
     @Inject
     private JwtUtil jwtUtil;
-    
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private BookRepository bookRepository;
+
+    @Inject
+    private QueueApprovalService queueApprovalService;
+
     @Context
     private SecurityContext securityContext;
-    
+
+    // Resolves the book/user relations so responses carry a human-readable
+    // title/ISBN and name/email alongside the raw UUIDs, instead of forcing
+    // the UI to display bare identifiers.
+    private QueueItemResponse toResponse(QueueItem item) {
+        Book book = item.getBookId() != null
+                ? bookRepository.findById(item.getBookId()).orElse(null)
+                : null;
+        User user = userRepository.findByKeycloakId(item.getUserKeycloakId()).orElse(null);
+        return new QueueItemResponse(item, book, user);
+    }
+
     /**
      * Create a new queue item.
      */
@@ -99,7 +123,34 @@ public class QueueResource {
                     .entity("{\"error\": \"Authentication required\"}")
                     .build();
         }
-        
+
+        boolean isBookRequest = request.getType() == QueueType.BOOK_BORROW
+                || request.getType() == QueueType.BOOK_RETURN;
+
+        // SPEC.md §6.1 step 3: block transacting until registration is approved.
+        // USER_REGISTRATION items are created internally by UsersResource, never
+        // through this endpoint, so a not-yet-synced caller can't reach this check
+        // via that type — only BOOK_BORROW/BOOK_RETURN/BOOK_REQUEST need it.
+        Optional<User> requester = userRepository.findByKeycloakId(userInfo.get().getKeycloakId());
+        if (requester.isEmpty() || !requester.get().isActive()) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Account pending approval\"}")
+                    .build();
+        }
+
+        if (isBookRequest && request.getBookId() == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"bookId is required for this request type\"}")
+                    .build();
+        }
+
+        if (isBookRequest && queueRepository.existsPendingForUserAndBook(
+                userInfo.get().getKeycloakId(), request.getBookId(), request.getType())) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("{\"error\": \"A pending request of this type already exists for this book\"}")
+                    .build();
+        }
+
         // Create new queue item
         QueueItem queueItem = new QueueItem();
         queueItem.setType(request.getType());
@@ -107,9 +158,9 @@ public class QueueResource {
         queueItem.setBookId(request.getBookId());
         queueItem.setDescription(request.getDescription());
         queueItem.setStatus(QueueStatus.PENDING);
-        
+
         QueueItem savedItem = queueRepository.save(queueItem);
-        QueueItemResponse response = new QueueItemResponse(savedItem);
+        QueueItemResponse response = toResponse(savedItem);
         
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
@@ -175,7 +226,7 @@ public class QueueResource {
         }
         
         List<QueueItemResponse> responses = items.stream()
-                .map(QueueItemResponse::new)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
         
         return Response.ok(responses).build();
@@ -221,7 +272,7 @@ public class QueueResource {
                         .build();
             }
             
-            QueueItemResponse response = new QueueItemResponse(item.get());
+            QueueItemResponse response = toResponse(item.get());
             return Response.ok(response).build();
             
         } catch (IllegalArgumentException e) {
@@ -268,7 +319,7 @@ public class QueueResource {
             )
         )
     })
-    public Response updateQueueItemStatus(@PathParam("id") String id, 
+    public Response updateQueueItemStatus(@PathParam("id") String id,
                                         @Valid UpdateQueueItemRequest request) {
         // Verify admin access
         if (!jwtUtil.isCurrentUserAdmin()) {
@@ -276,33 +327,52 @@ public class QueueResource {
                     .entity("{\"error\": \"Admin access required\"}")
                     .build();
         }
-        
+
         try {
             UUID itemId = UUID.fromString(id);
             Optional<QueueItem> itemOpt = queueRepository.findById(itemId);
-            
+
             if (itemOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"error\": \"Queue item not found\"}")
                         .build();
             }
-            
+
             QueueItem item = itemOpt.get();
-            item.setStatus(request.getStatus());
+            QueueStatus previousStatus = item.getStatus();
+            QueueStatus newStatus = request.getStatus();
+
+            // SPEC.md §10.2: only the PENDING -> APPROVED/REJECTED transition applies
+            // inventory side effects. Re-submitting the same status (or acting on an
+            // already-processed item) must not decrement/increment availability twice.
+            if (previousStatus == QueueStatus.PENDING && newStatus == QueueStatus.APPROVED) {
+                try {
+                    queueApprovalService.applyApproval(item);
+                } catch (QueueApprovalException e) {
+                    return Response.status(e.getStatus())
+                            .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                            .build();
+                }
+            } else if (previousStatus == QueueStatus.PENDING && newStatus == QueueStatus.REJECTED) {
+                queueApprovalService.notifyRejection(item, request.getAdminRemark());
+            }
+
+            item.setStatus(newStatus);
+            item.setAdminRemark(request.getAdminRemark());
             item.setProcessedAt(LocalDateTime.now());
-            
+
             QueueItem updatedItem = queueRepository.update(item);
-            QueueItemResponse response = new QueueItemResponse(updatedItem);
-            
+            QueueItemResponse response = toResponse(updatedItem);
+
             return Response.ok(response).build();
-            
+
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\": \"Invalid queue item ID format\"}")
                     .build();
         }
     }
-    
+
     /**
      * Delete queue item by ID (admin only).
      */
@@ -403,7 +473,7 @@ public class QueueResource {
         
         List<QueueItem> items = queueRepository.findByUserKeycloakId(userInfo.get().getKeycloakId());
         List<QueueItemResponse> responses = items.stream()
-                .map(QueueItemResponse::new)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
         
         return Response.ok(responses).build();

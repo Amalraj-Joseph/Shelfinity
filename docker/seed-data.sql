@@ -1,73 +1,93 @@
--- Seed data for Shelfinity development environment
--- This script populates the database with initial data for testing and development
+-- Shelfinity sample/test data.
+--
+-- This must be run AFTER the backend has started at least once, because the
+-- `users`, `books`, `queue_items` and `reservations` tables are created by
+-- JPA schema generation (persistence.xml), not by init-db.sql. Postgres's
+-- docker-entrypoint-initdb.d scripts run before the backend ever starts, so
+-- this file is intentionally NOT wired into that mechanism.
+--
+-- Run it manually once the stack (postgres + backend) is up:
+--   docker exec -i shelfinity-postgres psql -U shelfinity -d shelfinity < docker/seed-data.sql
+-- or, for a native `mvn liberty:dev` backend against a local postgres:
+--   psql "postgresql://shelfinity:shelfinity@localhost:5432/shelfinity" -f docker/seed-data.sql
+--
+-- Safe to re-run: every row uses a fixed id with ON CONFLICT DO NOTHING.
+--
+-- The keycloak_id values below match the "id" fields pinned in
+-- docker/keycloak/realm-shelfinity.json, so these users can actually log in
+-- (username/password are the same as the realm file, e.g. john.doe/john123).
 
--- Connect to the shelfinity database
-\c shelfinity;
-
--- Create initial users
+-- ---------------------------------------------------------------------------
+-- Users (mirrors the accounts provisioned in realm-shelfinity.json)
+-- ---------------------------------------------------------------------------
 INSERT INTO users (id, keycloak_id, email, name, role, is_active, created_at, updated_at) VALUES
-    (gen_random_uuid(), 'admin-uuid', 'admin@shelfinity.com', 'Shelfinity Admin', 'ADMIN', true, NOW(), NOW()),
-    (gen_random_uuid(), 'john-uuid', 'john.doe@shelfinity.com', 'John Doe', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'jane-uuid', 'jane.smith@shelfinity.com', 'Jane Smith', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'bob-uuid', 'bob.wilson@shelfinity.com', 'Bob Wilson', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'alice-uuid', 'alice.johnson@shelfinity.com', 'Alice Johnson', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'mike-uuid', 'mike.brown@shelfinity.com', 'Mike Brown', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'sarah-uuid', 'sarah.davis@shelfinity.com', 'Sarah Davis', 'USER', true, NOW(), NOW()),
-    (gen_random_uuid(), 'david-uuid', 'david.miller@shelfinity.com', 'David Miller', 'USER', true, NOW(), NOW())
-ON CONFLICT (email) DO NOTHING;
+    ('10000000-0000-4000-8000-000000000001', '8a56642a-e116-5268-8ef4-d5ec7ca792ba', 'admin@shelfinity.com', 'Shelfinity Admin', 'ADMIN', true, now() - interval '90 days', NULL),
+    ('10000000-0000-4000-8000-000000000002', 'cefa3b5e-c6a8-58f7-bb67-1aa410dc27e5', 'john.doe@shelfinity.com', 'John Doe', 'USER', true, now() - interval '60 days', NULL),
+    ('10000000-0000-4000-8000-000000000003', 'ffd4b310-a94d-574c-a637-a82f42cb3015', 'jane.smith@shelfinity.com', 'Jane Smith', 'USER', true, now() - interval '45 days', NULL),
+    ('10000000-0000-4000-8000-000000000004', 'ee280384-e1d1-50b9-bec9-fc2e9e796d17', 'bob.wilson@shelfinity.com', 'Bob Wilson', 'USER', true, now() - interval '40 days', NULL),
+    ('10000000-0000-4000-8000-000000000005', 'e744ff73-2890-5896-9d7e-174a0d611fa9', 'alice.johnson@shelfinity.com', 'Alice Johnson', 'USER', true, now() - interval '30 days', NULL),
+    ('10000000-0000-4000-8000-000000000006', '96af4046-332e-54ae-9eb6-ed949cedbb3f', 'mike.brown@shelfinity.com', 'Mike Brown', 'USER', true, now() - interval '20 days', NULL),
+    ('10000000-0000-4000-8000-000000000007', '73dcdb89-e4ff-55ec-b81d-d3c64fda42be', 'sarah.davis@shelfinity.com', 'Sarah Davis', 'USER', true, now() - interval '10 days', NULL),
+    ('10000000-0000-4000-8000-000000000008', '740c02db-6f3a-5ace-96f0-e2efc3124179', 'david.miller@shelfinity.com', 'David Miller', 'USER', false, now() - interval '5 days', now() - interval '1 days')
+ON CONFLICT (id) DO NOTHING;
 
--- Create initial books
-INSERT INTO books (id, isbn, title, author, description, totalcopies, available_copies, available, created_at, updated_at) VALUES
-    (gen_random_uuid(), '978-0-7475-3269-9', 'Harry Potter and the Philosopher''s Stone', 'J.K. Rowling', 'The first novel in the Harry Potter series, following the young wizard Harry Potter as he begins his education at Hogwarts School of Witchcraft and Wizardry.', 5, 3, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-7475-3849-3', 'Harry Potter and the Chamber of Secrets', 'J.K. Rowling', 'The second novel in the Harry Potter series, where Harry returns to Hogwarts for his second year and discovers a mysterious chamber.', 4, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-7475-4624-5', 'Harry Potter and the Prisoner of Azkaban', 'J.K. Rowling', 'The third novel in the Harry Potter series, where Harry learns about his past and the truth about his parents'' death.', 4, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-7475-5100-3', 'Harry Potter and the Goblet of Fire', 'J.K. Rowling', 'The fourth novel in the Harry Potter series, where Harry is unexpectedly entered into a dangerous tournament.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-7475-5101-0', 'Harry Potter and the Order of the Phoenix', 'J.K. Rowling', 'The fifth novel in the Harry Potter series, where Harry faces the growing threat of Voldemort and the Ministry''s denial.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-7475-8108-6', 'Harry Potter and the Half-Blood Prince', 'J.K. Rowling', 'The sixth novel in the Harry Potter series, where Harry learns about Voldemort''s past and prepares for the final battle.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-7475-8109-3', 'Harry Potter and the Deathly Hallows', 'J.K. Rowling', 'The final novel in the Harry Potter series, where Harry and his friends complete their quest to defeat Voldemort.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-06-112008-4', 'To Kill a Mockingbird', 'Harper Lee', 'A classic novel about racial injustice in the American South, told through the eyes of young Scout Finch.', 4, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-14-028333-4', '1984', 'George Orwell', 'A dystopian novel about totalitarianism and surveillance society, following the life of Winston Smith.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-679-72327-6', 'The Great Gatsby', 'F. Scott Fitzgerald', 'A novel about the American Dream and the Jazz Age, following the mysterious millionaire Jay Gatsby.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-7432-7356-5', 'The Catcher in the Rye', 'J.D. Salinger', 'A novel about teenage alienation and loss of innocence, following the adventures of Holden Caulfield.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-679-41063-4', 'Pride and Prejudice', 'Jane Austen', 'A romantic novel about the relationship between Elizabeth Bennet and Mr. Darcy in Georgian-era England.', 4, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-14-143951-8', 'Jane Eyre', 'Charlotte Brontë', 'A novel about the orphaned Jane Eyre and her journey to find love and independence.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-14-143947-1', 'Wuthering Heights', 'Emily Brontë', 'A novel about the passionate and destructive love between Catherine Earnshaw and Heathcliff.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-679-42023-4', 'The Lord of the Rings: The Fellowship of the Ring', 'J.R.R. Tolkien', 'The first volume of The Lord of the Rings, following the journey of Frodo Baggins and the Fellowship.', 4, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-345-33971-4', 'The Lord of the Rings: The Two Towers', 'J.R.R. Tolkien', 'The second volume of The Lord of the Rings, where the Fellowship is broken and the quest continues.', 4, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-345-33973-8', 'The Lord of the Rings: The Return of the King', 'J.R.R. Tolkien', 'The final volume of The Lord of the Rings, where the quest reaches its climax and conclusion.', 4, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-06-231500-7', 'The Alchemist', 'Paulo Coelho', 'A novel about following your dreams and listening to your heart, following the journey of Santiago.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-06-112241-5', 'The Kite Runner', 'Khaled Hosseini', 'A novel about redemption and friendship, set against the backdrop of Afghanistan''s turbulent history.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06536-6', 'The Book Thief', 'Markus Zusak', 'A novel about a young girl''s relationship with her foster parents and the books she steals during Nazi Germany.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06856-5', 'The Fault in Our Stars', 'John Green', 'A novel about two teenagers who meet at a cancer support group and fall in love.', 4, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06856-6', 'Looking for Alaska', 'John Green', 'A novel about a teenager who attends boarding school and experiences love, loss, and self-discovery.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06856-7', 'Paper Towns', 'John Green', 'A novel about a teenager who goes on a road trip to find his missing neighbor and discovers himself along the way.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06856-8', 'Turtles All the Way Down', 'John Green', 'A novel about a teenager with obsessive-compulsive disorder who investigates the disappearance of a billionaire.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06856-9', 'The Anthropocene Reviewed', 'John Green', 'A collection of essays reviewing various aspects of human-centered planet Earth.', 2, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06857-0', 'The Martian', 'Andy Weir', 'A novel about an astronaut who is stranded on Mars and must find a way to survive and return to Earth.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06857-1', 'Project Hail Mary', 'Andy Weir', 'A novel about an astronaut who wakes up alone on a spaceship with no memory of how he got there.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06857-2', 'Artemis', 'Andy Weir', 'A novel about a smuggler living in the first city on the Moon who gets caught up in a conspiracy.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06857-3', 'Ready Player One', 'Ernest Cline', 'A novel about a teenager who participates in a virtual reality treasure hunt in a dystopian future.', 3, 1, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06857-4', 'Ready Player Two', 'Ernest Cline', 'A sequel to Ready Player One, following the protagonist''s new adventure in virtual reality.', 3, 2, true, NOW(), NOW()),
-    (gen_random_uuid(), '978-0-316-06857-5', 'Armada', 'Ernest Cline', 'A novel about a teenager who discovers that a video game he plays is actually a training simulation for an alien invasion.', 3, 1, true, NOW(), NOW())
-ON CONFLICT (isbn) DO NOTHING;
+-- ---------------------------------------------------------------------------
+-- Books: a spread of fully available, partially checked out, fully checked
+-- out, and admin-disabled copies, plus nullable-field edge cases.
+-- ---------------------------------------------------------------------------
+INSERT INTO books (id, title, author, isbn, description, available, totalcopies, available_copies, created_at, updated_at) VALUES
+    ('20000000-0000-4000-8000-000000000001', 'The Great Gatsby', 'F. Scott Fitzgerald', '978-0-7432-7356-5', 'A classic American novel set in the Jazz Age.', true, 5, 5, now() - interval '80 days', NULL),
+    ('20000000-0000-4000-8000-000000000002', '1984', 'George Orwell', '978-0-452-28423-4', 'A dystopian social science fiction novel.', true, 3, 0, now() - interval '80 days', now() - interval '2 days'),
+    ('20000000-0000-4000-8000-000000000003', 'To Kill a Mockingbird', 'Harper Lee', '978-0-06-112008-4', 'A novel about racial injustice in the American South.', true, 4, 2, now() - interval '75 days', now() - interval '3 days'),
+    ('20000000-0000-4000-8000-000000000004', 'Pride and Prejudice', 'Jane Austen', '978-0-14-143951-8', 'A romantic novel of manners.', true, 6, 6, now() - interval '75 days', NULL),
+    ('20000000-0000-4000-8000-000000000005', 'The Catcher in the Rye', 'J.D. Salinger', '978-0-316-76948-0', 'A story about teenage rebellion and alienation.', true, 3, 1, now() - interval '70 days', now() - interval '12 days'),
+    ('20000000-0000-4000-8000-000000000006', 'Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', '978-0-439-70818-8', 'The first book in the Harry Potter series.', true, 8, 8, now() - interval '70 days', NULL),
+    ('20000000-0000-4000-8000-000000000007', 'The Hobbit', 'J.R.R. Tolkien', '978-0-547-92822-7', 'A fantasy novel and children''s book.', true, 5, 0, now() - interval '65 days', now() - interval '20 days'),
+    ('20000000-0000-4000-8000-000000000008', 'Brave New World', 'Aldous Huxley', '978-0-06-085052-4', 'A dystopian novel set in a futuristic World State.', true, 4, 4, now() - interval '65 days', NULL),
+    ('20000000-0000-4000-8000-000000000009', 'The Lord of the Rings', 'J.R.R. Tolkien', '978-0-618-64561-5', 'An epic high-fantasy novel.', true, 7, 3, now() - interval '60 days', now() - interval '4 days'),
+    ('20000000-0000-4000-8000-000000000010', 'Animal Farm', 'George Orwell', '978-0-452-28424-1', 'An allegorical novella about Soviet totalitarianism.', true, 5, 5, now() - interval '60 days', NULL),
+    ('20000000-0000-4000-8000-000000000011', 'The Chronicles of Narnia', 'C.S. Lewis', '978-0-06-076489-7', 'A series of seven fantasy novels.', true, 6, 6, now() - interval '55 days', NULL),
+    ('20000000-0000-4000-8000-000000000012', 'Moby-Dick', 'Herman Melville', NULL, NULL, true, 3, 3, now() - interval '50 days', NULL),
+    ('20000000-0000-4000-8000-000000000013', 'War and Peace', 'Leo Tolstoy', '978-0-14-303999-0', 'A historical novel set during the Napoleonic Wars. Currently withdrawn from circulation.', false, 1, 0, now() - interval '50 days', now() - interval '15 days'),
+    ('20000000-0000-4000-8000-000000000014', 'The Odyssey', 'Homer', '978-0-14-026886-7', 'An ancient Greek epic poem.', true, 5, 5, now() - interval '45 days', NULL),
+    ('20000000-0000-4000-8000-000000000015', 'Dune', 'Frank Herbert', '978-0-441-01359-3', 'A science fiction saga of politics, religion and ecology on a desert planet.', true, 4, 1, now() - interval '30 days', now() - interval '6 days'),
+    ('20000000-0000-4000-8000-000000000016', 'Foundation', 'Isaac Asimov', '978-0-553-29335-0', 'The first novel in Asimov''s Foundation series.', true, 2, 0, now() - interval '25 days', now() - interval '18 days')
+ON CONFLICT (id) DO NOTHING;
 
--- Create initial queue items (book requests)
-INSERT INTO queue_items (id, user_keycloak_id, book_id, type, status, description, created_at, updated_at) VALUES
-    (gen_random_uuid(), 'john-uuid', (SELECT id FROM books WHERE title = 'The Great Gatsby' LIMIT 1), 'BORROW', 'PENDING', 'Request to borrow The Great Gatsby', NOW(), NOW()),
-    (gen_random_uuid(), 'jane-uuid', (SELECT id FROM books WHERE title = 'Pride and Prejudice' LIMIT 1), 'BORROW', 'APPROVED', 'Request to borrow Pride and Prejudice', NOW(), NOW()),
-    (gen_random_uuid(), 'bob-uuid', (SELECT id FROM books WHERE title = '1984' LIMIT 1), 'BORROW', 'PENDING', 'Request to borrow 1984', NOW(), NOW()),
-    (gen_random_uuid(), 'alice-uuid', (SELECT id FROM books WHERE title = 'The Catcher in the Rye' LIMIT 1), 'BORROW', 'REJECTED', 'Request to borrow The Catcher in the Rye', NOW(), NOW()),
-    (gen_random_uuid(), 'mike-uuid', (SELECT id FROM books WHERE title = 'The Alchemist' LIMIT 1), 'BORROW', 'APPROVED', 'Request to borrow The Alchemist', NOW(), NOW()),
-    (gen_random_uuid(), 'sarah-uuid', (SELECT id FROM books WHERE title = 'The Kite Runner' LIMIT 1), 'BORROW', 'PENDING', 'Request to borrow The Kite Runner', NOW(), NOW()),
-    (gen_random_uuid(), 'david-uuid', (SELECT id FROM books WHERE title = 'The Book Thief' LIMIT 1), 'BORROW', 'APPROVED', 'Request to borrow The Book Thief', NOW(), NOW()),
-    (gen_random_uuid(), 'john-uuid', (SELECT id FROM books WHERE title = 'The Martian' LIMIT 1), 'BORROW', 'PENDING', 'Request to borrow The Martian', NOW(), NOW()),
-    (gen_random_uuid(), 'jane-uuid', (SELECT id FROM books WHERE title = 'Ready Player One' LIMIT 1), 'BORROW', 'APPROVED', 'Request to borrow Ready Player One', NOW(), NOW()),
-    (gen_random_uuid(), 'bob-uuid', (SELECT id FROM books WHERE title = 'The Fault in Our Stars' LIMIT 1), 'BORROW', 'PENDING', 'Request to borrow The Fault in Our Stars', NOW(), NOW())
-ON CONFLICT DO NOTHING;
+-- ---------------------------------------------------------------------------
+-- Queue items: pending/approved/rejected borrow requests, a pending return,
+-- and two overdue approved borrows (for testing /overdue and /reports).
+-- ---------------------------------------------------------------------------
+INSERT INTO queue_items (id, type, user_keycloak_id, book_id, status, description, adminremark, created_at, updated_at, processed_at, processed_by, due_date) VALUES
+    -- John requests Dune; still pending admin approval.
+    ('30000000-0000-4000-8000-000000000001', 'BOOK_BORROW', 'cefa3b5e-c6a8-58f7-bb67-1aa410dc27e5', '20000000-0000-4000-8000-000000000015', 'PENDING', 'Would like to borrow Dune for a book club.', NULL, now() - interval '1 days', NULL, NULL, NULL, NULL),
+    -- Jane borrowed The Great Gatsby; approved, due in the future.
+    ('30000000-0000-4000-8000-000000000002', 'BOOK_BORROW', 'ffd4b310-a94d-574c-a637-a82f42cb3015', '20000000-0000-4000-8000-000000000001', 'APPROVED', 'Borrow request', 'Approved, enjoy the read.', now() - interval '3 days', now() - interval '2 days', now() - interval '2 days', '8a56642a-e116-5268-8ef4-d5ec7ca792ba', now() + interval '11 days'),
+    -- Bob borrowed The Hobbit; approved but overdue.
+    ('30000000-0000-4000-8000-000000000003', 'BOOK_BORROW', 'ee280384-e1d1-50b9-bec9-fc2e9e796d17', '20000000-0000-4000-8000-000000000007', 'APPROVED', 'Borrow request', 'Approved.', now() - interval '20 days', now() - interval '19 days', now() - interval '19 days', '8a56642a-e116-5268-8ef4-d5ec7ca792ba', now() - interval '5 days'),
+    -- Alice borrowed Foundation; approved and further overdue.
+    ('30000000-0000-4000-8000-000000000004', 'BOOK_BORROW', 'e744ff73-2890-5896-9d7e-174a0d611fa9', '20000000-0000-4000-8000-000000000016', 'APPROVED', 'Borrow request', 'Approved.', now() - interval '25 days', now() - interval '24 days', now() - interval '24 days', '8a56642a-e116-5268-8ef4-d5ec7ca792ba', now() - interval '10 days'),
+    -- Mike's request for War and Peace was rejected (book withdrawn).
+    ('30000000-0000-4000-8000-000000000005', 'BOOK_BORROW', '96af4046-332e-54ae-9eb6-ed949cedbb3f', '20000000-0000-4000-8000-000000000013', 'REJECTED', 'Borrow request', 'Book is currently withdrawn from circulation.', now() - interval '15 days', now() - interval '14 days', now() - interval '14 days', '8a56642a-e116-5268-8ef4-d5ec7ca792ba', NULL),
+    -- Sarah wants to return To Kill a Mockingbird; pending admin processing.
+    ('30000000-0000-4000-8000-000000000006', 'BOOK_RETURN', '73dcdb89-e4ff-55ec-b81d-d3c64fda42be', '20000000-0000-4000-8000-000000000003', 'PENDING', 'Returning book, finished reading.', NULL, now() - interval '1 days', NULL, NULL, NULL, NULL),
+    -- David's earlier return of 1984 was approved (historical record).
+    ('30000000-0000-4000-8000-000000000007', 'BOOK_RETURN', '740c02db-6f3a-5ace-96f0-e2efc3124179', '20000000-0000-4000-8000-000000000002', 'APPROVED', 'Returning book.', 'Return processed, thank you.', now() - interval '7 days', now() - interval '6 days', now() - interval '6 days', '8a56642a-e116-5268-8ef4-d5ec7ca792ba', NULL)
+ON CONFLICT (id) DO NOTHING;
 
--- Display summary of seeded data
-SELECT 'Users' as table_name, COUNT(*) as count FROM users
-UNION ALL
-SELECT 'Books' as table_name, COUNT(*) as count FROM books
-UNION ALL
-SELECT 'Queue Items' as table_name, COUNT(*) as count FROM queue_items;
+-- ---------------------------------------------------------------------------
+-- Reservations: one of every lifecycle status, tied to the fully-checked-out
+-- books above (1984, The Hobbit, Foundation).
+-- ---------------------------------------------------------------------------
+INSERT INTO reservations (id, user_keycloak_id, book_id, status, created_at, updated_at, notified_at, expires_at, notes) VALUES
+    -- Mike is waiting on 1984 (no copies available right now).
+    ('40000000-0000-4000-8000-000000000001', '96af4046-332e-54ae-9eb6-ed949cedbb3f', '20000000-0000-4000-8000-000000000002', 'ACTIVE', now() - interval '2 days', NULL, NULL, now() + interval '5 days', NULL),
+    -- Sarah was notified that The Hobbit is available and has 2 days left to claim it.
+    ('40000000-0000-4000-8000-000000000002', '73dcdb89-e4ff-55ec-b81d-d3c64fda42be', '20000000-0000-4000-8000-000000000007', 'NOTIFIED', now() - interval '5 days', now() - interval '1 days', now() - interval '1 days', now() + interval '2 days', NULL),
+    -- John previously reserved Foundation and went on to borrow it.
+    ('40000000-0000-4000-8000-000000000003', 'cefa3b5e-c6a8-58f7-bb67-1aa410dc27e5', '20000000-0000-4000-8000-000000000016', 'FULFILLED', now() - interval '30 days', now() - interval '25 days', now() - interval '26 days', now() - interval '19 days', NULL),
+    -- Jane cancelled her reservation on Dune.
+    ('40000000-0000-4000-8000-000000000004', 'ffd4b310-a94d-574c-a637-a82f42cb3015', '20000000-0000-4000-8000-000000000015', 'CANCELLED', now() - interval '10 days', now() - interval '8 days', NULL, now() - interval '3 days', 'Cancelled by user.'),
+    -- Bob's reservation on The Hobbit expired before he could claim it.
+    ('40000000-0000-4000-8000-000000000005', 'ee280384-e1d1-50b9-bec9-fc2e9e796d17', '20000000-0000-4000-8000-000000000007', 'EXPIRED', now() - interval '25 days', now() - interval '18 days', now() - interval '20 days', now() - interval '18 days', NULL)
+ON CONFLICT (id) DO NOTHING;

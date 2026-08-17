@@ -49,7 +49,7 @@ Once the server starts, verify these endpoints:
 
 ### Health Check
 ```bash
-curl http://localhost:9080/shelfinity-backend/api/health
+curl http://localhost:9080/api/health
 ```
 
 ### OpenAPI Documentation
@@ -59,13 +59,13 @@ curl http://localhost:9080/shelfinity-backend/api/health
 ### Sample API Endpoints
 ```bash
 # Get all books
-curl http://localhost:9080/shelfinity-backend/api/books
+curl http://localhost:9080/api/books
 
 # Search books
-curl "http://localhost:9080/shelfinity-backend/api/books?search=gatsby"
+curl "http://localhost:9080/api/books?search=gatsby"
 
 # Get available books only
-curl "http://localhost:9080/shelfinity-backend/api/books?available=true"
+curl "http://localhost:9080/api/books?available=true"
 ```
 
 ## API Groups

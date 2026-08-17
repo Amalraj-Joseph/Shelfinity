@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  * Licensed under the MIT License.
  */
 package com.shelfinity;
@@ -12,8 +12,10 @@ import org.eclipse.microprofile.openapi.annotations.info.License;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.servers.Server;
 
+import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
+@ApplicationPath("/api")
 @OpenAPIDefinition(
     info = @Info(
         title = "Shelfinity API",
@@ -27,10 +29,7 @@ import jakarta.ws.rs.core.Application;
             name = "MIT License",
             url = "https://opensource.org/licenses/MIT"
         )
-    ),
-    servers = {
-        @Server(url = "http://localhost:9080/shelfinity-backend", description = "Development Server")
-    }
+    )
 )
 @SecurityScheme(
     securitySchemeName = "JWT",
@@ -39,8 +38,4 @@ import jakarta.ws.rs.core.Application;
     bearerFormat = "JWT"
 )
 public class ShelfinityApplication extends Application {
-    
-    public ShelfinityApplication() {
-        System.out.println("ShelfinityApplication constructor called!");
-    }
 }

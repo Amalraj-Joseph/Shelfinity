@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -66,6 +66,15 @@ public class BookRepository {
      */
     public List<Book> findAvailable() {
         TypedQuery<Book> query = entityManager.createNamedQuery("Book.findAvailable", Book.class);
+        return query.getResultList();
+    }
+
+    /**
+     * Find books by genre (case-insensitive exact match).
+     */
+    public List<Book> findByGenre(String genre) {
+        TypedQuery<Book> query = entityManager.createNamedQuery("Book.findByGenre", Book.class);
+        query.setParameter("genre", genre);
         return query.getResultList();
     }
     
