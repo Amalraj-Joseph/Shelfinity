@@ -1,6 +1,10 @@
 # Shelfinity - Library Management System
 
+[![CI](https://github.com/Shadow-Codex/Shelfinity/actions/workflows/ci.yml/badge.svg)](https://github.com/Shadow-Codex/Shelfinity/actions/workflows/ci.yml)
+
 A modern, full-stack library management system built with Jakarta EE 10, React 18, and PostgreSQL.
+
+📖 **[Public documentation site](https://shadow-codex.github.io/Shelfinity/)** — getting started, architecture, business rules, and the full API reference.
 
 ## 🚀 Quick Start
 
