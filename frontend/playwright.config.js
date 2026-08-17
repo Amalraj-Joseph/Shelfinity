@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
  */
 const { defineConfig, devices } = require('@playwright/test');
 
-// Runs against an already-running stack (docker-compose-shelfinity.yml),
+// Runs against an already-running stack (docker-compose.yml),
 // same tier-design as the backend's *ApiIT suite — no attempt to spin up
 // Postgres/Keycloak/backend/frontend from within the test run itself.
 module.exports = defineConfig({

@@ -3,9 +3,9 @@ tagline: Library management, done properly
 description: >-
   Public documentation for Shelfinity, an open-source library management
   system built on Jakarta EE, React, PostgreSQL, and Keycloak.
-baseurl: "/Shelfinity"
-url: "https://shadow-codex.github.io"
-repository: Shadow-Codex/Shelfinity
+baseurl: ""
+url: "https://shelfinity.amalraj.dev"
+repository: Amalraj-Joseph/Shelfinity
 
 markdown: kramdown
 kramdown:

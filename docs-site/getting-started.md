@@ -19,7 +19,7 @@ is required to run the whole system locally.
 ```bash
 git clone git@github.com:{{ site.repository }}.git
 cd Shelfinity
-docker compose -f docker/docker-compose-shelfinity.yml up -d --build
+docker compose -f docker/docker-compose.yml up -d --build
 ```
 
 The first build compiles the backend with Maven and installs the frontend's
@@ -95,7 +95,7 @@ cd frontend && npm install && npm start
 ## Shutting down
 
 ```bash
-docker compose -f docker/docker-compose-shelfinity.yml down
+docker compose -f docker/docker-compose.yml down
 ```
 
 Add `-v` to also drop the Postgres volume and start from a clean seeded

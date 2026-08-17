@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
  */
 const { test, expect } = require('@playwright/test');
 
-// Runs against the real docker-compose-shelfinity.yml stack (Postgres +
+// Runs against the real docker-compose.yml stack (Postgres +
 // Keycloak + backend + frontend), using the seeded demo accounts from
 // docker/seed-data.sql / docker/keycloak/realm-shelfinity.json.
 

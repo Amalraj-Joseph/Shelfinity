@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Shadow-Codex
+ * Copyright (c) 2025 Amalraj Joseph
  *
  * This source code is licensed under the MIT License.
  * See the LICENSE file in the root directory for more information.
@@ -215,5 +215,3 @@ public class AuthResource {
         return Response.ok(response).build();
     }
 }
-
-// Made with Bob

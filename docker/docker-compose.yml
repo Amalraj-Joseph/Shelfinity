@@ -14,11 +14,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.4
@@ -80,17 +79,17 @@ services:
         - CMD-SHELL
         - >
           curl -s http://localhost:9080/health | grep -q '"status":"UP"'
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 120s
+
 
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
       # CRA bakes REACT_APP_* into the static bundle at build time — an
-      # `environment:` block here would be silently ignored by the already-
+      # `environment:` block below would be silently ignored by the already-
       # built, nginx-served image. These must be build args instead.
       args:
         REACT_APP_KEYCLOAK_URL: http://localhost:8080
@@ -103,12 +102,6 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
 volumes:
   postgres_data:
