@@ -1,6 +1,7 @@
 ---
 title: API Reference
 description: Every Shelfinity resource, endpoint, and access rule. Base path is unversioned /api.
+permalink: /api-reference/
 ---
 
 # API Reference

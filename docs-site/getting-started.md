@@ -1,6 +1,7 @@
 ---
 title: Getting Started
 description: Run the full Shelfinity stack locally with Docker Compose.
+permalink: /getting-started/
 ---
 
 # Getting Started

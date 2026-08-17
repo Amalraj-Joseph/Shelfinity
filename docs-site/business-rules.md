@@ -1,6 +1,7 @@
 ---
 title: Business Rules
 description: The exact state machines behind registration, borrowing, returns, and reservations.
+permalink: /business-rules/
 ---
 
 # Business rules
