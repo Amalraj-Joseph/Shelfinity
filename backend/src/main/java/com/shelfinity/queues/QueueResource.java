@@ -22,6 +22,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import com.shelfinity.books.Book;
+import com.shelfinity.books.BookRepository;
 import com.shelfinity.queues.dto.requests.CreateQueueItemRequest;
 import com.shelfinity.queues.dto.requests.UpdateQueueItemRequest;
 import com.shelfinity.queues.dto.responses.QueueItemResponse;
@@ -66,11 +68,25 @@ public class QueueResource {
     private UserRepository userRepository;
 
     @Inject
+    private BookRepository bookRepository;
+
+    @Inject
     private QueueApprovalService queueApprovalService;
 
     @Context
     private SecurityContext securityContext;
-    
+
+    // Resolves the book/user relations so responses carry a human-readable
+    // title/ISBN and name/email alongside the raw UUIDs, instead of forcing
+    // the UI to display bare identifiers.
+    private QueueItemResponse toResponse(QueueItem item) {
+        Book book = item.getBookId() != null
+                ? bookRepository.findById(item.getBookId()).orElse(null)
+                : null;
+        User user = userRepository.findByKeycloakId(item.getUserKeycloakId()).orElse(null);
+        return new QueueItemResponse(item, book, user);
+    }
+
     /**
      * Create a new queue item.
      */
@@ -144,7 +160,7 @@ public class QueueResource {
         queueItem.setStatus(QueueStatus.PENDING);
 
         QueueItem savedItem = queueRepository.save(queueItem);
-        QueueItemResponse response = new QueueItemResponse(savedItem);
+        QueueItemResponse response = toResponse(savedItem);
         
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
@@ -210,7 +226,7 @@ public class QueueResource {
         }
         
         List<QueueItemResponse> responses = items.stream()
-                .map(QueueItemResponse::new)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
         
         return Response.ok(responses).build();
@@ -256,7 +272,7 @@ public class QueueResource {
                         .build();
             }
             
-            QueueItemResponse response = new QueueItemResponse(item.get());
+            QueueItemResponse response = toResponse(item.get());
             return Response.ok(response).build();
             
         } catch (IllegalArgumentException e) {
@@ -346,7 +362,7 @@ public class QueueResource {
             item.setProcessedAt(LocalDateTime.now());
 
             QueueItem updatedItem = queueRepository.update(item);
-            QueueItemResponse response = new QueueItemResponse(updatedItem);
+            QueueItemResponse response = toResponse(updatedItem);
 
             return Response.ok(response).build();
 
@@ -457,7 +473,7 @@ public class QueueResource {
         
         List<QueueItem> items = queueRepository.findByUserKeycloakId(userInfo.get().getKeycloakId());
         List<QueueItemResponse> responses = items.stream()
-                .map(QueueItemResponse::new)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
         
         return Response.ok(responses).build();

@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { DataGrid } from '@mui/x-data-grid';
 import { overdue as overdueApi } from '../../api/client';
+import IdentityCell from '../../components/IdentityCell';
 
 function StatBlock({ label, value }) {
   return (
@@ -44,8 +45,14 @@ export default function AdminOverduePage() {
   }, []);
 
   const columns = [
-    { field: 'userKeycloakId', headerName: 'User', width: 220 },
-    { field: 'bookId', headerName: 'Book ID', width: 220 },
+    {
+      field: 'userName', headerName: 'User', width: 220,
+      renderCell: (p) => <IdentityCell primary={p.row.userName} secondary={p.row.userEmail} id={p.row.userKeycloakId} />,
+    },
+    {
+      field: 'bookTitle', headerName: 'Book', width: 220,
+      renderCell: (p) => <IdentityCell primary={p.row.bookTitle} secondary={p.row.bookIsbn} id={p.row.bookId} />,
+    },
     {
       field: 'dueDate', headerName: 'Due Date', width: 180,
       valueFormatter: (p) => p.value ? new Date(p.value).toLocaleDateString() : '—',

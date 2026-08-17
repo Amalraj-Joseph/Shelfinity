@@ -8,6 +8,7 @@ package com.shelfinity.overdue;
 
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -16,9 +17,14 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import com.shelfinity.books.Book;
+import com.shelfinity.books.BookRepository;
 import com.shelfinity.overdue.OverdueService.OverdueStats;
 import com.shelfinity.queues.QueueItem;
+import com.shelfinity.queues.dto.responses.QueueItemResponse;
 import com.shelfinity.security.JwtUtil;
+import com.shelfinity.users.User;
+import com.shelfinity.users.UserRepository;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -34,15 +40,31 @@ import jakarta.ws.rs.core.Response;
 @Path("/overdue")
 @Tag(name = "Overdue", description = "Overdue book tracking operations")
 public class OverdueResource {
-    
+
     private static final Logger LOGGER = Logger.getLogger(OverdueResource.class.getName());
-    
+
     @Inject
     private OverdueService overdueService;
-    
+
     @Inject
     private JwtUtil jwtUtil;
-    
+
+    @Inject
+    private BookRepository bookRepository;
+
+    @Inject
+    private UserRepository userRepository;
+
+    // Resolves the book/user relations so overdue responses carry a
+    // human-readable title/ISBN and name/email instead of raw entity UUIDs.
+    private QueueItemResponse toResponse(QueueItem item) {
+        Book book = item.getBookId() != null
+                ? bookRepository.findById(item.getBookId()).orElse(null)
+                : null;
+        User user = userRepository.findByKeycloakId(item.getUserKeycloakId()).orElse(null);
+        return new QueueItemResponse(item, book, user);
+    }
+
     /**
      * Get all overdue items (admin only).
      */
@@ -56,7 +78,7 @@ public class OverdueResource {
             description = "List of overdue items retrieved successfully",
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = QueueItem.class)
+                schema = @Schema(implementation = QueueItemResponse.class)
             )
         ),
         @APIResponse(responseCode = "401", description = "Unauthorized - Invalid or missing token"),
@@ -70,8 +92,10 @@ public class OverdueResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
-            List<QueueItem> overdueItems = overdueService.getOverdueItems();
+
+            List<QueueItemResponse> overdueItems = overdueService.getOverdueItems().stream()
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
             return Response.ok(overdueItems).build();
             
         } catch (Exception e) {
@@ -96,7 +120,7 @@ public class OverdueResource {
             description = "User's overdue items retrieved successfully",
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = QueueItem.class)
+                schema = @Schema(implementation = QueueItemResponse.class)
             )
         ),
         @APIResponse(responseCode = "401", description = "Unauthorized - Invalid or missing token"),
@@ -109,11 +133,13 @@ public class OverdueResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
+
             String userKeycloakId = jwtUtil.getCurrentUserKeycloakId()
                 .orElseThrow(() -> new RuntimeException("User Keycloak ID not found"));
-            
-            List<QueueItem> overdueItems = overdueService.getOverdueItemsForUser(userKeycloakId);
+
+            List<QueueItemResponse> overdueItems = overdueService.getOverdueItemsForUser(userKeycloakId).stream()
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
             return Response.ok(overdueItems).build();
             
         } catch (Exception e) {

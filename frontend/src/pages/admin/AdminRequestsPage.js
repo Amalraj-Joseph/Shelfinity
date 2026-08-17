@@ -21,6 +21,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { DataGrid } from '@mui/x-data-grid';
 import { queues as queuesApi, ApiError } from '../../api/client';
+import IdentityCell from '../../components/IdentityCell';
 
 const STATUS_COLOR = { PENDING: 'warning', APPROVED: 'success', REJECTED: 'error' };
 const TABS = ['ALL', 'PENDING', 'APPROVED', 'REJECTED'];
@@ -65,8 +66,16 @@ export default function AdminRequestsPage() {
 
   const columns = [
     { field: 'type', headerName: 'Type', width: 160, valueFormatter: (p) => p.value.replace('_', ' ') },
-    { field: 'userKeycloakId', headerName: 'Requester', width: 220 },
-    { field: 'bookId', headerName: 'Book ID', width: 220 },
+    {
+      field: 'userName', headerName: 'Requester', width: 220,
+      renderCell: (p) => <IdentityCell primary={p.row.userName} secondary={p.row.userEmail} id={p.row.userKeycloakId} />,
+    },
+    {
+      field: 'bookTitle', headerName: 'Book', width: 220,
+      renderCell: (p) => p.row.bookId
+        ? <IdentityCell primary={p.row.bookTitle} secondary={p.row.bookIsbn} id={p.row.bookId} />
+        : '—',
+    },
     {
       field: 'status', headerName: 'Status', width: 130,
       renderCell: (p) => <Chip size="small" label={p.value} color={STATUS_COLOR[p.value]} />,

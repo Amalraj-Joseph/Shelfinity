@@ -17,7 +17,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.shelfinity.books.Book;
+import com.shelfinity.books.BookRepository;
+import com.shelfinity.queues.QueueItem;
+import com.shelfinity.queues.QueueType;
+import com.shelfinity.queues.dto.responses.QueueItemResponse;
 import com.shelfinity.security.JwtUtil;
+import com.shelfinity.users.User;
+import com.shelfinity.users.UserRepository;
+
+import java.util.UUID;
 
 import jakarta.ws.rs.core.Response;
 
@@ -32,6 +41,8 @@ class OverdueResourceTest {
 
     @Mock private OverdueService overdueService;
     @Mock private JwtUtil jwtUtil;
+    @Mock private BookRepository bookRepository;
+    @Mock private UserRepository userRepository;
 
     @InjectMocks
     private OverdueResource overdueResource;
@@ -53,6 +64,32 @@ class OverdueResourceTest {
         Response response = overdueResource.getAllOverdueItems();
 
         assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    // Overdue items previously serialized raw QueueItem entities (UUIDs
+    // only); they must now resolve to a human-readable book title/ISBN and
+    // user name/email, matching the rest of the admin UI's identifiers.
+    @Test
+    void getAllOverdueItems_resolvesBookAndUserForDisplay() {
+        when(jwtUtil.isAuthenticated()).thenReturn(true);
+        UUID bookId = UUID.randomUUID();
+        QueueItem item = new QueueItem(QueueType.BOOK_BORROW, "kc-1", bookId, "desc");
+        when(overdueService.getOverdueItems()).thenReturn(List.of(item));
+
+        Book book = new Book();
+        book.setTitle("Clean Code");
+        book.setIsbn("978-0132350884");
+        when(bookRepository.findById(bookId)).thenReturn(java.util.Optional.of(book));
+        when(userRepository.findByKeycloakId("kc-1"))
+                .thenReturn(java.util.Optional.of(new User("kc-1", "alice@shelfinity.com", "Alice")));
+
+        Response response = overdueResource.getAllOverdueItems();
+
+        @SuppressWarnings("unchecked")
+        List<QueueItemResponse> body = (List<QueueItemResponse>) response.getEntity();
+        assertThat(body).hasSize(1);
+        assertThat(body.get(0).getBookTitle()).isEqualTo("Clean Code");
+        assertThat(body.get(0).getUserName()).isEqualTo("Alice");
     }
 
     @Test

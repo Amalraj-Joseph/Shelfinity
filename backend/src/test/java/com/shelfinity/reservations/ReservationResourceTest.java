@@ -29,6 +29,7 @@ import com.shelfinity.books.Book;
 import com.shelfinity.books.BookRepository;
 import com.shelfinity.email.EmailService;
 import com.shelfinity.reservations.dto.CreateReservationRequest;
+import com.shelfinity.reservations.dto.ReservationResponse;
 import com.shelfinity.security.JwtUtil;
 import com.shelfinity.users.User;
 import com.shelfinity.users.UserRepository;
@@ -129,6 +130,13 @@ class ReservationResourceTest {
                 .isAfter(LocalDateTime.now().plusDays(EXPIRY_DAYS - 1))
                 .isBefore(LocalDateTime.now().plusDays(EXPIRY_DAYS + 1));
         verify(emailService).sendReservationConfirmation("a@b.com", "Alice", "Title");
+
+        // UI identifiers must be human-readable (book title, requester name/email)
+        // alongside the raw UUIDs, not raw UUIDs alone — see ReservationResponse.
+        ReservationResponse body = (ReservationResponse) response.getEntity();
+        assertThat(body.getBookTitle()).isEqualTo("Title");
+        assertThat(body.getUserName()).isEqualTo("Alice");
+        assertThat(body.getUserEmail()).isEqualTo("a@b.com");
     }
 
     @Test
@@ -220,6 +228,29 @@ class ReservationResourceTest {
         Response response = reservationResource.getAllReservations();
 
         assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    void getAllReservations_resolvesUserForDisplay() {
+        UUID bookId = UUID.randomUUID();
+        Reservation reservation = new Reservation();
+        reservation.setId(UUID.randomUUID());
+        reservation.setUserKeycloakId("kc-1");
+        reservation.setBookId(bookId);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
+        when(reservationRepository.findAll()).thenReturn(java.util.List.of(reservation));
+        Book book = new Book("Title", "Author");
+        book.setId(bookId);
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+        when(userRepository.findByKeycloakId("kc-1")).thenReturn(Optional.of(new User("kc-1", "a@b.com", "Alice")));
+
+        Response response = reservationResource.getAllReservations();
+
+        @SuppressWarnings("unchecked")
+        java.util.List<ReservationResponse> body = (java.util.List<ReservationResponse>) response.getEntity();
+        assertThat(body).hasSize(1);
+        assertThat(body.get(0).getUserName()).isEqualTo("Alice");
+        assertThat(body.get(0).getUserEmail()).isEqualTo("a@b.com");
     }
 
     @Test

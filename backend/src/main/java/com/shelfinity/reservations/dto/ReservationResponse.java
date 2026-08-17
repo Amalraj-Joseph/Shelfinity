@@ -12,29 +12,37 @@ import java.util.UUID;
 import com.shelfinity.books.Book;
 import com.shelfinity.reservations.Reservation;
 import com.shelfinity.reservations.ReservationStatus;
+import com.shelfinity.users.User;
 
 /**
  * Response DTO for reservation information.
  */
 public class ReservationResponse {
-    
+
     private UUID id;
     private String userKeycloakId;
+    private String userName;
+    private String userEmail;
     private UUID bookId;
     private String bookTitle;
     private String bookAuthor;
+    private String bookIsbn;
     private ReservationStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime expiresAt;
     private LocalDateTime notifiedAt;
     private String notes;
-    
+
     // Constructors
     public ReservationResponse() {
     }
-    
+
     public ReservationResponse(Reservation reservation, Book book) {
+        this(reservation, book, null);
+    }
+
+    public ReservationResponse(Reservation reservation, Book book, User user) {
         this.id = reservation.getId();
         this.userKeycloakId = reservation.getUserKeycloakId();
         this.bookId = reservation.getBookId();
@@ -44,13 +52,19 @@ public class ReservationResponse {
         this.expiresAt = reservation.getExpiresAt();
         this.notifiedAt = reservation.getNotifiedAt();
         this.notes = reservation.getNotes();
-        
+
         if (book != null) {
             this.bookTitle = book.getTitle();
             this.bookAuthor = book.getAuthor();
+            this.bookIsbn = book.getIsbn();
+        }
+
+        if (user != null) {
+            this.userName = user.getName();
+            this.userEmail = user.getEmail();
         }
     }
-    
+
     // Getters and Setters
     public UUID getId() {
         return id;
@@ -67,7 +81,23 @@ public class ReservationResponse {
     public void setUserKeycloakId(String userKeycloakId) {
         this.userKeycloakId = userKeycloakId;
     }
-    
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
     public UUID getBookId() {
         return bookId;
     }
@@ -91,7 +121,15 @@ public class ReservationResponse {
     public void setBookAuthor(String bookAuthor) {
         this.bookAuthor = bookAuthor;
     }
-    
+
+    public String getBookIsbn() {
+        return bookIsbn;
+    }
+
+    public void setBookIsbn(String bookIsbn) {
+        this.bookIsbn = bookIsbn;
+    }
+
     public ReservationStatus getStatus() {
         return status;
     }
@@ -145,9 +183,11 @@ public class ReservationResponse {
         return "ReservationResponse{" +
                 "id=" + id +
                 ", userKeycloakId='" + userKeycloakId + '\'' +
+                ", userName='" + userName + '\'' +
                 ", bookId=" + bookId +
                 ", bookTitle='" + bookTitle + '\'' +
                 ", bookAuthor='" + bookAuthor + '\'' +
+                ", bookIsbn='" + bookIsbn + '\'' +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

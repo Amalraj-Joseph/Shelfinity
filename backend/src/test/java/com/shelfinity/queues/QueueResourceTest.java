@@ -25,8 +25,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.shelfinity.books.Book;
+import com.shelfinity.books.BookRepository;
 import com.shelfinity.queues.dto.requests.CreateQueueItemRequest;
 import com.shelfinity.queues.dto.requests.UpdateQueueItemRequest;
+import com.shelfinity.queues.dto.responses.QueueItemResponse;
 import com.shelfinity.security.JwtUtil;
 import com.shelfinity.users.User;
 import com.shelfinity.users.UserRepository;
@@ -44,6 +47,7 @@ class QueueResourceTest {
     @Mock private QueueRepository queueRepository;
     @Mock private JwtUtil jwtUtil;
     @Mock private UserRepository userRepository;
+    @Mock private BookRepository bookRepository;
     @Mock private QueueApprovalService queueApprovalService;
 
     @InjectMocks
@@ -327,6 +331,32 @@ class QueueResourceTest {
         Response response = queueResource.getQueueItemById(id.toString());
 
         assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    // UI identifiers must be human-readable (book title/ISBN, user name/email)
+    // alongside the raw UUIDs, not raw UUIDs alone — see QueueItemResponse.
+    @Test
+    void getQueueItemById_resolvesBookAndUserForDisplay() {
+        UUID id = UUID.randomUUID();
+        UUID bookId = UUID.randomUUID();
+        QueueItem item = new QueueItem(QueueType.BOOK_BORROW, "kc-1", bookId, "desc");
+        when(queueRepository.findById(id)).thenReturn(Optional.of(item));
+
+        Book book = new Book();
+        book.setTitle("Clean Code");
+        book.setIsbn("978-0132350884");
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        User user = new User("kc-1", "alice@shelfinity.com", "Alice");
+        when(userRepository.findByKeycloakId("kc-1")).thenReturn(Optional.of(user));
+
+        Response response = queueResource.getQueueItemById(id.toString());
+
+        QueueItemResponse body = (QueueItemResponse) response.getEntity();
+        assertThat(body.getBookTitle()).isEqualTo("Clean Code");
+        assertThat(body.getBookIsbn()).isEqualTo("978-0132350884");
+        assertThat(body.getUserName()).isEqualTo("Alice");
+        assertThat(body.getUserEmail()).isEqualTo("alice@shelfinity.com");
     }
 
     // ---- getMyQueueItems ----------------------------------------------------

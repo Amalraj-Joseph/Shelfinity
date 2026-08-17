@@ -13,6 +13,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { DataGrid } from '@mui/x-data-grid';
 import { reservations as reservationsApi, ApiError } from '../../api/client';
+import IdentityCell from '../../components/IdentityCell';
 
 const STATUS_COLOR = { ACTIVE: 'info', NOTIFIED: 'success', FULFILLED: 'default', CANCELLED: 'default', EXPIRED: 'default' };
 
@@ -44,8 +45,14 @@ export default function AdminReservationsPage() {
   };
 
   const columns = [
-    { field: 'bookTitle', headerName: 'Book', flex: 1, minWidth: 180 },
-    { field: 'userKeycloakId', headerName: 'User', width: 220 },
+    {
+      field: 'bookTitle', headerName: 'Book', flex: 1, minWidth: 200,
+      renderCell: (p) => <IdentityCell primary={p.row.bookTitle} secondary={p.row.bookIsbn} id={p.row.bookId} />,
+    },
+    {
+      field: 'userName', headerName: 'User', width: 220,
+      renderCell: (p) => <IdentityCell primary={p.row.userName} secondary={p.row.userEmail} id={p.row.userKeycloakId} />,
+    },
     {
       field: 'status', headerName: 'Status', width: 130,
       renderCell: (p) => <Chip size="small" label={p.value} color={STATUS_COLOR[p.value]} />,

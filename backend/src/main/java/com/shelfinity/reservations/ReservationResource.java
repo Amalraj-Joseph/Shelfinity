@@ -75,6 +75,14 @@ public class ReservationResource {
     @ConfigProperty(name = "reservation.expiry.days", defaultValue = "7")
     private int reservationExpiryDays;
 
+    // Resolves the user relation so responses carry a human-readable name/email
+    // alongside the raw UUID, matching the book title/author already resolved
+    // by the ReservationResponse(Reservation, Book) constructor.
+    private ReservationResponse toResponse(Reservation reservation, Book book) {
+        User user = userRepository.findByKeycloakId(reservation.getUserKeycloakId()).orElse(null);
+        return new ReservationResponse(reservation, book, user);
+    }
+
     /**
      * Create a new reservation.
      */
@@ -167,7 +175,7 @@ public class ReservationResource {
             book.get().getTitle()
         );
         
-        ReservationResponse response = new ReservationResponse(savedReservation, book.get());
+        ReservationResponse response = toResponse(savedReservation, book.get());
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
     
@@ -209,10 +217,7 @@ public class ReservationResource {
         
         List<Reservation> reservations = reservationRepository.findAll();
         List<ReservationResponse> responses = reservations.stream()
-                .map(r -> {
-                    Optional<Book> book = bookRepository.findById(r.getBookId());
-                    return new ReservationResponse(r, book.orElse(null));
-                })
+                .map(r -> toResponse(r, bookRepository.findById(r.getBookId()).orElse(null)))
                 .collect(Collectors.toList());
         
         return Response.ok(responses).build();
@@ -257,10 +262,7 @@ public class ReservationResource {
         
         List<Reservation> reservations = reservationRepository.findByUserKeycloakId(userInfo.get().getKeycloakId());
         List<ReservationResponse> responses = reservations.stream()
-                .map(r -> {
-                    Optional<Book> book = bookRepository.findById(r.getBookId());
-                    return new ReservationResponse(r, book.orElse(null));
-                })
+                .map(r -> toResponse(r, bookRepository.findById(r.getBookId()).orElse(null)))
                 .collect(Collectors.toList());
         
         return Response.ok(responses).build();
