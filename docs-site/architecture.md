@@ -1,6 +1,7 @@
 ---
 title: Architecture
 description: Service topology, technology stack, and the data model behind Shelfinity.
+permalink: /architecture/
 ---
 
 # Architecture
