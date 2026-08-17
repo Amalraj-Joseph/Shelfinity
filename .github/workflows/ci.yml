@@ -81,6 +81,16 @@ jobs:
           docker compose -f docker/docker-compose.yml logs
           exit 1
 
+      # docker/seed-data.sql is intentionally not wired into Postgres's
+      # docker-entrypoint-initdb.d (see the file's own header): the
+      # users/books/queue_items/reservations tables only exist once the
+      # backend has run its JPA schema generation, which happens after
+      # this step. The critical-path e2e spec logs in as the seeded
+      # jane.smith/admin accounts and expects the seeded book catalog, so
+      # this must run before Playwright does.
+      - name: Seed demo data
+        run: docker exec -i shelfinity-postgres psql -U shelfinity -d shelfinity < docker/seed-data.sql
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
