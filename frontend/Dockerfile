@@ -1,5 +1,9 @@
 # Multi-stage build for React app
-FROM node:18-alpine AS build
+# Node 20, matching CI (.github/workflows/ci.yml) — serialize-javascript's
+# patched line (fixing GHSA-5c6j-r48x-rmvq, an RCE) requires Node >=20 as of
+# every 7.x release, so this can't stay on 18 once that override is applied
+# (see package.json's "overrides").
+FROM node:20-alpine AS build
 
 # Set working directory
 WORKDIR /app

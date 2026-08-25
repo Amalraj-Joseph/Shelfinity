@@ -21,6 +21,11 @@
   "devDependencies": {
     "@playwright/test": "1.48.2"
   },
+  "overrides": {
+    "svgo": "2.8.4",
+    "postcss": "8.5.26",
+    "serialize-javascript": "7.1.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
