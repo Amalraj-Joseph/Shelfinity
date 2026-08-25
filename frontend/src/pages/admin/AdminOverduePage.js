@@ -6,25 +6,15 @@
  */
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
+import Skeleton from '@mui/material/Skeleton';
 import { DataGrid } from '@mui/x-data-grid';
 import { overdue as overdueApi } from '../../api/client';
 import IdentityCell from '../../components/IdentityCell';
-
-function StatBlock({ label, value }) {
-  return (
-    <Card>
-      <CardContent>
-        <Typography variant="h4" fontWeight={700}>{value}</Typography>
-        <Typography variant="body2" color="text.secondary">{label}</Typography>
-      </CardContent>
-    </Card>
-  );
-}
+import PageHeader from '../../components/PageHeader';
+import FigureBlock from '../../components/FigureBlock';
+import StatusTag from '../../components/StatusTag';
+import { dataGridSx } from '../../components/DataTableShell';
+import { loanStatusInfo } from '../../statusVocabulary';
 
 export default function AdminOverduePage() {
   const [rows, setRows] = useState([]);
@@ -46,7 +36,7 @@ export default function AdminOverduePage() {
 
   const columns = [
     {
-      field: 'userName', headerName: 'User', width: 220,
+      field: 'userName', headerName: 'Member', width: 220,
       renderCell: (p) => <IdentityCell primary={p.row.userName} secondary={p.row.userEmail} id={p.row.userKeycloakId} />,
     },
     {
@@ -54,44 +44,56 @@ export default function AdminOverduePage() {
       renderCell: (p) => <IdentityCell primary={p.row.bookTitle} secondary={p.row.bookIsbn} id={p.row.bookId} />,
     },
     {
-      field: 'dueDate', headerName: 'Due Date', width: 180,
+      field: 'dueDate', headerName: 'Due date', width: 150,
       valueFormatter: (p) => p.value ? new Date(p.value).toLocaleDateString() : '—',
     },
     {
-      field: 'status', headerName: 'Status', width: 130,
-      renderCell: () => <Chip size="small" label="OVERDUE" color="error" />,
+      field: 'status', headerName: 'Status', width: 160,
+      renderCell: (p) => {
+        const status = loanStatusInfo(p.row.dueDate);
+        return <StatusTag label={status.label} variant={status.variant} />;
+      },
     },
   ];
 
+  if (loading) {
+    return (
+      <Box>
+        <Skeleton width={260} height={48} sx={{ mb: 1 }} />
+        <Skeleton width={380} height={28} sx={{ mb: 3 }} />
+        <Skeleton height={2} sx={{ mb: 4 }} />
+        <Skeleton height={100} sx={{ mb: 3 }} />
+        <Skeleton height={300} />
+      </Box>
+    );
+  }
+
+  const answer = rows.length === 0
+    ? 'Nothing is overdue. The shelves are square.'
+    : `${stats.totalOverdueItems} book${stats.totalOverdueItems === 1 ? '' : 's'} overdue, ${stats.averageDaysOverdue.toFixed(1)} days late on average.`;
+
   return (
     <Box>
-      <Typography variant="h4" fontWeight={700} mb={0.5}>Overdue Books</Typography>
-      <Typography variant="body1" color="text.secondary" mb={3}>
-        Books past their due date and library-wide overdue statistics.
-      </Typography>
+      <PageHeader title="Overdue" answer={answer} />
 
-      {stats && (
-        <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} sm={4}>
-            <StatBlock label="Overdue items" value={stats.totalOverdueItems} />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <StatBlock label="Total days overdue" value={stats.totalDaysOverdue} />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <StatBlock label="Average days overdue" value={stats.averageDaysOverdue.toFixed(1)} />
-          </Grid>
-        </Grid>
+      {rows.length > 0 && (
+        <FigureBlock
+          items={[
+            { value: stats.totalOverdueItems, label: 'Overdue items' },
+            { value: stats.totalDaysOverdue, label: 'Total days overdue' },
+            { value: stats.averageDaysOverdue.toFixed(1), label: 'Average days overdue' },
+          ]}
+        />
       )}
 
-      <Box sx={{ height: 500, bgcolor: 'background.paper', borderRadius: 2 }}>
+      <Box sx={{ height: 500, mt: rows.length > 0 ? 3 : 0 }}>
         <DataGrid
           rows={rows}
           columns={columns}
-          loading={loading}
           disableRowSelectionOnClick
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           pageSizeOptions={[10, 25, 50]}
+          sx={dataGridSx}
         />
       </Box>
     </Box>

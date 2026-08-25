@@ -1,103 +1,103 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" font-family="Archivo, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
   <defs>
     <marker id="arrowM" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#9ea3c4"/>
+      <path d="M0,0 L10,5 L0,10 z" fill="#57606a"/>
     </marker>
     <marker id="arrowMv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/>
+      <path d="M0,0 L10,5 L0,10 z" fill="#ec3013"/>
     </marker>
   </defs>
 
-  <rect x="0" y="0" width="1000" height="660" rx="14" fill="#171c34" stroke="#262c4d" stroke-width="1.5"/>
+  <rect x="0" y="0" width="1000" height="660" fill="#eae9e9" stroke="#8c8686" stroke-width="1.5"/>
 
-  <text x="30" y="42" font-size="13" font-weight="700" fill="#e8e9f3">MULTI-CLOUD — one VM, three free tiers</text>
+  <text x="30" y="42" font-size="13" font-weight="800" fill="#201e1d">MULTI-CLOUD — one VM, three free tiers</text>
 
   <!-- Browser -->
-  <rect x="30" y="240" width="120" height="80" rx="9" fill="#0f1226" stroke="#3a4166" stroke-width="1.25"/>
-  <text x="90" y="275" text-anchor="middle" font-size="12.5" font-weight="600" fill="#e8e9f3">Browser</text>
-  <text x="90" y="293" text-anchor="middle" font-size="10" fill="#9ea3c4">React SPA</text>
+  <rect x="30" y="240" width="120" height="80" fill="#ffffff" stroke="#8c8686" stroke-width="1.25"/>
+  <text x="90" y="275" text-anchor="middle" font-size="12.5" font-weight="700" fill="#201e1d">Browser</text>
+  <text x="90" y="293" text-anchor="middle" font-size="10" fill="#6b6767">React SPA</text>
 
-  <line x1="150" y1="280" x2="192" y2="280" stroke="#9ea3c4" stroke-width="1.5" marker-end="url(#arrowM)"/>
-  <text x="171" y="268" text-anchor="middle" font-size="9.5" fill="#9ea3c4">HTTPS</text>
+  <line x1="150" y1="280" x2="192" y2="280" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrowM)"/>
+  <text x="171" y="268" text-anchor="middle" font-size="9.5" fill="#6b6767">HTTPS</text>
 
   <!-- Cloudflare zone -->
-  <rect x="194" y="128" width="200" height="290" rx="12" fill="rgba(243,128,32,0.07)" stroke="#f38020" stroke-width="1.5"/>
-  <text x="294" y="152" text-anchor="middle" font-size="11.5" font-weight="700" fill="#f38020">CLOUDFLARE</text>
-  <text x="294" y="167" text-anchor="middle" font-size="9.5" fill="#e8a679">free plan — edge</text>
+  <rect x="194" y="128" width="200" height="290" fill="#fff4ec" stroke="#f38020" stroke-width="1.5"/>
+  <text x="294" y="152" text-anchor="middle" font-size="11.5" font-weight="700" fill="#c8560e">CLOUDFLARE</text>
+  <text x="294" y="167" text-anchor="middle" font-size="9.5" fill="#8a5330">free plan — edge</text>
 
-  <rect x="212" y="184" width="164" height="60" rx="8" fill="#0f1226" stroke="#f38020" stroke-width="1.25"/>
-  <text x="294" y="207" text-anchor="middle" font-size="11" font-weight="600" fill="#e8e9f3">DNS + Universal SSL</text>
-  <text x="294" y="223" text-anchor="middle" font-size="9" fill="#9ea3c4">shelfinity-app.amalraj.dev</text>
+  <rect x="212" y="184" width="164" height="60" fill="#ffffff" stroke="#f38020" stroke-width="1.25"/>
+  <text x="294" y="207" text-anchor="middle" font-size="11" font-weight="700" fill="#201e1d">DNS + Universal SSL</text>
+  <text x="294" y="223" text-anchor="middle" font-size="9" fill="#6b6767">shelfinity-app.amalraj.dev</text>
 
-  <line x1="294" y1="244" x2="294" y2="264" stroke="#9ea3c4" stroke-width="1.25" marker-end="url(#arrowM)"/>
+  <line x1="294" y1="244" x2="294" y2="264" stroke="#57606a" stroke-width="1.25" marker-end="url(#arrowM)"/>
 
-  <rect x="212" y="266" width="164" height="60" rx="8" fill="#0f1226" stroke="#f38020" stroke-width="1.25"/>
-  <text x="294" y="289" text-anchor="middle" font-size="11" font-weight="600" fill="#e8e9f3">Cloudflare Tunnel</text>
-  <text x="294" y="305" text-anchor="middle" font-size="9" fill="#9ea3c4">cloudflared, outbound-only</text>
+  <rect x="212" y="266" width="164" height="60" fill="#ffffff" stroke="#f38020" stroke-width="1.25"/>
+  <text x="294" y="289" text-anchor="middle" font-size="11" font-weight="700" fill="#201e1d">Cloudflare Tunnel</text>
+  <text x="294" y="305" text-anchor="middle" font-size="9" fill="#6b6767">cloudflared, outbound-only</text>
 
-  <text x="294" y="360" text-anchor="middle" font-size="9.5" fill="#e8a679">no inbound port</text>
-  <text x="294" y="376" text-anchor="middle" font-size="9.5" fill="#e8a679">opened on the VM</text>
+  <text x="294" y="360" text-anchor="middle" font-size="9.5" fill="#8a5330">no inbound port</text>
+  <text x="294" y="376" text-anchor="middle" font-size="9.5" fill="#8a5330">opened on the VM</text>
 
-  <line x1="396" y1="280" x2="438" y2="280" stroke="#9ea3c4" stroke-width="1.5" marker-end="url(#arrowM)"/>
-  <text x="417" y="268" text-anchor="middle" font-size="9.5" fill="#9ea3c4">HTTP</text>
+  <line x1="396" y1="280" x2="438" y2="280" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrowM)"/>
+  <text x="417" y="268" text-anchor="middle" font-size="9.5" fill="#6b6767">HTTP</text>
 
   <!-- OCI zone -->
-  <rect x="440" y="78" width="260" height="400" rx="12" fill="rgba(199,70,52,0.07)" stroke="#e2665a" stroke-width="1.5"/>
-  <text x="470" y="102" font-size="11.5" font-weight="700" fill="#e2665a">ORACLE CLOUD INFRASTRUCTURE</text>
-  <text x="470" y="117" font-size="9.5" fill="#e0a39c">Always Free — 1 Compute VM</text>
+  <rect x="440" y="78" width="260" height="400" fill="#fdf1f0" stroke="#c74634" stroke-width="1.5"/>
+  <text x="470" y="102" font-size="11.5" font-weight="700" fill="#a53a2e">ORACLE CLOUD INFRASTRUCTURE</text>
+  <text x="470" y="117" font-size="9.5" fill="#a5675e">Always Free — 1 Compute VM</text>
 
-  <rect x="458" y="134" width="224" height="54" rx="8" fill="#0f1226" stroke="#e2665a" stroke-width="1.25"/>
-  <text x="570" y="155" text-anchor="middle" font-size="11" font-weight="600" fill="#e8e9f3">nginx</text>
-  <text x="570" y="171" text-anchor="middle" font-size="9.5" fill="#9ea3c4">static build + /api proxy</text>
+  <rect x="458" y="134" width="224" height="54" fill="#ffffff" stroke="#c74634" stroke-width="1.25"/>
+  <text x="570" y="155" text-anchor="middle" font-size="11" font-weight="700" fill="#201e1d">nginx</text>
+  <text x="570" y="171" text-anchor="middle" font-size="9.5" fill="#6b6767">static build + /api proxy</text>
 
-  <line x1="570" y1="188" x2="570" y2="206" stroke="#9ea3c4" stroke-width="1.25" marker-end="url(#arrowM)"/>
+  <line x1="570" y1="188" x2="570" y2="206" stroke="#57606a" stroke-width="1.25" marker-end="url(#arrowM)"/>
 
-  <rect x="458" y="208" width="224" height="58" rx="8" fill="#0f1226" stroke="#e2665a" stroke-width="1.25"/>
-  <text x="570" y="230" text-anchor="middle" font-size="11" font-weight="600" fill="#e8e9f3">Open Liberty</text>
-  <text x="570" y="246" text-anchor="middle" font-size="9.5" fill="#9ea3c4">native, systemd-managed</text>
+  <rect x="458" y="208" width="224" height="58" fill="#ffffff" stroke="#c74634" stroke-width="1.25"/>
+  <text x="570" y="230" text-anchor="middle" font-size="11" font-weight="700" fill="#201e1d">Open Liberty</text>
+  <text x="570" y="246" text-anchor="middle" font-size="9.5" fill="#6b6767">native, systemd-managed</text>
 
-  <rect x="458" y="362" width="224" height="96" rx="8" fill="#0f1226" stroke="#7c8cff" stroke-width="1.25" stroke-dasharray="4 3"/>
-  <text x="570" y="384" text-anchor="middle" font-size="11" font-weight="600" fill="#e8e9f3">OCI Vault</text>
-  <text x="570" y="401" text-anchor="middle" font-size="9.5" fill="#9ea3c4">DB creds, App ID config,</text>
-  <text x="570" y="416" text-anchor="middle" font-size="9.5" fill="#9ea3c4">email encryption key</text>
-  <text x="570" y="435" text-anchor="middle" font-size="9" fill="#a5b0ff">via Instance Principals</text>
-  <text x="570" y="449" text-anchor="middle" font-size="9" fill="#a5b0ff">(no credential file on disk)</text>
+  <rect x="458" y="362" width="224" height="96" fill="#ffffff" stroke="#ec3013" stroke-width="1.25" stroke-dasharray="4 3"/>
+  <text x="570" y="384" text-anchor="middle" font-size="11" font-weight="700" fill="#201e1d">OCI Vault</text>
+  <text x="570" y="401" text-anchor="middle" font-size="9.5" fill="#6b6767">DB creds, App ID config,</text>
+  <text x="570" y="416" text-anchor="middle" font-size="9.5" fill="#6b6767">email encryption key</text>
+  <text x="570" y="435" text-anchor="middle" font-size="9" fill="#ae1800">via Instance Principals</text>
+  <text x="570" y="449" text-anchor="middle" font-size="9" fill="#ae1800">(no credential file on disk)</text>
 
-  <line x1="570" y1="362" x2="570" y2="270" stroke="#7c8cff" stroke-width="1.25" stroke-dasharray="4 3" marker-end="url(#arrowMv)"/>
-  <text x="620" y="315" text-anchor="middle" font-size="9" fill="#a5b0ff">vault-bootstrap</text>
-  <text x="620" y="328" text-anchor="middle" font-size="9" fill="#a5b0ff">(startup only)</text>
+  <line x1="570" y1="362" x2="570" y2="270" stroke="#ec3013" stroke-width="1.25" stroke-dasharray="4 3" marker-end="url(#arrowMv)"/>
+  <text x="628" y="315" text-anchor="middle" font-size="9" fill="#ae1800">vault-bootstrap</text>
+  <text x="628" y="328" text-anchor="middle" font-size="9" fill="#ae1800">(startup only)</text>
 
-  <line x1="682" y1="196" x2="722" y2="196" stroke="#9ea3c4" stroke-width="1.5" marker-end="url(#arrowM)"/>
-  <text x="702" y="184" text-anchor="middle" font-size="9.5" fill="#9ea3c4">JDBC/SSL</text>
+  <line x1="682" y1="196" x2="722" y2="196" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrowM)"/>
+  <text x="702" y="184" text-anchor="middle" font-size="9.5" fill="#6b6767">JDBC/SSL</text>
 
-  <line x1="682" y1="235" x2="722" y2="235" stroke="#9ea3c4" stroke-width="1.5" marker-end="url(#arrowM)"/>
-  <text x="702" y="253" text-anchor="middle" font-size="9.5" fill="#9ea3c4">OIDC</text>
+  <line x1="682" y1="235" x2="722" y2="235" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrowM)"/>
+  <text x="702" y="253" text-anchor="middle" font-size="9.5" fill="#6b6767">OIDC</text>
 
   <!-- IBM Cloud zone -->
-  <rect x="724" y="128" width="246" height="290" rx="12" fill="rgba(69,137,255,0.08)" stroke="#4589ff" stroke-width="1.5"/>
-  <text x="754" y="152" font-size="11.5" font-weight="700" fill="#78a9ff">IBM CLOUD</text>
-  <text x="754" y="167" font-size="9.5" fill="#a9c4ff">Lite plans — managed services</text>
+  <rect x="724" y="128" width="246" height="290" fill="#edf3ff" stroke="#0f62fe" stroke-width="1.5"/>
+  <text x="754" y="152" font-size="11.5" font-weight="700" fill="#0043ce">IBM CLOUD</text>
+  <text x="754" y="167" font-size="9.5" fill="#3d6fc4">Lite plans — managed services</text>
 
-  <rect x="742" y="184" width="210" height="58" rx="8" fill="#0f1226" stroke="#4589ff" stroke-width="1.25"/>
-  <text x="847" y="207" text-anchor="middle" font-size="11" font-weight="600" fill="#e8e9f3">Db2 on Cloud</text>
-  <text x="847" y="223" text-anchor="middle" font-size="9.5" fill="#9ea3c4">managed relational database</text>
+  <rect x="742" y="184" width="210" height="58" fill="#ffffff" stroke="#0f62fe" stroke-width="1.25"/>
+  <text x="847" y="207" text-anchor="middle" font-size="11" font-weight="700" fill="#201e1d">Db2 on Cloud</text>
+  <text x="847" y="223" text-anchor="middle" font-size="9.5" fill="#6b6767">managed relational database</text>
 
-  <rect x="742" y="256" width="210" height="58" rx="8" fill="#0f1226" stroke="#4589ff" stroke-width="1.25"/>
-  <text x="847" y="279" text-anchor="middle" font-size="11" font-weight="600" fill="#e8e9f3">App ID</text>
-  <text x="847" y="295" text-anchor="middle" font-size="9.5" fill="#9ea3c4">Authorization Code + PKCE</text>
+  <rect x="742" y="256" width="210" height="58" fill="#ffffff" stroke="#0f62fe" stroke-width="1.25"/>
+  <text x="847" y="279" text-anchor="middle" font-size="11" font-weight="700" fill="#201e1d">App ID</text>
+  <text x="847" y="295" text-anchor="middle" font-size="9.5" fill="#6b6767">Authorization Code + PKCE</text>
 
-  <text x="847" y="358" text-anchor="middle" font-size="9.5" fill="#a9c4ff">reached over the public internet</text>
-  <text x="847" y="374" text-anchor="middle" font-size="9.5" fill="#a9c4ff">from the OCI VM, TLS-verified</text>
-  <text x="847" y="390" text-anchor="middle" font-size="9.5" fill="#a9c4ff">against a bundled CA truststore</text>
+  <text x="847" y="358" text-anchor="middle" font-size="9.5" fill="#3d6fc4">reached over the public internet</text>
+  <text x="847" y="374" text-anchor="middle" font-size="9.5" fill="#3d6fc4">from the OCI VM, TLS-verified</text>
+  <text x="847" y="390" text-anchor="middle" font-size="9.5" fill="#3d6fc4">against a bundled CA truststore</text>
 
   <!-- legend -->
-  <line x1="440" y1="530" x2="480" y2="530" stroke="#9ea3c4" stroke-width="1.5" marker-end="url(#arrowM)"/>
-  <text x="490" y="534" font-size="11" fill="#9ea3c4">runtime request path</text>
+  <line x1="440" y1="530" x2="480" y2="530" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrowM)"/>
+  <text x="490" y="534" font-size="11" fill="#6b6767">runtime request path</text>
 
-  <line x1="660" y1="530" x2="700" y2="530" stroke="#7c8cff" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowMv)"/>
-  <text x="710" y="534" font-size="11" fill="#9ea3c4">secrets fetched once at startup</text>
+  <line x1="660" y1="530" x2="700" y2="530" stroke="#ec3013" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowMv)"/>
+  <text x="710" y="534" font-size="11" fill="#6b6767">secrets fetched once at startup</text>
 
-  <rect x="30" y="570" width="940" height="1" fill="#262c4d"/>
-  <text x="30" y="606" font-size="11.5" fill="#9ea3c4">Local dev (docker-compose) swaps this for Postgres + Keycloak on one machine — same backend WAR and React build either way.</text>
-  <text x="30" y="634" font-size="11" fill="#7c8cff" font-family="monospace">deploy/deploy-to-vm.sh  (dev machine)   +   deploy/vm-setup.sh  (on the VM)</text>
+  <rect x="30" y="570" width="940" height="2" fill="#8c8686"/>
+  <text x="30" y="606" font-size="11.5" fill="#6b6767">Local dev (docker-compose) swaps this for Postgres + Keycloak on one machine — same backend WAR and React build either way.</text>
+  <text x="30" y="634" font-size="11" fill="#ae1800" font-family="monospace">deploy/deploy-to-vm.sh  (dev machine)   +   deploy/vm-setup.sh  (on the VM)</text>
 </svg>

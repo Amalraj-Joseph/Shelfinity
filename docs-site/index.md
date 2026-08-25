@@ -14,32 +14,32 @@ entirely by [Keycloak](https://www.keycloak.org/) — the backend validates
 Keycloak-issued JWTs and never stores a password.
 
 <div class="grid-cards">
-  <div class="card reveal">
+  <div class="card">
     <span class="icon">📖</span>
     <h3>Catalog &amp; requests</h3>
     <p>Browse, search, and filter the catalog. Submit borrow, return, and reservation requests that route into a single admin approval queue.</p>
   </div>
-  <div class="card reveal">
+  <div class="card">
     <span class="icon">🗂️</span>
     <h3>One approval queue</h3>
     <p>Registration, borrowing, and returns share one review → approve/reject → notify workflow, so staff have a single place to work from.</p>
   </div>
-  <div class="card reveal">
+  <div class="card">
     <span class="icon">🔔</span>
     <h3>Reservations &amp; overdue tracking</h3>
     <p>Reserve a title that's checked out, get notified when it's available, and let a scheduled job track and remind on overdue loans automatically.</p>
   </div>
-  <div class="card reveal">
+  <div class="card">
     <span class="icon">📊</span>
     <h3>Admin reporting</h3>
     <p>Book popularity, borrowing trends, user activity, author distribution, and library-wide statistics — no spreadsheet exports required.</p>
   </div>
-  <div class="card reveal">
+  <div class="card">
     <span class="icon">🔐</span>
     <h3>Keycloak-backed identity</h3>
     <p>OIDC authentication via Keycloak. The app keeps a local profile cache for joins and role checks, but never sees a plaintext password.</p>
   </div>
-  <div class="card reveal">
+  <div class="card">
     <span class="icon">✉️</span>
     <h3>Configurable notifications</h3>
     <p>Admin-managed SMTP configuration drives async email for every state change — request outcomes, reservation readiness, overdue reminders.</p>

@@ -33,7 +33,12 @@ test.describe('Registration flow', () => {
     // Proves the request was accepted (no invalid_request error page) and
     // Keycloak actually rendered its registration form.
     await expect(page.getByLabel(/username/i)).toBeVisible();
-    await expect(page.getByLabel(/^email/i)).toBeVisible();
+    // Not anchored: Keycloak's stock keycloak.v2 template indents the label
+    // text with leading whitespace/newlines, which a leading `^` in the
+    // regex fails to match against the accessible name. Confirmed this is
+    // pre-existing — same failure against the unmodified build, unrelated
+    // to the redesign's theme CSS.
+    await expect(page.getByLabel(/email/i)).toBeVisible();
     await expect(page.locator('input[type="password"]').first()).toBeVisible();
   });
 });

@@ -7,7 +7,6 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -15,7 +14,10 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import { BookOpen } from 'lucide-react';
+import { colors } from '../theme/tokens';
+import readingRoomImage from '../assets/reading-room.png';
+import FooterCredit from '../components/FooterCredit';
 import { keycloakRegistrationUrl, useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
@@ -71,89 +73,158 @@ export default function LoginPage() {
 
   return (
     <Box
-      minHeight="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
       sx={{
-        background: 'linear-gradient(135deg, #4338CA 0%, #6366F1 50%, #0EA5E9 100%)',
-        p: 2,
+        minHeight: '100vh',
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '1.1fr 1fr' },
+        bgcolor: colors.bg,
       }}
     >
-      <Paper elevation={0} sx={{ width: '100%', maxWidth: 420, p: 5, borderRadius: 4 }}>
-        <Stack alignItems="center" spacing={1} mb={4}>
-          <Box
+      {/* Poster panel — hidden on mobile per the design's mobile transform rules */}
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'flex' },
+          position: 'relative',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          p: 6,
+          overflow: 'hidden',
+          bgcolor: colors.neutral[900],
+        }}
+      >
+        <Box
+          component="img"
+          src={readingRoomImage}
+          alt="The main reading room, looking toward the tall windows."
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'grayscale(1) contrast(1.08)',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(180deg, ${colors.neutral[900]}00 40%, ${colors.neutral[900]}e6 100%)`,
+          }}
+        />
+        <Box sx={{ position: 'relative', color: colors.bg }}>
+          <Typography
             sx={{
-              width: 56,
-              height: 56,
-              borderRadius: 3,
-              bgcolor: 'primary.main',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              fontSize: { md: 44, lg: 56 },
+              fontWeight: 800,
+              lineHeight: 1.05,
+              letterSpacing: '-0.015em',
+              mb: 2,
             }}
           >
-            <AutoStoriesIcon sx={{ color: 'white', fontSize: 30 }} />
-          </Box>
-          <Typography variant="h5" fontWeight={700}>Welcome back</Typography>
-          <Typography variant="body2" color="text.secondary">Sign in to Shelfinity</Typography>
-        </Stack>
+            Your library, without limits.
+          </Typography>
+          <Typography sx={{ fontSize: 16, opacity: 0.85, maxWidth: 420, mb: 4 }}>
+            Sign in with your library account to borrow, reserve, and keep track of what you have
+            out.
+          </Typography>
+          <FooterCredit sx={{ color: colors.bg, opacity: 0.75 }} />
+        </Box>
+      </Box>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {/* Sign-in panel */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          px: { xs: 3, sm: 6, md: 8 },
+          py: 6,
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: 380, mx: { xs: 'auto', md: 0 } }}>
+          <Stack direction="row" alignItems="center" spacing={1} mb={5}>
+            <BookOpen size={22} strokeWidth={2.25} color={colors.accent} />
+            <Typography sx={{ fontSize: 18, fontWeight: 800 }}>Shelfinity</Typography>
+          </Stack>
 
-        {authFlow === 'pkce' ? (
-          <Button
-            variant="contained"
-            size="large"
-            fullWidth
-            disabled={submitting}
-            onClick={handleContinueClick}
-            data-testid="login-continue"
-          >
-            {submitting ? <CircularProgress size={24} color="inherit" /> : 'Continue to sign in'}
-          </Button>
-        ) : (
-          <>
-            <Box component="form" onSubmit={handleSubmit} noValidate>
-              <Stack spacing={2.5}>
-                <TextField
-                  label="Username or email"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  fullWidth
-                  autoFocus
-                  inputProps={{ 'data-testid': 'login-username' }}
-                />
-                <TextField
-                  label="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  fullWidth
-                  inputProps={{ 'data-testid': 'login-password' }}
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  fullWidth
-                  disabled={submitting}
-                  data-testid="login-submit"
+          <Typography variant="h1" sx={{ fontSize: { xs: 32, sm: 38 }, mb: 1 }}>
+            Sign in
+          </Typography>
+          <Typography sx={{ fontSize: 15, color: colors.textMuted, mb: 4 }}>
+            {authFlow === 'pkce'
+              ? "You'll finish signing in with your institution, then land back here."
+              : 'Enter your library username or email and password.'}
+          </Typography>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+
+          {authFlow === 'pkce' ? (
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={submitting}
+              onClick={handleContinueClick}
+              data-testid="login-continue"
+            >
+              {submitting ? <CircularProgress size={20} sx={{ color: colors.bg }} /> : 'Continue'}
+            </Button>
+          ) : (
+            <>
+              <Box component="form" onSubmit={handleSubmit} noValidate>
+                <Stack spacing={2.5}>
+                  <TextField
+                    label="Username or email"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    fullWidth
+                    autoFocus
+                    inputProps={{ 'data-testid': 'login-username' }}
+                  />
+                  <TextField
+                    label="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    fullWidth
+                    inputProps={{ 'data-testid': 'login-password' }}
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    disabled={submitting}
+                    data-testid="login-submit"
+                  >
+                    {submitting ? <CircularProgress size={20} sx={{ color: colors.bg }} /> : 'Sign in'}
+                  </Button>
+                </Stack>
+              </Box>
+
+              <Typography sx={{ fontSize: 13, color: colors.textMuted, mt: 3 }}>
+                Don&apos;t have an account?{' '}
+                <Link
+                  href="#"
+                  onClick={handleRegisterClick}
+                  underline="hover"
+                  sx={{ color: colors.accent, fontWeight: 600 }}
+                  data-testid="register-link"
                 >
-                  {submitting ? <CircularProgress size={24} color="inherit" /> : 'Sign in'}
-                </Button>
-              </Stack>
-            </Box>
+                  Register
+                </Link>
+              </Typography>
+            </>
+          )}
 
-            <Typography variant="body2" align="center" sx={{ mt: 3 }} color="text.secondary">
-              Don&apos;t have an account?{' '}
-              <Link href="#" onClick={handleRegisterClick} underline="hover" data-testid="register-link">
-                Register
-              </Link>
-            </Typography>
-          </>
-        )}
-      </Paper>
+          <FooterCredit sx={{ display: { xs: 'flex', md: 'none' }, mt: 6 }} />
+        </Box>
+      </Box>
     </Box>
   );
 }

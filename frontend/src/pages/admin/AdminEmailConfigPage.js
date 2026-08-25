@@ -9,9 +9,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -21,14 +18,14 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNewOutlined';
-import SendIcon from '@mui/icons-material/SendOutlined';
+import Skeleton from '@mui/material/Skeleton';
+import { Plus, Pencil, Trash2, Power, Send } from 'lucide-react';
 import { emailConfig as emailConfigApi, ApiError } from '../../api/client';
+import PageHeader from '../../components/PageHeader';
+import StatusTag from '../../components/StatusTag';
+import EmptyState from '../../components/EmptyState';
+import Toast from '../../components/Toast';
+import { colors } from '../../theme/tokens';
 
 const EMPTY_FORM = {
   smtpHost: '', smtpPort: 587, senderEmail: '', senderName: '', username: '', password: '',
@@ -81,11 +78,11 @@ export default function AdminEmailConfigPage() {
       } else {
         await emailConfigApi.save(payload);
       }
-      setToast({ severity: 'success', message: 'Email configuration saved' });
+      setToast({ severity: 'success', message: 'Email configuration saved.' });
       setFormOpen(false);
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Failed to save configuration';
+      const message = err instanceof ApiError ? err.message : 'Failed to save configuration.';
       setToast({ severity: 'error', message });
     }
   };
@@ -93,97 +90,117 @@ export default function AdminEmailConfigPage() {
   const activate = async (id) => {
     try {
       await emailConfigApi.activate(id);
-      setToast({ severity: 'success', message: 'Configuration activated' });
+      setToast({ severity: 'success', message: 'Configuration activated.' });
       load();
     } catch (err) {
-      setToast({ severity: 'error', message: err instanceof ApiError ? err.message : 'Failed to activate' });
+      setToast({ severity: 'error', message: err instanceof ApiError ? err.message : 'Failed to activate.' });
     }
   };
 
   const remove = async (id) => {
     try {
       await emailConfigApi.remove(id);
-      setToast({ severity: 'success', message: 'Configuration deleted' });
+      setToast({ severity: 'success', message: 'Configuration deleted.' });
       load();
     } catch (err) {
-      setToast({ severity: 'error', message: err instanceof ApiError ? err.message : 'Failed to delete' });
+      setToast({ severity: 'error', message: err instanceof ApiError ? err.message : 'Failed to delete.' });
     }
   };
 
   const sendTest = async () => {
     try {
       await emailConfigApi.test(testEmail);
-      setToast({ severity: 'success', message: 'Test email sent' });
+      setToast({ severity: 'success', message: 'Test email sent.' });
       setTestOpen(false);
     } catch (err) {
-      setToast({ severity: 'error', message: err instanceof ApiError ? err.message : 'Test email failed' });
+      setToast({ severity: 'error', message: err instanceof ApiError ? err.message : 'Test email failed.' });
     }
   };
 
+  const activeConfig = configs.find((c) => c.active);
+
+  if (loading) {
+    return (
+      <Box>
+        <Skeleton width={320} height={48} sx={{ mb: 1 }} />
+        <Skeleton width={420} height={28} sx={{ mb: 3 }} />
+        <Skeleton height={2} sx={{ mb: 4 }} />
+        <Skeleton height={140} />
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Box>
-          <Typography variant="h4" fontWeight={700}>Email Configuration</Typography>
-          <Typography variant="body1" color="text.secondary">Manage SMTP settings used for notification emails.</Typography>
-        </Box>
-        <Stack direction="row" spacing={1}>
-          <Button variant="outlined" startIcon={<SendIcon />} onClick={() => setTestOpen(true)}>Send Test Email</Button>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>Add Configuration</Button>
-        </Stack>
-      </Stack>
+      <PageHeader
+        title="Email & notifications"
+        answer={activeConfig
+          ? `Email is set up through ${activeConfig.smtpHost} and active.`
+          : "Email isn't set up, so members aren't being told when a hold is ready."}
+        actions={
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+            <Button variant="outlined" startIcon={<Send size={16} />} onClick={() => setTestOpen(true)}>Send test email</Button>
+            <Button variant="contained" startIcon={<Plus size={16} />} onClick={openCreate}>Add configuration</Button>
+          </Stack>
+        }
+      />
 
-      {!loading && configs.length === 0 && (
-        <Typography color="text.secondary">No email configuration set up yet.</Typography>
-      )}
-
-      <Grid container spacing={3}>
-        {configs.map((config) => (
-          <Grid item xs={12} md={6} key={config.id}>
-            <Card>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+      {configs.length === 0 ? (
+        <EmptyState
+          headline="No email configuration yet"
+          description="Add an SMTP configuration so members get notified about holds, approvals, and overdue reminders."
+        />
+      ) : (
+        <Grid container spacing={3}>
+          {configs.map((config) => (
+            <Grid item xs={12} md={6} key={config.id}>
+              <Box sx={{ border: `1px solid ${colors.divider}`, bgcolor: colors.surface, p: 2.5 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1}>
                   <Box>
-                    <Typography variant="subtitle1" fontWeight={700}>{config.smtpHost}:{config.smtpPort}</Typography>
-                    <Typography variant="body2" color="text.secondary">{config.senderEmail}</Typography>
+                    <Typography sx={{ fontSize: 16, fontWeight: 800 }}>{config.smtpHost}:{config.smtpPort}</Typography>
+                    <Typography sx={{ fontSize: 13, color: colors.textMuted }}>{config.senderEmail}</Typography>
                   </Box>
-                  <Chip size="small" label={config.active ? 'Active' : 'Inactive'} color={config.active ? 'success' : 'default'} />
+                  <StatusTag label={config.active ? 'Active' : 'Inactive'} variant={config.active ? 'neutral' : 'outline'} />
                 </Stack>
                 <Stack direction="row" spacing={1} mt={1}>
-                  {config.useTls && <Chip size="small" label="TLS" variant="outlined" />}
-                  {config.useSsl && <Chip size="small" label="SSL" variant="outlined" />}
-                  {config.hasPassword && <Chip size="small" label="Password set" variant="outlined" />}
+                  {config.useTls && <StatusTag label="TLS" variant="outline" />}
+                  {config.useSsl && <StatusTag label="SSL" variant="outline" />}
+                  {config.hasPassword && <StatusTag label="Password set" variant="outline" />}
                 </Stack>
-                <Stack direction="row" spacing={1} mt={2}>
+                <Stack direction="row" spacing={0.5} mt={2} alignItems="center">
                   {!config.active && (
-                    <Button size="small" startIcon={<PowerSettingsNewIcon />} onClick={() => activate(config.id)}>
+                    <Button size="small" startIcon={<Power size={14} />} onClick={() => activate(config.id)}>
                       Activate
                     </Button>
                   )}
-                  <IconButton size="small" onClick={() => openEdit(config)}><EditIcon fontSize="small" /></IconButton>
-                  <IconButton size="small" color="error" onClick={() => remove(config.id)}><DeleteIcon fontSize="small" /></IconButton>
+                  <IconButton size="small" onClick={() => openEdit(config)} aria-label="Edit configuration">
+                    <Pencil size={16} />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => remove(config.id)} aria-label="Delete configuration">
+                    <Trash2 size={16} />
+                  </IconButton>
                 </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      )}
 
       <Dialog open={formOpen} onClose={() => setFormOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{editingId ? 'Edit Configuration' : 'Add Configuration'}</DialogTitle>
+        <DialogTitle>{editingId ? 'Edit configuration' : 'Add configuration'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} mt={0.5}>
             <Grid item xs={8}>
-              <TextField label="SMTP Host" fullWidth value={form.smtpHost} onChange={(e) => setForm({ ...form, smtpHost: e.target.value })} />
+              <TextField label="SMTP host" fullWidth value={form.smtpHost} onChange={(e) => setForm({ ...form, smtpHost: e.target.value })} />
             </Grid>
             <Grid item xs={4}>
               <TextField label="Port" type="number" fullWidth value={form.smtpPort} onChange={(e) => setForm({ ...form, smtpPort: e.target.value })} />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Sender Email" fullWidth value={form.senderEmail} onChange={(e) => setForm({ ...form, senderEmail: e.target.value })} />
+              <TextField label="Sender email" fullWidth value={form.senderEmail} onChange={(e) => setForm({ ...form, senderEmail: e.target.value })} />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Sender Name" fullWidth value={form.senderName} onChange={(e) => setForm({ ...form, senderName: e.target.value })} />
+              <TextField label="Sender name" fullWidth value={form.senderName} onChange={(e) => setForm({ ...form, senderName: e.target.value })} />
             </Grid>
             <Grid item xs={6}>
               <TextField label="Username" fullWidth value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
@@ -215,7 +232,7 @@ export default function AdminEmailConfigPage() {
       </Dialog>
 
       <Dialog open={testOpen} onClose={() => setTestOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Send Test Email</DialogTitle>
+        <DialogTitle>Send test email</DialogTitle>
         <DialogContent>
           <TextField label="Send to" fullWidth value={testEmail} onChange={(e) => setTestEmail(e.target.value)} sx={{ mt: 1 }} />
         </DialogContent>
@@ -225,9 +242,7 @@ export default function AdminEmailConfigPage() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={Boolean(toast)} autoHideDuration={4000} onClose={() => setToast(null)}>
-        {toast && <Alert severity={toast.severity} onClose={() => setToast(null)}>{toast.message}</Alert>}
-      </Snackbar>
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </Box>
   );
 }

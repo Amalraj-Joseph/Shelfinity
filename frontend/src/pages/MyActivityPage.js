@@ -7,24 +7,21 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
+import Skeleton from '@mui/material/Skeleton';
 import { queues as queuesApi, reservations as reservationsApi, books as booksApi, ApiError } from '../api/client';
-
-const STATUS_COLOR = {
-  PENDING: 'warning', APPROVED: 'success', REJECTED: 'error',
-  ACTIVE: 'info', NOTIFIED: 'success', FULFILLED: 'default', CANCELLED: 'default', EXPIRED: 'default',
-};
+import PageHeader from '../components/PageHeader';
+import StatusTag from '../components/StatusTag';
+import DueMeter from '../components/DueMeter';
+import EmptyState from '../components/EmptyState';
+import Toast from '../components/Toast';
+import { TableShell, tableShellSx, tableRowSx } from '../components/DataTableShell';
+import { queueStatusInfo, reservationStatusInfo } from '../statusVocabulary';
 
 export default function MyActivityPage() {
   const [loading, setLoading] = useState(true);
@@ -66,10 +63,10 @@ export default function MyActivityPage() {
         bookId: item.bookId,
         description: `Return request for ${bookTitles[item.bookId] || 'book'}`,
       });
-      setToast({ severity: 'success', message: 'Return request submitted' });
+      setToast({ severity: 'success', message: 'Return request submitted.' });
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Something went wrong';
+      const message = err instanceof ApiError ? err.message : 'Something went wrong.';
       setToast({ severity: 'error', message });
     } finally {
       setBusyId(null);
@@ -80,10 +77,10 @@ export default function MyActivityPage() {
     setBusyId(reservation.id);
     try {
       await reservationsApi.cancel(reservation.id);
-      setToast({ severity: 'success', message: 'Reservation cancelled' });
+      setToast({ severity: 'success', message: 'Reservation cancelled.' });
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Something went wrong';
+      const message = err instanceof ApiError ? err.message : 'Something went wrong.';
       setToast({ severity: 'error', message });
     } finally {
       setBusyId(null);
@@ -93,62 +90,94 @@ export default function MyActivityPage() {
   const canRequestReturn = (item) => item.type === 'BOOK_BORROW' && item.status === 'APPROVED';
 
   if (loading) {
-    return <Box display="flex" justifyContent="center" mt={8}><CircularProgress /></Box>;
+    return (
+      <Box>
+        <Skeleton width={220} height={48} sx={{ mb: 1 }} />
+        <Skeleton width={360} height={28} sx={{ mb: 3 }} />
+        <Skeleton height={2} sx={{ mb: 4 }} />
+        <Skeleton height={160} sx={{ mb: 4 }} />
+        <Skeleton height={120} />
+      </Box>
+    );
   }
+
+  const dueSoonCount = queueItems.filter((q) => canRequestReturn(q) && q.dueDate).length;
+  const pendingCount = queueItems.filter((q) => q.status === 'PENDING').length;
+  const holdsWaiting = reservationList.filter((r) => r.status === 'ACTIVE' || r.status === 'NOTIFIED').length;
+  const answer = dueSoonCount > 0 || pendingCount > 0 || holdsWaiting > 0
+    ? [
+      dueSoonCount > 0 && `${dueSoonCount} book${dueSoonCount === 1 ? '' : 's'} out`,
+      pendingCount > 0 && `${pendingCount} request${pendingCount === 1 ? '' : 's'} waiting`,
+      holdsWaiting > 0 && `${holdsWaiting} on hold`,
+    ].filter(Boolean).join(', ') + '.'
+    : 'Nothing out, nothing waiting.';
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight={700} mb={3}>My Activity</Typography>
+      <PageHeader title="My Shelf" answer={answer.charAt(0).toUpperCase() + answer.slice(1)} />
 
-      <Card sx={{ mb: 4 }}>
-        <CardContent>
-          <Typography variant="h6" fontWeight={700} mb={2}>Borrow &amp; Return Requests</Typography>
-          {queueItems.length === 0 ? (
-            <Typography color="text.secondary" py={2}>No requests yet.</Typography>
-          ) : (
+      <Box sx={{ mb: 4 }}>
+        <Typography sx={{ fontSize: 20, fontWeight: 800, mb: 2 }}>Borrow &amp; return requests</Typography>
+        {queueItems.length === 0 ? (
+          <EmptyState
+            headline="Nothing requested yet"
+            description="Borrow a book from the catalogue and it'll show up here while the library reviews it."
+          />
+        ) : (
+          <TableShell sx={tableShellSx}>
             <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>Book</TableCell>
                   <TableCell>Type</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Due Date</TableCell>
+                  <TableCell>Due</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {queueItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{bookTitles[item.bookId] || '—'}</TableCell>
-                    <TableCell>{item.type.replace('_', ' ')}</TableCell>
-                    <TableCell><Chip size="small" label={item.status} color={STATUS_COLOR[item.status]} /></TableCell>
-                    <TableCell>{item.dueDate ? new Date(item.dueDate).toLocaleDateString() : '—'}</TableCell>
-                    <TableCell align="right">
-                      {canRequestReturn(item) && (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          disabled={busyId === item.id}
-                          onClick={() => requestReturn(item)}
-                        >
-                          Request Return
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {queueItems.map((item) => {
+                  const status = queueStatusInfo(item.status);
+                  return (
+                    <TableRow key={item.id} sx={tableRowSx}>
+                      <TableCell sx={{ fontWeight: 600 }}>{bookTitles[item.bookId] || '—'}</TableCell>
+                      <TableCell sx={{ textTransform: 'capitalize' }}>{item.type.replace('_', ' ').toLowerCase()}</TableCell>
+                      <TableCell><StatusTag label={status.label} variant={status.variant} /></TableCell>
+                      <TableCell>
+                        {canRequestReturn(item) && item.dueDate
+                          ? <DueMeter startDate={item.processedAt} dueDate={item.dueDate} />
+                          : '—'}
+                      </TableCell>
+                      <TableCell align="right">
+                        {canRequestReturn(item) && (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            disabled={busyId === item.id}
+                            onClick={() => requestReturn(item)}
+                          >
+                            Request return
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+          </TableShell>
+        )}
+      </Box>
 
-      <Card>
-        <CardContent>
-          <Typography variant="h6" fontWeight={700} mb={2}>Reservations</Typography>
-          {reservationList.length === 0 ? (
-            <Typography color="text.secondary" py={2}>No reservations yet.</Typography>
-          ) : (
+      <Box>
+        <Typography sx={{ fontSize: 20, fontWeight: 800, mb: 2 }}>Reservations</Typography>
+        {reservationList.length === 0 ? (
+          <EmptyState
+            headline="Nothing reserved yet"
+            description="Reserve any title that's all out and we'll hold a copy for you at the desk."
+          />
+        ) : (
+          <TableShell sx={tableShellSx}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -159,29 +188,35 @@ export default function MyActivityPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {reservationList.map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell>{r.bookTitle}</TableCell>
-                    <TableCell><Chip size="small" label={r.status} color={STATUS_COLOR[r.status]} /></TableCell>
-                    <TableCell>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : '—'}</TableCell>
-                    <TableCell align="right">
-                      {(r.status === 'ACTIVE' || r.status === 'NOTIFIED') && (
-                        <Button size="small" color="error" disabled={busyId === r.id} onClick={() => cancelReservation(r)}>
-                          Cancel
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {reservationList.map((r) => {
+                  const status = reservationStatusInfo(r.status);
+                  return (
+                    <TableRow key={r.id} sx={tableRowSx}>
+                      <TableCell sx={{ fontWeight: 600 }}>{r.bookTitle}</TableCell>
+                      <TableCell><StatusTag label={status.label} variant={status.variant} /></TableCell>
+                      <TableCell>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : '—'}</TableCell>
+                      <TableCell align="right">
+                        {(r.status === 'ACTIVE' || r.status === 'NOTIFIED') && (
+                          <Button
+                            size="small"
+                            disabled={busyId === r.id}
+                            onClick={() => cancelReservation(r)}
+                            sx={{ color: 'error.main' }}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+          </TableShell>
+        )}
+      </Box>
 
-      <Snackbar open={Boolean(toast)} autoHideDuration={4000} onClose={() => setToast(null)}>
-        {toast && <Alert severity={toast.severity} onClose={() => setToast(null)}>{toast.message}</Alert>}
-      </Snackbar>
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </Box>
   );
 }

@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/modernist-d002a679-24fc-4aac-86ac-6584311026d5/styles.css">
+<script src="_ds/modernist-d002a679-24fc-4aac-86ac-6584311026d5/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+body{margin:0;background:var(--color-neutral-300)}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent)}
+.dv-turn{padding:40px 44px 32px;border-bottom:2px solid var(--color-divider)}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--color-text);color:var(--color-bg);text-decoration:none}
+.dv-tname{font:800 14px/1.2 var(--font-heading);color:var(--color-text)}
+.dv-opts{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:color-mix(in srgb,var(--color-text) 12%,transparent);color:var(--color-text);text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px/1.3 var(--font-body);color:color-mix(in srgb,var(--color-text) 60%,transparent)}
+.dv-card{background:var(--color-bg);border:1px solid var(--color-divider);overflow:hidden;box-shadow:var(--shadow-md)}
+.dv-opt:target .dv-oid{background:var(--color-accent);color:var(--color-bg)}
+.dv-next{margin:22px 0 0;font:13px/1.5 var(--font-body);color:color-mix(in srgb,var(--color-text) 60%,transparent)}
+.nvi{display:flex;gap:10px;align-items:center;padding:9px 16px;border-left:3px solid transparent;color:var(--color-text);text-decoration:none;font-size:14px}
+.nvi:hover{background:color-mix(in srgb,var(--color-text) 6%,transparent)}
+.nvi[aria-current]{border-left-color:var(--color-accent);color:var(--color-accent);font-weight:600}
+.glab{padding:16px 16px 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);border-top:2px solid var(--color-divider);margin-top:14px}
+.ph1{font-size:42px;line-height:1.05;margin:0 0 8px}
+.ans{font-size:22px;line-height:1.3;font-family:var(--font-heading);font-weight:800;margin:0}
+.kick{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 8px;font-weight:600}
+.cov{flex:none;background:var(--color-neutral-200);border:1px solid var(--color-divider);display:flex;align-items:flex-end;padding:5px;font:800 9px/1.15 var(--font-heading)}
+.meter{height:4px;background:var(--color-neutral-300)}
+.mob{width:390px;height:812px;background:var(--color-bg);display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;border-top:2px solid var(--color-divider);background:var(--color-surface);margin-top:auto}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 14px;font-size:10px;border-top:2px solid transparent;margin-top:-2px;color:color-mix(in srgb,var(--color-text) 60%,transparent);text-decoration:none}
+.tab[aria-current]{border-top-color:var(--color-accent);color:var(--color-accent);font-weight:600}
+.srow{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--color-divider);align-items:flex-start}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Shelfinity rewritten on Modernist — web + mobile, member path first</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Sign in — web · one action, a real room, no gradient</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;height:700px">
+<div style="width:58%;position:relative;background:var(--color-neutral-800)">
+<image-slot id="signin-room" shape="rect" src="assets/reading-room.png" placeholder="Reading room, wide, from the door" class="grayscale"></image-slot>
+<div style="position:absolute;inset:0;padding:36px 44px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;background:linear-gradient(to bottom,color-mix(in srgb,#201e1d 50%,transparent),transparent 22%,color-mix(in srgb,#201e1d 82%,transparent) 62%)">
+<div style="display:flex;align-items:center;gap:10px;color:var(--color-bg)">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+<span style="font:800 19px var(--font-heading)">Shelfinity</span>
+</div>
+<div style="color:var(--color-bg);max-width:520px">
+<p style="font:800 52px/1.03 var(--font-heading);margin:0 0 10px;max-width:520px">Every book in this building, from wherever you are.</p>
+<p style="font-size:14px;margin:0;opacity:.85">Central Library · 103 titles · open until 8pm</p>
+</div>
+</div>
+</div>
+<div style="width:42%;padding:96px 64px 48px;display:flex;flex-direction:column">
+<h1 class="ph1" style="font-size:42px">Sign in</h1>
+<p style="font-size:15px;max-width:34ch;margin:0 0 28px">You'll finish signing in with your institution, then land straight back on your shelf.</p>
+<a class="btn btn-primary btn-block" href="#1c" style="margin:0 0 10px;padding:12px 16px">Continue</a>
+<a class="btn btn-secondary btn-block" href="#1c" style="margin:0 0 20px;padding:12px 16px;justify-content:flex-start">Sign in with your institution</a>
+<a class="btn btn-ghost" href="#1a" style="align-self:flex-start">Request a library card</a>
+<div style="margin-top:auto;border-top:2px solid var(--color-divider);padding-top:16px;display:flex;gap:28px;font-size:13px" class="text-muted">
+<span>Mon–Sat, 9–20</span><span>2 Church Street</span><span>01865 240 000</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Sign in — mobile</div>
+<div class="dv-card" style="width:390px">
+<div class="mob">
+<div style="height:300px;position:relative;flex:none;background:var(--color-neutral-800)">
+<image-slot id="signin-room-m" shape="rect" src="assets/reading-room.png" placeholder="Reading room" class="grayscale"></image-slot>
+<div style="position:absolute;inset:0;padding:20px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;background:linear-gradient(to bottom,color-mix(in srgb,#201e1d 45%,transparent),transparent 20%,color-mix(in srgb,#201e1d 84%,transparent) 58%)">
+<span style="font:800 17px var(--font-heading);color:var(--color-bg)">Shelfinity</span>
+<p style="font:800 29px/1.06 var(--font-heading);color:var(--color-bg);margin:0;max-width:300px">Every book in this building, from wherever you are.</p>
+</div>
+</div>
+<div style="padding:24px 20px;display:flex;flex-direction:column;gap:10px">
+<h1 style="font-size:32px;margin:0 0 4px">Sign in</h1>
+<p style="font-size:14px;margin:0 0 12px">You'll finish with your institution, then land back here.</p>
+<a class="btn btn-primary" href="#1d" style="padding:14px 16px;justify-content:flex-start">Continue</a>
+<a class="btn btn-secondary" href="#1d" style="padding:14px 16px;justify-content:flex-start">Sign in with your institution</a>
+<a class="btn btn-ghost" href="#1b" style="align-self:flex-start;padding:12px 0">Request a library card</a>
+</div>
+<div style="margin-top:auto;border-top:2px solid var(--color-divider);padding:14px 20px 22px;font-size:12px" class="text-muted">Central Library · open until 8pm · 01865 240 000</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Home — web · member rail (four items, no admin group)</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:925px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider);display:flex;flex-direction:column">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:10px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+<span style="font:800 18px var(--font-heading)">Shelfinity</span>
+</div>
+<div class="glab" style="border-top:0;margin-top:10px">My library</div>
+<nav style="display:flex;flex-direction:column;padding-bottom:10px">
+<a class="nvi" href="#1c" aria-current="page"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M9 22V12h6v10"></path></svg>Home</a>
+<a class="nvi" href="#1e"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>Browse</a>
+<a class="nvi" href="#1i"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>My shelf<span class="tag tag-accent" style="margin-left:auto">1 ready</span></a>
+<a class="nvi" href="#1c"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>Notifications</a>
+</nav>
+<div style="margin-top:auto;border-top:2px solid var(--color-divider);padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;gap:10px;align-items:center">
+<div style="width:34px;height:34px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font:800 14px var(--font-heading)">A</div>
+<div style="min-width:0"><div style="font-size:13px;font-weight:600">Amalraj Joseph</div><div style="font-size:11px" class="text-muted">Card 004 128 · member</div></div>
+</div>
+<a class="btn btn-ghost" href="#1a" style="align-self:flex-start;font-size:13px">Settings · Sign out</a>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="height:60px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:12px;padding:0 28px">
+<div style="flex:1;max-width:420px;display:flex;align-items:center;gap:8px;border:1px solid var(--color-divider);background:var(--color-surface);padding:7px 10px">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+<span style="font-size:14px" class="text-muted">Title, author, subject or ISBN</span>
+<span style="margin-left:auto;font-size:11px" class="text-muted">⌘K</span>
+</div>
+<span style="margin-left:auto"></span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+</div>
+<div style="padding:36px 40px;overflow:hidden">
+<p class="kick">Wednesday 25 August</p>
+<h1 class="ph1">Good afternoon, Amalraj</h1>
+<p class="ans" style="max-width:30ch">You have 3 books out. <span style="color:var(--color-accent-700)">1984 is due Friday.</span></p>
+<div class="hr" style="margin:24px 0 0"></div>
+<div style="display:grid;grid-template-columns:1fr 320px;gap:40px;margin-top:24px">
+<div>
+<h4 style="margin-bottom:4px">What you have out</h4>
+<div class="srow">
+<div class="cov" style="width:46px;height:69px">1984</div>
+<div style="flex:1;min-width:0">
+<div style="font:800 17px var(--font-heading)">1984</div>
+<div style="font-size:13px" class="text-muted">George Orwell · borrowed 11 August</div>
+<div class="meter" style="margin:10px 0 6px"><div style="width:82%;height:100%;background:var(--color-accent)"></div></div>
+<div style="font-size:13px">Due Friday — 3 days left</div>
+</div>
+<div style="display:flex;gap:8px;align-items:flex-start"><button class="btn btn-secondary">Renew</button><button class="btn btn-primary">Return</button></div>
+</div>
+<div class="srow">
+<div class="cov" style="width:46px;height:69px">Foundation</div>
+<div style="flex:1;min-width:0">
+<div style="font:800 17px var(--font-heading)">Foundation</div>
+<div style="font-size:13px" class="text-muted">Isaac Asimov · borrowed 18 August</div>
+<div class="meter" style="margin:10px 0 6px"><div style="width:38%;height:100%;background:var(--color-text)"></div></div>
+<div style="font-size:13px">Due 8 September — 14 days left</div>
+</div>
+<div style="display:flex;gap:8px;align-items:flex-start"><button class="btn btn-secondary">Renew</button><button class="btn btn-primary">Return</button></div>
+</div>
+<div class="srow" style="border-bottom:0">
+<div class="cov" style="width:46px;height:69px">A Brief History of Time</div>
+<div style="flex:1;min-width:0">
+<div style="font:800 17px var(--font-heading)">A Brief History of Time</div>
+<div style="font-size:13px" class="text-muted">Stephen Hawking · borrowed 20 August</div>
+<div class="meter" style="margin:10px 0 6px"><div style="width:24%;height:100%;background:var(--color-text)"></div></div>
+<div style="font-size:13px">Due 10 September — 16 days left</div>
+</div>
+<div style="display:flex;gap:8px;align-items:flex-start"><button class="btn btn-secondary">Renew</button><button class="btn btn-primary">Return</button></div>
+</div>
+</div>
+<div>
+<div style="border-left:3px solid var(--color-accent);padding:0 0 0 14px;margin-bottom:24px">
+<h4 style="margin-bottom:6px">Waiting for you</h4>
+<p style="font-size:14px;margin:0 0 8px"><strong>Dune</strong> is on the hold shelf at the front desk until <strong>Tuesday</strong>.</p>
+<a class="btn btn-ghost" href="#1g" style="padding-left:0">See the details</a>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:14px">
+<h4 style="margin-bottom:6px">Waiting on the library</h4>
+<p style="font-size:14px;margin:0">Your request for <strong>Animal Farm</strong> has been with a librarian since Monday. They usually answer within a day.</p>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:14px;margin-top:18px">
+<h4 style="margin-bottom:6px">Your card</h4>
+<p style="font-size:14px;margin:0" class="text-muted">004 128 · member since August 2026 · 3 of 6 loans used</p>
+</div>
+</div>
+</div>
+<div class="hr" style="margin:28px 0 18px"></div>
+<div style="display:flex;align-items:baseline;gap:12px"><h4 style="margin:0">Because you borrowed 1984</h4><a class="btn btn-ghost" href="#1e">See all 103 titles</a></div>
+<div style="display:flex;gap:16px;margin-top:14px">
+<div class="cov" style="width:96px;height:144px">Brave New World</div>
+<div class="cov" style="width:96px;height:144px">Fahrenheit 451</div>
+<div class="cov" style="width:96px;height:144px">We</div>
+<div class="cov" style="width:96px;height:144px">Animal Farm</div>
+<div class="cov" style="width:96px;height:144px">The Handmaid's Tale</div>
+<div class="cov" style="width:96px;height:144px">Never Let Me Go</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Home — mobile · four tabs, answer line first</div>
+<div class="dv-card" style="width:390px">
+<div class="mob">
+<div style="height:52px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;justify-content:space-between;padding:0 20px">
+<span style="font:800 17px var(--font-heading)">Shelfinity</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+</div>
+<div style="padding:20px 20px 0;overflow:hidden;flex:1">
+<h1 style="font-size:30px;margin:0 0 6px">Good afternoon, Amalraj</h1>
+<p style="font:800 18px/1.3 var(--font-heading);margin:0 0 16px">3 books out. <span style="color:var(--color-accent-700)">1984 is due Friday.</span></p>
+<div style="border-left:3px solid var(--color-accent);padding-left:12px;margin-bottom:18px">
+<p style="font-size:14px;margin:0"><strong>Dune</strong> is ready at the front desk until Tuesday.</p>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:12px">
+<h4 style="font-size:15px;margin-bottom:2px">Out now</h4>
+<div class="srow" style="padding:12px 0">
+<div class="cov" style="width:40px;height:60px">1984</div>
+<div style="flex:1;min-width:0">
+<div style="font:800 15px var(--font-heading)">1984</div>
+<div style="font-size:12px" class="text-muted">George Orwell</div>
+<div class="meter" style="margin:8px 0 5px"><div style="width:82%;height:100%;background:var(--color-accent)"></div></div>
+<div style="font-size:12px">Due Friday — 3 days left</div>
+</div>
+<button class="btn btn-primary" style="min-height:44px;align-self:center">Renew</button>
+</div>
+<div class="srow" style="padding:12px 0">
+<div class="cov" style="width:40px;height:60px">Foundation</div>
+<div style="flex:1;min-width:0">
+<div style="font:800 15px var(--font-heading)">Foundation</div>
+<div style="font-size:12px" class="text-muted">Isaac Asimov</div>
+<div class="meter" style="margin:8px 0 5px"><div style="width:38%;height:100%;background:var(--color-text)"></div></div>
+<div style="font-size:12px">Due 8 September</div>
+</div>
+<button class="btn btn-secondary" style="min-height:44px;align-self:center">Renew</button>
+</div>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:12px;margin-top:6px">
+<h4 style="font-size:15px;margin-bottom:8px">Back on the shelf</h4>
+<div style="display:flex;gap:12px;overflow:hidden">
+<div class="cov" style="width:84px;height:126px">Brave New World</div>
+<div class="cov" style="width:84px;height:126px">Fahrenheit 451</div>
+<div class="cov" style="width:84px;height:126px">We</div>
+</div>
+</div>
+</div>
+<div class="tabs">
+<a class="tab" href="#1d" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M9 22V12h6v10"></path></svg>Home</a>
+<a class="tab" href="#1f"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>Browse</a>
+<a class="tab" href="#1j"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>Shelf</a>
+<a class="tab" href="#1d"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16"></path><path d="M4 6h16"></path><path d="M4 18h16"></path></svg>More</a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Browse — web · covers carry the page, facets on the left</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:1060px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider);display:flex;flex-direction:column">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:10px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+<span style="font:800 18px var(--font-heading)">Shelfinity</span>
+</div>
+<div class="glab" style="border-top:0;margin-top:10px">My library</div>
+<nav style="display:flex;flex-direction:column">
+<a class="nvi" href="#1c">Home</a>
+<a class="nvi" href="#1e" aria-current="page">Browse</a>
+<a class="nvi" href="#1i">My shelf</a>
+<a class="nvi" href="#1c">Notifications</a>
+</nav>
+<div class="glab">Manage library</div>
+<nav style="display:flex;flex-direction:column">
+<a class="nvi" href="#1k">Desk<span class="tag tag-accent" style="margin-left:auto">4</span></a>
+<a class="nvi" href="#1l">Requests</a>
+<a class="nvi" href="#1k">Circulation</a>
+<a class="nvi" href="#1k">Catalogue</a>
+<a class="nvi" href="#1k">Holds</a>
+<a class="nvi" href="#1n">Overdue</a>
+<a class="nvi" href="#1k">Members</a>
+</nav>
+<div style="margin-top:auto;border-top:2px solid var(--color-divider);padding:14px 16px;display:flex;gap:10px;align-items:center">
+<div style="width:34px;height:34px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font:800 14px var(--font-heading)">A</div>
+<div><div style="font-size:13px;font-weight:600">Amalraj Joseph</div><div style="font-size:11px" class="text-muted"><span class="tag tag-outline">Admin</span></div></div>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="height:60px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:12px;padding:0 28px">
+<div style="flex:1;max-width:520px;display:flex;align-items:center;gap:8px;border:1px solid var(--color-divider);background:var(--color-surface);padding:7px 10px">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+<span style="font-size:14px" class="text-muted">Title, author, subject or ISBN</span>
+</div>
+</div>
+<div style="padding:32px 40px 0;overflow:hidden">
+<div style="display:flex;align-items:flex-end;justify-content:space-between">
+<div>
+<h1 class="ph1">Browse</h1>
+<p class="ans">103 titles. 97 on the shelf right now.</p>
+</div>
+<div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px" class="text-muted">Sort</span><span class="seg"><span class="seg-opt" style="background:var(--color-accent);color:var(--color-bg)">Relevance</span><span class="seg-opt">Newest</span><span class="seg-opt">Most borrowed</span></span></div>
+</div>
+<div class="hr" style="margin:22px 0"></div>
+<div style="display:grid;grid-template-columns:196px 1fr;gap:32px">
+<div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span style="width:34px;height:18px;background:var(--color-accent);position:relative;display:inline-block"><span style="position:absolute;right:2px;top:2px;width:14px;height:14px;background:var(--color-bg)"></span></span><span style="font-size:13px;font-weight:600">On the shelf now</span></div>
+<div style="border-top:2px solid var(--color-divider);padding-top:12px">
+<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px" class="text-muted">Genre</div>
+<div style="display:flex;flex-direction:column;gap:7px;font-size:13px">
+<label class="radio"><input type="checkbox" checked><span class="dot"></span>Fiction <span class="text-muted">28</span></label>
+<label class="radio"><input type="checkbox"><span class="dot"></span>Dystopian <span class="text-muted">11</span></label>
+<label class="radio"><input type="checkbox"><span class="dot"></span>Historical <span class="text-muted">14</span></label>
+<label class="radio"><input type="checkbox"><span class="dot"></span>Science <span class="text-muted">9</span></label>
+<label class="radio"><input type="checkbox"><span class="dot"></span>Fantasy <span class="text-muted">12</span></label>
+<label class="radio"><input type="checkbox"><span class="dot"></span>Mystery <span class="text-muted">7</span></label>
+</div>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:12px;margin-top:16px">
+<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px" class="text-muted">Author</div>
+<div style="display:flex;flex-direction:column;gap:7px;font-size:13px">
+<label class="radio"><input type="checkbox"><span class="dot"></span>George Orwell <span class="text-muted">3</span></label>
+<label class="radio"><input type="checkbox"><span class="dot"></span>Charles Dickens <span class="text-muted">3</span></label>
+<label class="radio"><input type="checkbox"><span class="dot"></span>J.R.R. Tolkien <span class="text-muted">3</span></label>
+</div>
+<a class="btn btn-ghost" href="#1e" style="padding-left:0;margin-top:8px">All 41 authors</a>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:12px;margin-top:16px">
+<a class="btn btn-ghost" href="#1e" style="padding-left:0">Save this search</a>
+</div>
+</div>
+<div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+<span class="tag tag-outline">Fiction ✕</span><span class="tag tag-outline">On the shelf ✕</span>
+<span style="font-size:13px" class="text-muted">28 titles</span>
+<a class="btn btn-ghost" href="#1e" style="margin-left:auto">Clear all</a>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px 20px">
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">1984</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">1984</div><div style="font-size:12px" class="text-muted">George Orwell</div></div>
+<div style="font-size:12px">All 3 copies on the shelf</div>
+<button class="btn btn-primary btn-block" style="margin:0">Borrow this</button>
+</a>
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">A Thousand Splendid Suns</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">A Thousand Splendid Suns</div><div style="font-size:12px" class="text-muted">Khaled Hosseini</div></div>
+<div style="font-size:12px">4 of 5 on the shelf</div>
+<button class="btn btn-primary btn-block" style="margin:0">Borrow this</button>
+</a>
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">All the Light We Cannot See</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">All the Light We Cannot See</div><div style="font-size:12px" class="text-muted">Anthony Doerr</div></div>
+<div style="font-size:12px"><span class="tag tag-outline">Last copy</span></div>
+<button class="btn btn-primary btn-block" style="margin:0">Borrow this</button>
+</a>
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">Foundation</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">Foundation</div><div style="font-size:12px" class="text-muted">Isaac Asimov</div></div>
+<div style="font-size:12px">All out — 3 people waiting</div>
+<button class="btn btn-secondary btn-block" style="margin:0">Reserve</button>
+</a>
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">A Tale of Two Cities</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">A Tale of Two Cities</div><div style="font-size:12px" class="text-muted">Charles Dickens</div></div>
+<div style="font-size:12px">Both copies on the shelf</div>
+<button class="btn btn-primary btn-block" style="margin:0">Borrow this</button>
+</a>
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">American Gods</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">American Gods</div><div style="font-size:12px" class="text-muted">Neil Gaiman</div></div>
+<div style="font-size:12px">All 4 copies on the shelf</div>
+<button class="btn btn-primary btn-block" style="margin:0">Borrow this</button>
+</a>
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">And Then There Were None</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">And Then There Were None</div><div style="font-size:12px" class="text-muted">Agatha Christie</div></div>
+<div style="font-size:12px">2 of 3 on the shelf</div>
+<button class="btn btn-primary btn-block" style="margin:0">Borrow this</button>
+</a>
+<a href="#1g" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px">
+<div class="cov" style="height:230px;padding:10px;font-size:13px">Animal Farm</div>
+<div><div style="font:800 16px/1.15 var(--font-heading)">Animal Farm</div><div style="font-size:12px" class="text-muted">George Orwell</div></div>
+<div style="font-size:12px">You asked for this on Monday</div>
+<button class="btn btn-secondary btn-block" style="margin:0" disabled>Waiting on the library</button>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Browse — mobile · one filter button, 2-up covers</div>
+<div class="dv-card" style="width:390px">
+<div class="mob">
+<div style="height:52px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;padding:0 20px;justify-content:space-between">
+<span style="font:800 19px var(--font-heading)">Browse</span>
+<span class="tag tag-outline">Fiction</span>
+</div>
+<div style="padding:14px 20px 12px;border-bottom:2px solid var(--color-divider);display:flex;gap:10px;align-items:center">
+<div style="flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--color-divider);background:var(--color-surface);padding:11px 10px">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+<span style="font-size:14px" class="text-muted">Title or author</span>
+</div>
+<button class="btn btn-secondary" style="min-height:44px">Filter (2)</button>
+</div>
+<div style="padding:14px 20px;flex:1;overflow:hidden">
+<p style="font-size:13px;margin:0 0 14px" class="text-muted">28 titles · 26 on the shelf</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 16px">
+<div style="display:flex;flex-direction:column;gap:7px">
+<div class="cov" style="height:200px;padding:9px;font-size:12px">1984</div>
+<div style="font:800 15px/1.15 var(--font-heading)">1984</div>
+<div style="font-size:12px" class="text-muted">George Orwell</div>
+<div style="font-size:12px">All 3 on the shelf</div>
+<button class="btn btn-primary" style="min-height:44px;justify-content:flex-start">Borrow this</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div class="cov" style="height:200px;padding:9px;font-size:12px">Foundation</div>
+<div style="font:800 15px/1.15 var(--font-heading)">Foundation</div>
+<div style="font-size:12px" class="text-muted">Isaac Asimov</div>
+<div style="font-size:12px">All out — 3 waiting</div>
+<button class="btn btn-secondary" style="min-height:44px;justify-content:flex-start">Reserve</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div class="cov" style="height:200px;padding:9px;font-size:12px">American Gods</div>
+<div style="font:800 15px/1.15 var(--font-heading)">American Gods</div>
+<div style="font-size:12px" class="text-muted">Neil Gaiman</div>
+</div>
+</div>
+</div>
+<div class="tabs">
+<a class="tab" href="#1d">Home</a>
+<a class="tab" href="#1f" aria-current="page">Browse</a>
+<a class="tab" href="#1j">Shelf</a>
+<a class="tab" href="#1f">More</a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Book detail — web · the screen that doesn't exist today</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:1150px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider);display:flex;flex-direction:column">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);font:800 18px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:10px">My library</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1c">Home</a><a class="nvi" href="#1e" aria-current="page">Browse</a><a class="nvi" href="#1i">My shelf</a><a class="nvi" href="#1c">Notifications</a></nav>
+</div>
+<div style="flex:1;padding:32px 40px;min-width:0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:20px" class="text-muted"><a href="#1e">Browse</a><span>/</span><span>Fiction</span><span>/</span><span>Dune</span></div>
+<div style="display:grid;grid-template-columns:300px 1fr 260px;gap:36px">
+<div>
+<div class="cov" style="height:440px;padding:16px;font-size:20px">Dune</div>
+<div style="font-size:12px;margin-top:10px" class="text-muted">Floor 2 · Bay 14 · Fiction HER</div>
+</div>
+<div>
+<h1 class="ph1" style="font-size:46px">Dune</h1>
+<p style="font-size:17px;margin:0 0 4px">Frank Herbert · <a href="#1e">7 more titles</a></p>
+<div style="display:flex;gap:6px;margin:14px 0 20px"><span class="tag tag-neutral">Science fiction</span><span class="tag tag-neutral">1965</span><span class="tag tag-neutral">Epic</span></div>
+<div class="hr" style="margin:0 0 20px"></div>
+<p style="font-size:15px;max-width:60ch">A desert planet, a noble family in exile, and the spice that the empire cannot do without. Herbert's novel of ecology, prophecy and politics — the book most often borrowed twice by the same person.</p>
+<div class="hr" style="margin:20px 0"></div>
+<h4>Copies</h4>
+<table class="table">
+<thead><tr><th>Copy</th><th>Condition</th><th>Where it is</th><th>Back on</th></tr></thead>
+<tbody>
+<tr><td>c-01</td><td>Good</td><td><span class="tag tag-accent">Held for you</span></td><td>Tuesday</td></tr>
+<tr><td>c-02</td><td>Good</td><td>On loan</td><td>2 September</td></tr>
+<tr><td>c-03</td><td>Worn</td><td>On loan</td><td>6 September</td></tr>
+</tbody>
+</table>
+<div class="hr" style="margin:20px 0"></div>
+<h4>Your history with this book</h4>
+<div style="border-left:1px solid var(--color-divider);padding-left:16px;display:flex;flex-direction:column;gap:12px;margin-top:10px">
+<div><div style="font-size:12px" class="text-muted">21 August 2026</div><div style="font-size:14px">You reserved it — third in the queue.</div></div>
+<div><div style="font-size:12px" class="text-muted">25 August 2026</div><div style="font-size:14px">A copy came free and we put it aside for you.</div></div>
+<div><div style="font-size:12px" class="text-muted">March 2025</div><div style="font-size:14px">You borrowed this and kept it 19 days.</div></div>
+</div>
+</div>
+<div>
+<div style="border-left:3px solid var(--color-accent);padding-left:14px">
+<p style="font:800 25px/1.15 var(--font-heading);margin:0 0 8px">Ready for you at the front desk until Tuesday</p>
+<p style="font-size:13px;margin:0 0 14px" class="text-muted">Copy c-01 · held since this morning</p>
+<button class="btn btn-primary btn-block" style="margin:0 0 8px">Show my card</button>
+<button class="btn btn-secondary btn-block" style="margin:0">Cancel the hold</button>
+</div>
+<div style="border-top:2px solid var(--color-divider);margin-top:22px;padding-top:14px">
+<h4 style="font-size:15px">Facts</h4>
+<table class="table" style="font-size:13px">
+<tbody>
+<tr><td class="text-muted">ISBN</td><td>978-0441013593</td></tr>
+<tr><td class="text-muted">Publisher</td><td>Chilton</td></tr>
+<tr><td class="text-muted">Pages</td><td>412</td></tr>
+<tr><td class="text-muted">Language</td><td>English</td></tr>
+<tr><td class="text-muted">Borrowed</td><td>38 times</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="hr" style="margin:26px 0 16px"></div>
+<h4>Readers also borrowed</h4>
+<div style="display:flex;gap:16px;margin-top:12px">
+<div class="cov" style="width:92px;height:138px">Foundation</div>
+<div class="cov" style="width:92px;height:138px">Hyperion</div>
+<div class="cov" style="width:92px;height:138px">The Left Hand of Darkness</div>
+<div class="cov" style="width:92px;height:138px">Neuromancer</div>
+<div class="cov" style="width:92px;height:138px">Solaris</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1h">
+<div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Book detail — mobile · sticky action bar</div>
+<div class="dv-card" style="width:390px">
+<div class="mob">
+<div style="height:52px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:12px;padding:0 16px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"></path></svg>
+<span style="font-size:15px;font-weight:600">Dune</span>
+<svg style="margin-left:auto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+</div>
+<div style="flex:1;overflow:hidden;padding:20px 20px 0">
+<div style="display:flex;gap:16px">
+<div class="cov" style="width:110px;height:165px;padding:9px;font-size:12px">Dune</div>
+<div>
+<h1 style="font-size:28px;margin:0 0 4px;line-height:1.05">Dune</h1>
+<p style="font-size:14px;margin:0 0 8px">Frank Herbert</p>
+<span class="tag tag-neutral">Science fiction</span>
+</div>
+</div>
+<div style="border-left:3px solid var(--color-accent);padding-left:12px;margin:20px 0">
+<p style="font:800 18px/1.25 var(--font-heading);margin:0 0 4px">Ready for you at the front desk until Tuesday</p>
+<p style="font-size:12px;margin:0" class="text-muted">Copy c-01 · Floor 2 · Bay 14</p>
+</div>
+<p style="font-size:14px">A desert planet, a noble family in exile, and the spice that the empire cannot do without.</p>
+<div style="border-top:2px solid var(--color-divider);padding-top:12px;margin-top:8px;display:flex;justify-content:space-between;font-size:14px"><span>Facts &amp; copies</span><span class="text-muted">3 copies</span></div>
+<div style="border-top:1px solid var(--color-divider);padding-top:12px;margin-top:12px;display:flex;justify-content:space-between;font-size:14px"><span>Your history</span><span class="text-muted">Borrowed 2025</span></div>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding:12px 20px 16px;display:flex;gap:10px;background:var(--color-surface)">
+<button class="btn btn-secondary" style="min-height:48px;flex:1;justify-content:flex-start">Cancel hold</button>
+<button class="btn btn-primary" style="min-height:48px;flex:1.4;justify-content:flex-start">Show my card</button>
+</div>
+<div class="tabs" style="margin-top:0">
+<a class="tab" href="#1d">Home</a><a class="tab" href="#1f" aria-current="page">Browse</a><a class="tab" href="#1j">Shelf</a><a class="tab" href="#1f">More</a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1i">
+<div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>My Shelf — web · four sections replace the request log</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:960px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider)">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);font:800 18px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:10px">My library</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1c">Home</a><a class="nvi" href="#1e">Browse</a><a class="nvi" href="#1i" aria-current="page">My shelf</a><a class="nvi" href="#1c">Notifications</a></nav>
+</div>
+<div style="flex:1;padding:32px 40px;min-width:0;overflow:hidden">
+<h1 class="ph1">My shelf</h1>
+<p class="ans">3 out, 1 waiting to be collected, 1 request with a librarian.</p>
+<div class="hr" style="margin:22px 0"></div>
+<div style="display:flex;align-items:baseline;gap:10px"><h4 style="margin:0;color:var(--color-accent-700)">Ready for you</h4><span style="font-size:13px" class="text-muted">collect at the front desk</span></div>
+<div class="srow" style="border-left:3px solid var(--color-accent);padding-left:14px;margin-top:10px">
+<div class="cov" style="width:44px;height:66px">Dune</div>
+<div style="flex:1"><div style="font:800 17px var(--font-heading)">Dune</div><div style="font-size:13px">Held until <strong>Tuesday</strong> · Floor 2 · Bay 14</div></div>
+<button class="btn btn-secondary">Cancel</button><button class="btn btn-primary">Show my card</button>
+</div>
+<h4 style="margin:26px 0 0">Out now</h4>
+<div class="srow">
+<div class="cov" style="width:44px;height:66px">1984</div>
+<div style="flex:1"><div style="font:800 17px var(--font-heading)">1984</div><div class="meter" style="margin:8px 0 5px"><div style="width:82%;height:100%;background:var(--color-accent)"></div></div><div style="font-size:13px">Due Friday — 3 days left</div></div>
+<button class="btn btn-secondary">Renew</button><button class="btn btn-primary">Return</button>
+</div>
+<div class="srow">
+<div class="cov" style="width:44px;height:66px">Foundation</div>
+<div style="flex:1"><div style="font:800 17px var(--font-heading)">Foundation</div><div style="font-size:13px;margin-top:4px">Return requested on Monday — bring it to the desk.</div></div>
+<button class="btn btn-secondary">Withdraw request</button>
+</div>
+<div class="srow" style="border-bottom:0">
+<div class="cov" style="width:44px;height:66px">A Brief History of Time</div>
+<div style="flex:1"><div style="font:800 17px var(--font-heading)">A Brief History of Time</div><div class="meter" style="margin:8px 0 5px"><div style="width:24%;height:100%;background:var(--color-text)"></div></div><div style="font-size:13px">Due 10 September</div></div>
+<button class="btn btn-secondary">Renew</button><button class="btn btn-primary">Return</button>
+</div>
+<h4 style="margin:26px 0 0">Waiting on the library</h4>
+<div class="srow" style="border-bottom:0">
+<div class="cov" style="width:44px;height:66px">Animal Farm</div>
+<div style="flex:1"><div style="font:800 17px var(--font-heading)">Animal Farm</div><div style="font-size:13px">Asked for it on Monday · <span class="tag tag-accent">Waiting on the library</span></div></div>
+<button class="btn btn-secondary">Withdraw</button>
+</div>
+<h4 style="margin:26px 0 6px">Reserved</h4>
+<p style="font-size:14px;margin:0" class="text-muted">Nothing reserved. Reserve any title that's all out and we'll hold it for you. <a href="#1e">Browse the catalogue</a></p>
+<div class="hr" style="margin:24px 0 12px"></div>
+<a class="btn btn-ghost" href="#1i" style="padding-left:0">Reading history — 27 books</a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1j">
+<div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>My Shelf — mobile</div>
+<div class="dv-card" style="width:390px">
+<div class="mob">
+<div style="height:52px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;padding:0 20px;font:800 19px var(--font-heading)">My shelf</div>
+<div style="flex:1;padding:18px 20px 0;overflow:hidden">
+<p style="font:800 17px/1.3 var(--font-heading);margin:0 0 16px">3 out, 1 to collect, 1 with a librarian.</p>
+<div style="border-left:3px solid var(--color-accent);padding-left:12px;margin-bottom:18px">
+<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-700);font-weight:600">Ready for you</div>
+<div style="display:flex;gap:12px;margin-top:8px;align-items:center">
+<div class="cov" style="width:40px;height:60px">Dune</div>
+<div style="flex:1"><div style="font:800 15px var(--font-heading)">Dune</div><div style="font-size:12px">Until Tuesday · Bay 14</div></div>
+<button class="btn btn-primary" style="min-height:44px">Card</button>
+</div>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:10px">
+<h4 style="font-size:15px;margin-bottom:2px">Out now</h4>
+<div class="srow" style="padding:12px 0">
+<div class="cov" style="width:40px;height:60px">1984</div>
+<div style="flex:1"><div style="font:800 15px var(--font-heading)">1984</div><div class="meter" style="margin:7px 0 4px"><div style="width:82%;height:100%;background:var(--color-accent)"></div></div><div style="font-size:12px">Due Friday</div></div>
+<button class="btn btn-secondary" style="min-height:44px">Renew</button>
+</div>
+<div class="srow" style="padding:12px 0">
+<div class="cov" style="width:40px;height:60px">Foundation</div>
+<div style="flex:1"><div style="font:800 15px var(--font-heading)">Foundation</div><div style="font-size:12px;margin-top:4px">Return requested Monday</div></div>
+<button class="btn btn-secondary" style="min-height:44px">•••</button>
+</div>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:10px;margin-top:6px">
+<h4 style="font-size:15px;margin-bottom:6px">Waiting on the library</h4>
+<div style="display:flex;gap:12px;align-items:center">
+<div class="cov" style="width:40px;height:60px">Animal Farm</div>
+<div style="flex:1"><div style="font:800 15px var(--font-heading)">Animal Farm</div><div style="font-size:12px">Asked Monday</div></div>
+</div>
+</div>
+</div>
+<div class="tabs"><a class="tab" href="#1d">Home</a><a class="tab" href="#1f">Browse</a><a class="tab" href="#1j" aria-current="page">Shelf</a><a class="tab" href="#1j">More</a></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1k">
+<div class="dv-olabel"><a class="dv-oid" href="#1k">1k</a>Desk — web · the staff home the product is missing</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:815px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider);display:flex;flex-direction:column">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);font:800 18px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:10px">My library</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1c">Home</a><a class="nvi" href="#1e">Browse</a><a class="nvi" href="#1i">My shelf</a></nav>
+<div class="glab">Manage library</div>
+<nav style="display:flex;flex-direction:column">
+<a class="nvi" href="#1k" aria-current="page">Desk<span class="tag tag-accent" style="margin-left:auto">4</span></a>
+<a class="nvi" href="#1l">Requests</a><a class="nvi" href="#1k">Circulation</a><a class="nvi" href="#1k">Catalogue</a><a class="nvi" href="#1k">Holds</a><a class="nvi" href="#1n">Overdue</a><a class="nvi" href="#1k">Members</a>
+</nav>
+<div style="margin-top:auto;border-top:2px solid var(--color-divider);padding:14px 16px"><a class="nvi" href="#1p" style="padding:0;border-left:0">Settings</a></div>
+</div>
+<div style="flex:1;padding:32px 40px;min-width:0;overflow:hidden">
+<p class="kick">Manage library · Wednesday 25 August</p>
+<h1 class="ph1">The desk</h1>
+<p class="ans">4 requests waiting, 2 holds to pull, <span style="color:var(--color-accent-700)">nothing overdue.</span></p>
+<div class="hr" style="margin:22px 0"></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--color-divider);background:var(--color-surface)">
+<div style="padding:18px 20px;border-right:1px solid var(--color-divider)">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px"><h4 style="margin:0">Decide</h4><span class="tag tag-accent">4 waiting</span></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0;display:flex;gap:8px;align-items:center"><div style="flex:1"><div style="font-size:14px;font-weight:600">Priya Nair</div><div style="font-size:12px" class="text-muted">Borrow · Dune · 2 days</div></div><button class="btn btn-primary" style="padding:5px 10px">Approve</button></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0;display:flex;gap:8px;align-items:center"><div style="flex:1"><div style="font-size:14px;font-weight:600">Tom Weir</div><div style="font-size:12px" class="text-muted">Return · 1984 · 4 hours</div></div><button class="btn btn-primary" style="padding:5px 10px">Approve</button></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0;display:flex;gap:8px;align-items:center"><div style="flex:1"><div style="font-size:14px;font-weight:600">Sara Kelly</div><div style="font-size:12px" class="text-muted">New card · 1 day</div></div><button class="btn btn-primary" style="padding:5px 10px">Approve</button></div>
+<a class="btn btn-ghost" href="#1l" style="padding-left:0;margin-top:8px">All 4 requests</a>
+</div>
+<div style="padding:18px 20px;border-right:1px solid var(--color-divider)">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px"><h4 style="margin:0">Pull from the shelf</h4><span class="tag tag-neutral">2</span></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0"><div style="font-size:14px;font-weight:600">Dune</div><div style="font-size:12px" class="text-muted">for Amalraj J · Floor 2 · Bay 14</div><button class="btn btn-secondary" style="margin-top:6px;padding:5px 10px">Mark pulled</button></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0"><div style="font-size:14px;font-weight:600">Hyperion</div><div style="font-size:12px" class="text-muted">for Tom W · Floor 2 · Bay 15</div><button class="btn btn-secondary" style="margin-top:6px;padding:5px 10px">Mark pulled</button></div>
+</div>
+<div style="padding:18px 20px">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px"><h4 style="margin:0">Coming back today</h4><span class="tag tag-neutral">3</span></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0;display:flex;align-items:center;gap:8px"><div style="flex:1"><div style="font-size:14px;font-weight:600">Animal Farm</div><div style="font-size:12px" class="text-muted">Priya Nair</div></div><button class="btn btn-secondary" style="padding:5px 10px">Check in</button></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0;display:flex;align-items:center;gap:8px"><div style="flex:1"><div style="font-size:14px;font-weight:600">Neuromancer</div><div style="font-size:12px" class="text-muted">Sam Ash</div></div><button class="btn btn-secondary" style="padding:5px 10px">Check in</button></div>
+<div style="border-top:1px solid var(--color-divider);padding:10px 0;display:flex;align-items:center;gap:8px"><div style="flex:1"><div style="font-size:14px;font-weight:600">Solaris</div><div style="font-size:12px" class="text-muted">Tom Weir</div></div><button class="btn btn-secondary" style="padding:5px 10px">Check in</button></div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--color-divider);margin-top:24px;background:var(--color-surface)">
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 42px/1 var(--font-heading);font-variant-numeric:tabular-nums">17</div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px" class="text-muted">On loan</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 42px/1 var(--font-heading);font-variant-numeric:tabular-nums">0</div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px" class="text-muted">Overdue</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 42px/1 var(--font-heading);font-variant-numeric:tabular-nums">2</div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px" class="text-muted">Holds waiting</div></div>
+<div style="padding:16px 20px"><div style="font:800 42px/1 var(--font-heading);font-variant-numeric:tabular-nums">6</div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px" class="text-muted">New members this week</div></div>
+</div>
+<div style="display:flex;gap:12px;margin-top:24px"><button class="btn btn-primary">Check a book out</button><button class="btn btn-secondary">Check one in</button><button class="btn btn-secondary">Add a title</button></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1l">
+<div class="dv-olabel"><a class="dv-oid" href="#1l">1l</a>Requests — web · decide in the row, undo in a toast, no modal</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:760px;position:relative">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider)">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);font:800 18px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:10px">My library</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1c">Home</a><a class="nvi" href="#1e">Browse</a><a class="nvi" href="#1i">My shelf</a></nav>
+<div class="glab">Manage library</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1k">Desk</a><a class="nvi" href="#1l" aria-current="page">Requests<span class="tag tag-accent" style="margin-left:auto">4</span></a><a class="nvi" href="#1k">Circulation</a><a class="nvi" href="#1k">Catalogue</a><a class="nvi" href="#1k">Holds</a><a class="nvi" href="#1n">Overdue</a><a class="nvi" href="#1k">Members</a></nav>
+</div>
+<div style="flex:1;padding:32px 40px;min-width:0;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div><h1 class="ph1">Requests</h1><p class="ans">4 waiting. The oldest has been waiting 2 days.</p></div>
+<span class="seg"><span class="seg-opt" style="background:var(--color-accent);color:var(--color-bg)">Waiting 4</span><span class="seg-opt">Decided 61</span><span class="seg-opt">All</span></span>
+</div>
+<div class="hr" style="margin:22px 0"></div>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface)">
+<table class="table">
+<thead><tr><th style="width:22%">Requester</th><th style="width:32%">What they want</th><th style="width:11%">Waiting</th><th style="width:15%">Note</th><th></th></tr></thead>
+<tbody>
+<tr>
+<td><div style="font-weight:600">Priya Nair</div><div style="font-size:12px" class="text-muted">priya.nair@stmarys.ac.uk</div></td>
+<td><div style="display:flex;gap:10px;align-items:center"><div class="cov" style="width:24px;height:36px;padding:2px;font-size:6px">Dune</div><div><span class="tag tag-neutral">Borrow</span> <strong>Dune</strong><div style="font-size:12px" class="text-muted">Frank Herbert · all copies out</div></div></div></td>
+<td>2 days</td>
+<td class="text-muted">—</td>
+<td style="text-align:right;white-space:nowrap"><button class="btn btn-secondary" style="margin-right:6px">Decline</button><button class="btn btn-primary">Approve</button></td>
+</tr>
+<tr>
+<td><div style="font-weight:600">Tom Weir</div><div style="font-size:12px" class="text-muted">t.weir@stmarys.ac.uk</div></td>
+<td><div style="display:flex;gap:10px;align-items:center"><div class="cov" style="width:24px;height:36px;padding:2px;font-size:6px">1984</div><div><span class="tag tag-neutral">Return</span> <strong>1984</strong><div style="font-size:12px" class="text-muted">borrowed 11 August</div></div></div></td>
+<td>4 hours</td>
+<td style="font-size:12px">"Left it at the desk"</td>
+<td style="text-align:right;white-space:nowrap"><button class="btn btn-secondary" style="margin-right:6px">Decline</button><button class="btn btn-primary">Approve</button></td>
+</tr>
+<tr style="background:color-mix(in srgb,var(--color-accent) 6%,transparent)">
+<td><div style="font-weight:600">Sara Kelly</div><div style="font-size:12px" class="text-muted">s.kelly@stmarys.ac.uk</div></td>
+<td><span class="tag tag-neutral">New card</span> <strong>Membership</strong><div style="font-size:12px" class="text-muted">staff · department of history</div></td>
+<td>1 day</td>
+<td class="text-muted">—</td>
+<td style="text-align:right">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+<span style="font-size:13px;font-weight:600">Why are you declining?</span>
+<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><span class="tag tag-outline">Not a member yet</span><span class="tag tag-outline">No copies free</span><span class="tag tag-outline">Duplicate</span><span class="tag tag-outline">Other</span></div>
+<div style="display:flex;gap:6px"><button class="btn btn-ghost">Cancel</button><button class="btn btn-primary">Decline and tell Sara</button></div>
+</div>
+</td>
+</tr>
+<tr>
+<td><div style="font-weight:600">Sam Ash</div><div style="font-size:12px" class="text-muted">s.ash@stmarys.ac.uk</div></td>
+<td><div style="display:flex;gap:10px;align-items:center"><div class="cov" style="width:24px;height:36px;padding:2px;font-size:6px">Hyperion</div><div><span class="tag tag-neutral">Borrow</span> <strong>Hyperion</strong><div style="font-size:12px" class="text-muted">Dan Simmons · 1 on the shelf</div></div></div></td>
+<td>20 minutes</td>
+<td class="text-muted">—</td>
+<td style="text-align:right"><span style="font-size:13px" class="text-muted">Approving…</span></td>
+</tr>
+</tbody>
+</table>
+<div style="display:flex;align-items:center;gap:16px;padding:10px 12px;border-top:2px solid var(--color-divider);font-size:13px">
+<span class="text-muted">1–4 of 4</span>
+<span style="margin-left:auto" class="text-muted">Select rows to approve together · <strong>j/k</strong> move · <strong>a</strong> approve · <strong>d</strong> decline</span>
+</div>
+</div>
+</div>
+<div style="position:absolute;left:264px;bottom:24px;width:380px;background:var(--color-surface);box-shadow:var(--shadow-lg);border-left:3px solid var(--color-accent);padding:14px 16px;display:flex;align-items:center;gap:12px">
+<div style="flex:1;font-size:14px"><strong>1984 returned.</strong> Tom's copy is back on the shelf.</div>
+<button class="btn btn-ghost">Add a note</button><button class="btn btn-ghost">Undo</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1m">
+<div class="dv-olabel"><a class="dv-oid" href="#1m">1m</a>Requests — mobile · table becomes cards, reason sheet</div>
+<div class="dv-card" style="width:390px">
+<div class="mob">
+<div style="height:52px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;padding:0 20px;justify-content:space-between"><span style="font:800 19px var(--font-heading)">Requests</span><span class="tag tag-accent">4 waiting</span></div>
+<div style="padding:12px 20px;border-bottom:2px solid var(--color-divider)"><span class="seg" style="width:100%"><span class="seg-opt" style="flex:1;background:var(--color-accent);color:var(--color-bg);justify-content:center">Waiting</span><span class="seg-opt" style="flex:1;justify-content:center">Decided</span><span class="seg-opt" style="flex:1;justify-content:center">All</span></span></div>
+<div style="flex:1;padding:16px 20px;overflow:hidden;display:flex;flex-direction:column;gap:14px">
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:14px">
+<div style="font-size:15px;font-weight:600">Priya Nair</div>
+<div style="font-size:13px;margin:2px 0 8px">Wants to borrow <strong>Dune</strong></div>
+<div style="font-size:12px;margin-bottom:12px" class="text-muted">Waiting 2 days · all copies out</div>
+<div style="display:flex;gap:10px"><button class="btn btn-secondary" style="flex:1;min-height:44px;justify-content:center">Decline</button><button class="btn btn-primary" style="flex:1;min-height:44px;justify-content:center">Approve</button></div>
+</div>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:14px">
+<div style="font-size:15px;font-weight:600">Tom Weir</div>
+<div style="font-size:13px;margin:2px 0 8px">Returning <strong>1984</strong></div>
+<div style="font-size:12px;margin-bottom:12px" class="text-muted">Waiting 4 hours · "Left it at the desk"</div>
+<div style="display:flex;gap:10px"><button class="btn btn-secondary" style="flex:1;min-height:44px;justify-content:center">Decline</button><button class="btn btn-primary" style="flex:1;min-height:44px;justify-content:center">Approve</button></div>
+</div>
+</div>
+<div style="border-top:2px solid var(--color-divider);background:var(--color-surface);padding:18px 20px 22px">
+<div style="font:800 18px var(--font-heading);margin-bottom:12px">Why are you declining?</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label class="radio" style="min-height:44px"><input type="radio" name="rsn"><span class="dot"></span>Not a member yet</label>
+<label class="radio" style="min-height:44px"><input type="radio" name="rsn" checked><span class="dot"></span>No copies free</label>
+<label class="radio" style="min-height:44px"><input type="radio" name="rsn"><span class="dot"></span>Duplicate request</label>
+</div>
+<button class="btn btn-primary" style="width:100%;min-height:48px;justify-content:flex-start;margin-top:12px">Decline and tell Sara</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1n">
+<div class="dv-olabel"><a class="dv-oid" href="#1n">1n</a>Overdue at zero — web · the empty state that reads as good news</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:690px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider)">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);font:800 18px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:10px">Manage library</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1k">Desk</a><a class="nvi" href="#1l">Requests</a><a class="nvi" href="#1k">Holds</a><a class="nvi" href="#1n" aria-current="page">Overdue</a><a class="nvi" href="#1k">Members</a></nav>
+</div>
+<div style="flex:1;padding:32px 40px;min-width:0">
+<h1 class="ph1">Overdue</h1>
+<p class="ans">Nothing is overdue. 4 loans come due this week.</p>
+<div class="hr" style="margin:22px 0"></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--color-divider);background:var(--color-surface)">
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 42px/1 var(--font-heading)">0</div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px" class="text-muted">Overdue items</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 42px/1 var(--font-heading)">0</div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px" class="text-muted">Days owed</div></div>
+<div style="padding:16px 20px"><div style="font:800 42px/1 var(--font-heading)">4</div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:6px" class="text-muted">Due this week</div></div>
+</div>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);margin-top:24px;padding:22px 24px">
+<h4 style="margin-bottom:4px">Nothing overdue. The shelves are square.</h4>
+<p style="font-size:14px;max-width:56ch">Anything past its due date lands here with the member's details and a one-click reminder. Meanwhile, these four come due this week — a nudge now saves a chase later.</p>
+<table class="table" style="margin-top:8px">
+<thead><tr><th>Member</th><th>Book</th><th>Due</th><th></th></tr></thead>
+<tbody>
+<tr><td>Amalraj Joseph</td><td>1984</td><td><span class="tag tag-accent">Friday</span></td><td style="text-align:right"><button class="btn btn-secondary">Send a nudge</button></td></tr>
+<tr><td>Priya Nair</td><td>Animal Farm</td><td><span class="tag tag-accent">Friday</span></td><td style="text-align:right"><button class="btn btn-secondary">Send a nudge</button></td></tr>
+<tr><td>Sam Ash</td><td>Neuromancer</td><td>Saturday</td><td style="text-align:right"><button class="btn btn-secondary">Send a nudge</button></td></tr>
+<tr><td>Tom Weir</td><td>Solaris</td><td>Sunday</td><td style="text-align:right"><button class="btn btn-secondary">Send a nudge</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1o">
+<div class="dv-olabel"><a class="dv-oid" href="#1o">1o</a>Reports — web · one figure band, ink chart, ranked lists</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:860px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider)">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);font:800 18px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:10px">Manage library</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1k">Desk</a><a class="nvi" href="#1l">Requests</a><a class="nvi" href="#1n">Overdue</a><a class="nvi" href="#1o" aria-current="page">Reports</a><a class="nvi" href="#1p">Settings</a></nav>
+</div>
+<div style="flex:1;padding:32px 40px;min-width:0;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:flex-end">
+<div><h1 class="ph1">Reports</h1><p class="ans">14 borrows in the last 30 days, up from 9.</p></div>
+<div style="display:flex;gap:10px;align-items:center"><span class="seg"><span class="seg-opt">7 days</span><span class="seg-opt" style="background:var(--color-accent);color:var(--color-bg)">30 days</span><span class="seg-opt">Year</span></span><button class="btn btn-secondary">Export all</button></div>
+</div>
+<div class="hr" style="margin:22px 0"></div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--color-divider);background:var(--color-surface)">
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider)"><div style="font:800 38px/1 var(--font-heading)">103</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">Titles</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider)"><div style="font:800 38px/1 var(--font-heading)">214</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">Copies</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider)"><div style="font:800 38px/1 var(--font-heading)">17</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">On loan</div></div>
+<div style="padding:16px 20px;border-bottom:1px solid var(--color-divider)"><div style="font:800 38px/1 var(--font-heading)">86</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">Members</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 38px/1 var(--font-heading)">14</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">Borrows · 30d</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 38px/1 var(--font-heading)">11</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">Returns · 30d</div></div>
+<div style="padding:16px 20px;border-right:1px solid var(--color-divider)"><div style="font:800 38px/1 var(--font-heading)">4</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">Waiting decisions</div></div>
+<div style="padding:16px 20px"><div style="font:800 38px/1 var(--font-heading)">0</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px" class="text-muted">Overdue</div></div>
+</div>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);margin-top:24px;padding:18px 20px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><h4 style="margin:0">Borrows, last 12 weeks</h4><a class="btn btn-ghost" href="#1o">Export CSV</a></div>
+<svg viewBox="0 0 820 150" width="100%" height="150" style="margin-top:10px" preserveAspectRatio="none">
+<line x1="0" y1="149" x2="820" y2="149" stroke="var(--color-divider)" stroke-width="2"></line>
+<polyline points="10,120 80,104 150,112 220,84 290,92 360,64 430,72 500,50 570,58 640,36 710,44 790,18" fill="none" stroke="var(--color-text)" stroke-width="2"></polyline>
+<rect x="785" y="13" width="10" height="10" fill="var(--color-accent)"></rect>
+</svg>
+<div style="display:flex;justify-content:space-between;font-size:11px" class="text-muted"><span>June</span><span>July</span><span>August</span></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:24px">
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:16px 18px">
+<h4 style="font-size:16px">Most borrowed</h4>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:13px">
+<div><div style="display:flex;justify-content:space-between"><span>1984</span><span>6</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:100%;height:100%;background:var(--color-text)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between"><span>Dune</span><span>4</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:66%;height:100%;background:var(--color-text)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between"><span>Foundation</span><span>3</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:50%;height:100%;background:var(--color-text)"></div></div></div>
+</div>
+</div>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:16px 18px">
+<h4 style="font-size:16px">Most active members</h4>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:13px">
+<div><div style="display:flex;justify-content:space-between"><span>Priya Nair</span><span>9</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:100%;height:100%;background:var(--color-text)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between"><span>Amalraj Joseph</span><span>7</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:78%;height:100%;background:var(--color-text)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between"><span>Tom Weir</span><span>5</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:55%;height:100%;background:var(--color-text)"></div></div></div>
+</div>
+</div>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:16px 18px">
+<h4 style="font-size:16px">Authors on the shelf</h4>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:13px">
+<div><div style="display:flex;justify-content:space-between"><span>J.R.R. Tolkien</span><span>3</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:100%;height:100%;background:var(--color-text)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between"><span>Charles Dickens</span><span>3</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:100%;height:100%;background:var(--color-text)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between"><span>Mark Twain</span><span>2</span></div><div style="height:4px;background:var(--color-neutral-300);margin-top:3px"><div style="width:66%;height:100%;background:var(--color-text)"></div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1p">
+<div class="dv-olabel"><a class="dv-oid" href="#1p">1p</a>Settings · email — web · the nine-field modal becomes a page</div>
+<div class="dv-card" style="width:1200px">
+<div style="display:flex;min-height:775px">
+<div style="width:232px;flex:none;background:var(--color-surface);border-right:2px solid var(--color-divider)">
+<div style="padding:18px 16px;border-bottom:2px solid var(--color-divider);font:800 18px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:10px">Settings</div>
+<nav style="display:flex;flex-direction:column"><a class="nvi" href="#1p">Loan policy</a><a class="nvi" href="#1p" aria-current="page">Notifications &amp; email</a><a class="nvi" href="#1p">Roles &amp; permissions</a><a class="nvi" href="#1p">Library profile</a><a class="nvi" href="#1p">Integrations &amp; sign-in</a><a class="nvi" href="#1p">Audit log</a></nav>
+</div>
+<div style="flex:1;padding:32px 40px;min-width:0;overflow:hidden">
+<p class="kick"><a href="#1p">Settings</a> / Notifications &amp; email</p>
+<h1 class="ph1">Notifications &amp; email</h1>
+<p class="ans" style="max-width:44ch">Email isn't set up yet, so members aren't being told when a hold is ready.</p>
+<div class="hr" style="margin:22px 0"></div>
+<div style="display:grid;grid-template-columns:560px 1fr;gap:40px">
+<div>
+<h4>Server</h4>
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px">
+<div class="field"><label>SMTP host</label><input class="input" value="smtp.stmarys.ac.uk"></div>
+<div class="field"><label>Port</label><input class="input" value="587"></div>
+</div>
+<div class="field" style="margin-bottom:20px"><label>Encryption</label><span class="seg"><span class="seg-opt">None</span><span class="seg-opt" style="background:var(--color-accent);color:var(--color-bg)">STARTTLS</span><span class="seg-opt">SSL/TLS</span></span></div>
+<div style="border-top:2px solid var(--color-divider);padding-top:16px">
+<h4>Sender</h4>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="field"><label>Name members will see</label><input class="input" value="St Mary's Library"></div>
+<div class="field"><label>Reply-to address</label><input class="input" value="library@stmarys.ac.uk"></div>
+</div>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:16px;margin-top:16px">
+<h4>Credentials</h4>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="field"><label>Username</label><input class="input" value="library-mailer"></div>
+<div class="field"><label>Password</label><input class="input" type="password" value="passwordvalue"></div>
+</div>
+<p style="font-size:12px;margin-top:8px" class="text-muted">Stored encrypted. Only admins can read this page.</p>
+</div>
+<div style="border-top:2px solid var(--color-divider);margin-top:20px;padding-top:16px;display:flex;gap:10px;align-items:center">
+<button class="btn btn-primary">Save and verify</button>
+<button class="btn btn-secondary">Send a test message</button>
+<a class="btn btn-ghost" href="#1p" style="margin-left:auto">Discard changes</a>
+</div>
+</div>
+<div>
+<div style="border-left:3px solid var(--color-accent);padding-left:14px;margin-bottom:22px">
+<h4 style="font-size:16px">What breaks without this</h4>
+<p style="font-size:14px;margin:0">Hold-ready notices, due-soon reminders, overdue nudges and new-card confirmations all go unsent. Members currently only find out by signing in.</p>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:14px">
+<h4 style="font-size:16px">Messages we send</h4>
+<div style="display:flex;flex-direction:column;gap:0;font-size:13px">
+<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--color-divider)"><span>Hold is ready</span><a href="#1p">Preview</a></div>
+<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--color-divider)"><span>Due in 3 days</span><a href="#1p">Preview</a></div>
+<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--color-divider)"><span>Overdue nudge</span><a href="#1p">Preview</a></div>
+<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--color-divider)"><span>Request approved</span><a href="#1p">Preview</a></div>
+<div style="display:flex;justify-content:space-between;padding:9px 0"><span>Card is ready</span><a href="#1p">Preview</a></div>
+</div>
+</div>
+<div style="border-top:2px solid var(--color-divider);padding-top:14px;margin-top:18px">
+<h4 style="font-size:16px">Last verification</h4>
+<p style="font-size:14px;margin:0">Never run. <span class="text-muted">The result and the server's reply will show here.</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1q">
+<div class="dv-olabel"><a class="dv-oid" href="#1q">1q</a>State gallery — the four states of everything, plus the rails compared</div>
+<div class="dv-card" style="width:1200px;padding:32px 40px">
+<h2 style="margin-bottom:4px">The parts, in every state</h2>
+<p style="font-size:14px;max-width:70ch" class="text-muted">Copy these rather than re-deriving them. Every table, tile and panel in Shelfinity uses exactly these four states.</p>
+<div class="hr"></div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px">
+<div>
+<p class="kick">Loading — never a spinner</p>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:14px">
+<div style="height:12px;width:60%;background:var(--color-neutral-300);margin-bottom:14px"></div>
+<div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:24px;height:36px;background:var(--color-neutral-300)"></div><div style="flex:1"><div style="height:9px;width:80%;background:var(--color-neutral-300);margin-bottom:6px"></div><div style="height:9px;width:45%;background:var(--color-neutral-300)"></div></div></div>
+<div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:24px;height:36px;background:var(--color-neutral-300)"></div><div style="flex:1"><div style="height:9px;width:70%;background:var(--color-neutral-300);margin-bottom:6px"></div><div style="height:9px;width:50%;background:var(--color-neutral-300)"></div></div></div>
+<div style="display:flex;gap:10px"><div style="width:24px;height:36px;background:var(--color-neutral-300)"></div><div style="flex:1"><div style="height:9px;width:85%;background:var(--color-neutral-300);margin-bottom:6px"></div><div style="height:9px;width:40%;background:var(--color-neutral-300)"></div></div></div>
+</div>
+</div>
+<div>
+<p class="kick">Empty — nothing yet</p>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:18px">
+<h4 style="font-size:17px;margin-bottom:6px">Nothing reserved yet</h4>
+<p style="font-size:13px">Reserve any title that's all out and we'll hold a copy for you at the desk.</p>
+<button class="btn btn-primary" style="margin-top:4px">Browse the catalogue</button>
+</div>
+</div>
+<div>
+<p class="kick">Empty — nothing matched</p>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:18px">
+<h4 style="font-size:17px;margin-bottom:6px">Nothing matched "dune messiah"</h4>
+<p style="font-size:13px">The closest we have are <a href="#1g">Dune</a> and <a href="#1g">Children of Dune</a>.</p>
+<div style="display:flex;gap:8px;margin-top:4px"><button class="btn btn-secondary">Clear filters</button><button class="btn btn-ghost">Ask us to buy it</button></div>
+</div>
+</div>
+<div>
+<p class="kick">Error — inline, with a way out</p>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);padding:18px;border-left:3px solid var(--color-accent)">
+<h4 style="font-size:17px;margin-bottom:6px">We couldn't reach the catalogue</h4>
+<p style="font-size:13px">Your loans and holds are safe. Nothing was lost.</p>
+<button class="btn btn-primary" style="margin-top:4px">Try again</button>
+</div>
+</div>
+</div>
+<div class="hr"></div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;align-items:start">
+<div>
+<p class="kick">Status vocabulary — word first, colour second</p>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<span class="tag tag-neutral">On the shelf</span><span class="tag tag-outline">Last copy</span><span class="tag tag-neutral">All out</span>
+<span class="tag tag-accent">Waiting on the library</span><span class="tag tag-neutral">Approved</span><span class="tag tag-outline">Declined</span>
+<span class="tag tag-accent">Due Friday</span><span class="tag" style="background:var(--color-accent);color:var(--color-bg)">6 days overdue</span>
+<span class="tag tag-accent">Ready for pickup</span><span class="tag tag-neutral">3rd in queue</span><span class="tag tag-outline">Admin</span>
+</div>
+</div>
+<div>
+<p class="kick">Buttons — flush-left labels</p>
+<div style="display:flex;flex-direction:column;gap:8px;max-width:190px">
+<button class="btn btn-primary btn-block" style="margin:0">Borrow this</button>
+<button class="btn btn-secondary btn-block" style="margin:0">Reserve</button>
+<button class="btn btn-secondary btn-block" style="margin:0" disabled>Waiting on the library</button>
+<button class="btn btn-ghost" style="align-self:flex-start">Withdraw request</button>
+</div>
+</div>
+<div>
+<p class="kick">Member rail — four items, no dividers</p>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);width:190px">
+<div style="padding:12px;border-bottom:2px solid var(--color-divider);font:800 15px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:6px;padding:8px 12px 4px">My library</div>
+<a class="nvi" href="#1c" aria-current="page" style="padding:7px 12px">Home</a>
+<a class="nvi" href="#1e" style="padding:7px 12px">Browse</a>
+<a class="nvi" href="#1i" style="padding:7px 12px">My shelf</a>
+<a class="nvi" href="#1c" style="padding:7px 12px">Notifications</a>
+</div>
+</div>
+<div>
+<p class="kick">Staff rail — same rail, one group added</p>
+<div style="border:1px solid var(--color-divider);background:var(--color-surface);width:190px">
+<div style="padding:12px;border-bottom:2px solid var(--color-divider);font:800 15px var(--font-heading)">Shelfinity</div>
+<div class="glab" style="border-top:0;margin-top:6px;padding:8px 12px 4px">My library</div>
+<a class="nvi" href="#1c" style="padding:7px 12px">Home</a>
+<a class="nvi" href="#1e" style="padding:7px 12px">Browse</a>
+<a class="nvi" href="#1i" style="padding:7px 12px">My shelf</a>
+<div class="glab" style="padding:8px 12px 4px;margin-top:8px">Manage library</div>
+<a class="nvi" href="#1k" aria-current="page" style="padding:7px 12px">Desk</a>
+<a class="nvi" href="#1l" style="padding:7px 12px">Requests</a>
+<a class="nvi" href="#1k" style="padding:7px 12px">Circulation</a>
+<a class="nvi" href="#1k" style="padding:7px 12px">Catalogue</a>
+<a class="nvi" href="#1k" style="padding:7px 12px">Holds</a>
+<a class="nvi" href="#1n" style="padding:7px 12px">Overdue</a>
+<a class="nvi" href="#1k" style="padding:7px 12px">Members</a>
+<div style="border-top:2px solid var(--color-divider)"><a class="nvi" href="#1p" style="padding:7px 12px">Settings</a></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "add circulation and the member record" · "warmer copy on <a class="dv-oid" href="#1c">1c</a>" · "try a version of <a class="dv-oid" href="#1e">1e</a> with real cover art" · "mobile staff screens for the desk"</p>
+</section>
+
+</x-dc>
+</body>
+</html>
