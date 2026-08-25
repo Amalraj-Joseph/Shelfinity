@@ -78,7 +78,11 @@ Shelfinity runs the exact same backend WAR and React build in all three setups b
 
 Swapping between them is entirely config-driven: `DB_JDBC_URL`/`DB_DRIVER_CLASS` select Postgres vs. Db2, `REACT_APP_AUTH_FLOW` selects Keycloak's ROPC flow vs. App ID's PKCE flow, and `.env.example`/`.env.cloud-services.example` document every variable.
 
-The **multi-cloud** model additionally spans three providers end to end — Cloudflare at the edge (DNS, TLS, tunnel), Oracle Cloud Infrastructure running the VM itself (plus Vault for secrets), and IBM Cloud's Db2/App ID behind it — with the app running natively under systemd rather than in Docker on that one path, since the free-tier Always Free VM's 1GB of RAM doesn't leave room for a Docker daemon and duplicated image layers on top of the app itself. For the full topology diagram of each model and the technology rationale behind them, see the **[Architecture docs](https://shelfinity.amalraj.dev/architecture/#deployment-models)**.
+The **multi-cloud** model additionally spans three providers end to end — Cloudflare at the edge (DNS, TLS, tunnel), Oracle Cloud Infrastructure running the VM itself (plus Vault for secrets), and IBM Cloud's Db2/App ID behind it. For the full topology diagram of each model and the technology rationale behind them, see the **[Architecture docs](https://shelfinity.amalraj.dev/architecture/#deployment-models)**.
+
+### Why no Docker on the VM?
+
+The multi-cloud model's free-tier OCI VM has just 1GB of RAM — not enough headroom for a Docker daemon and duplicated image layers on top of the app itself. So on that one path, `nginx` and Open Liberty run natively under systemd instead of in containers. Local and Hybrid, which run on your own machine rather than a memory-capped free-tier VM, still use Docker Compose unchanged, for a fast and easy development experience.
 
 ## License
 
