@@ -83,12 +83,13 @@ Cloudflare.
 #### Why no Docker on the VM
 
 The free-tier OCI "Always Free" compute shape this runs on has just 1GB of
-RAM — not enough headroom to comfortably run a Docker daemon and
-duplicated image layers on top of the app itself. So on this one path,
-`nginx` and Open Liberty run natively under systemd instead of in
-containers; Local and Hybrid, which run on your own machine rather than a
-memory-capped free-tier VM, still run the exact same app via Docker
-Compose unchanged, for a fast and easy development experience.
+RAM — not enough headroom for a persistent Docker daemon (`dockerd` +
+`containerd` + a shim per container) on top of what a JVM app server
+already needs. So on this one path, `nginx` and Open Liberty run natively
+under systemd instead of in containers; Local and Hybrid, which run on
+your own machine rather than a memory-capped free-tier VM, still run the
+exact same app via Docker Compose unchanged, for a fast and easy
+development experience.
 
 ## Technology choices
 

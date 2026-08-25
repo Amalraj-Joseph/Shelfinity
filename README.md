@@ -82,7 +82,7 @@ The **multi-cloud** model additionally spans three providers end to end — Clou
 
 ### Why no Docker on the VM?
 
-The multi-cloud model's free-tier OCI VM has just 1GB of RAM — not enough headroom for a Docker daemon and duplicated image layers on top of the app itself. So on that one path, `nginx` and Open Liberty run natively under systemd instead of in containers. Local and Hybrid, which run on your own machine rather than a memory-capped free-tier VM, still use Docker Compose unchanged, for a fast and easy development experience.
+The multi-cloud model's free-tier OCI VM has just 1GB of RAM — not enough headroom for a persistent Docker daemon (`dockerd` + `containerd` + a shim per container) on top of what a JVM app server already needs. So on that one path, `nginx` and Open Liberty run natively under systemd instead of in containers. Local and Hybrid, which run on your own machine rather than a memory-capped free-tier VM, still use Docker Compose unchanged, for a fast and easy development experience.
 
 ## License
 
