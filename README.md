@@ -2,7 +2,9 @@
 
 [![CI](https://github.com/Amalraj-Joseph/Shelfinity/actions/workflows/ci.yml/badge.svg)](https://github.com/Amalraj-Joseph/Shelfinity/actions/workflows/ci.yml)
 
-**A modern, multi-cloud library management system.** Jakarta EE 10 and React 18 underneath, running unmodified as a local Docker stack or as a free-tier deployment spanning IBM Cloud, Oracle Cloud Infrastructure, and Cloudflare — see [Multi-cloud deployment architecture](#multi-cloud-deployment-architecture) below for how.
+A modern, multi-cloud library management system — Jakarta EE 10 and React 18, running the exact same codebase as a local Docker stack or as a free-tier deployment spanning IBM Cloud, Oracle Cloud Infrastructure, and Cloudflare (see [Multi-cloud deployment architecture](#multi-cloud-deployment-architecture) below).
+
+🚀 **[Live demo](https://shelfinity-app.amalraj.dev)** — the multi-cloud deployment described below, running for real.
 
 📖 **[Documentation](https://shelfinity.amalraj.dev)** — getting started, architecture, business rules, and the full API reference.
 
