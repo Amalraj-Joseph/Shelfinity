@@ -15,13 +15,9 @@ A modern, multi-cloud library management system — Jakarta EE 10 and React 18, 
 ![Jakarta EE](https://img.shields.io/badge/Jakarta_EE-ED6C00?style=flat-square)
 ![Open Liberty](https://img.shields.io/badge/Open_Liberty-6929C4?style=flat-square)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![IBM Db2](https://img.shields.io/badge/IBM_Db2-0F62FE?style=flat-square)
 ![Keycloak](https://img.shields.io/badge/Keycloak-4D4D4D?style=flat-square&logo=keycloak&logoColor=white)
-![IBM App ID](https://img.shields.io/badge/IBM_App_ID-0F62FE?style=flat-square)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat-square&logo=nginx&logoColor=white)
-![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white)
-![Oracle Cloud Infrastructure](https://img.shields.io/badge/Oracle_Cloud_Infrastructure-C74634?style=flat-square)
 ![Apache Maven](https://img.shields.io/badge/Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
 ![Jest](https://img.shields.io/badge/Jest-C21325?style=flat-square&logo=jest&logoColor=white)
@@ -96,12 +92,8 @@ MIT — see [LICENSE.txt](LICENSE.txt).
 
 Shelfinity's cloud deployment runs entirely on generous free tiers. Thank you to:
 
-<p>
-  <a href="https://www.oracle.com/cloud/free/"><img src="docs/images/oracle-logo.svg" alt="Oracle Cloud Infrastructure" height="40"></a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="https://www.ibm.com/cloud/free"><img src="docs/images/ibm-logo.svg" alt="IBM Cloud" height="40"></a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="https://www.cloudflare.com/plans/free/"><img src="docs/images/cloudflare-logo.svg" alt="Cloudflare" height="40"></a>
-</p>
+- **[Oracle Cloud Infrastructure](https://www.oracle.com/cloud/free/)** for the Always Free compute instance this app runs on and its Vault service
+- **[IBM Cloud](https://www.ibm.com/cloud/free)** for the Lite Db2 and App ID plans backing its data and identity
+- **[Cloudflare](https://www.cloudflare.com/plans/free/)** for the free Tunnel and DNS/TLS that put it on the internet safely
 
-**Oracle Cloud Infrastructure** for the Always Free compute instance this app runs on and its Vault service, **IBM Cloud** for the Lite Db2 and App ID plans backing its data and identity, and **Cloudflare** for the free Tunnel and DNS/TLS that put it on the internet safely — without any of the three, this project's cloud deployment wouldn't exist.
+Without any of the three, this project's cloud deployment wouldn't exist.
