@@ -71,16 +71,24 @@ Cloudflare.
   carry all public traffic to the VM without opening an inbound port on it.
 - **Oracle Cloud Infrastructure** — the VM runs `nginx` (serving the React
   production build and proxying `/api`) and Open Liberty natively under
-  systemd, not in Docker on this one path — the free-tier Always Free VM's
-  1GB of RAM doesn't leave room for a Docker daemon and duplicated image
-  layers on top of the app itself. At boot, a small standalone
-  module (`backend/vault-bootstrap`) authenticates as the VM itself via
-  Instance Principals and pulls every secret — the Db2 password, App ID
-  config, the email encryption key — from **OCI Vault**, so nothing
-  sensitive is ever stored on disk or in the systemd unit.
+  systemd, not in Docker on this one path (see below). At boot, a small
+  standalone module (`backend/vault-bootstrap`) authenticates as the VM
+  itself via Instance Principals and pulls every secret — the Db2
+  password, App ID config, the email encryption key — from **OCI Vault**,
+  so nothing sensitive is ever stored on disk or in the systemd unit.
 - **IBM Cloud** — Db2 on Cloud (reached over SSL, verified against a CA
   certificate bundled into the backend's own truststore at build time) and
   App ID for identity, same PKCE flow as the hybrid model.
+
+#### Why no Docker on the VM
+
+The free-tier OCI "Always Free" compute shape this runs on has just 1GB of
+RAM — not enough headroom to comfortably run a Docker daemon and
+duplicated image layers on top of the app itself. So on this one path,
+`nginx` and Open Liberty run natively under systemd instead of in
+containers; Local and Hybrid, which run on your own machine rather than a
+memory-capped free-tier VM, still run the exact same app via Docker
+Compose unchanged, for a fast and easy development experience.
 
 ## Technology choices
 
