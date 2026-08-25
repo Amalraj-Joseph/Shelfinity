@@ -11,8 +11,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.microprofile.jwt.Claims;
@@ -23,34 +21,41 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
+import com.shelfinity.users.User;
+import com.shelfinity.users.UserRepository;
+import com.shelfinity.users.UserRole;
 
 /**
- * SPEC.md §4: Keycloak nests realm roles under `realm_access.roles`, not the
- * flat "groups" claim JsonWebToken#getGroups() reads — this is the parsing
- * logic that makes RBAC actually work, so it's covered directly rather than
- * only through the JAX-RS layer.
+ * Role/admin checks are a DB lookup (User.role, keyed by the JWT subject)
+ * rather than a claim parsed off the token — see JwtUtil.getCurrentUserRole's
+ * Javadoc for why (Keycloak and IBM Cloud App ID don't share a token
+ * role-claim shape, so the DB is the one source of truth both providers
+ * agree on). Covered directly here rather than only through the JAX-RS
+ * layer.
  */
 @ExtendWith(MockitoExtension.class)
 class JwtUtilTest {
 
     @Mock private JsonWebToken jwt;
+    @Mock private UserRepository userRepository;
 
     private JwtUtil jwtUtil;
 
     @BeforeEach
     void setUp() throws Exception {
         jwtUtil = new JwtUtil();
-        Field field = JwtUtil.class.getDeclaredField("jwt");
+        setField("jwt", jwt);
+        setField("userRepository", userRepository);
+    }
+
+    private void setField(String name, Object value) throws Exception {
+        Field field = JwtUtil.class.getDeclaredField(name);
         field.setAccessible(true);
-        field.set(jwtUtil, jwt);
+        field.set(jwtUtil, value);
     }
 
     private void setNullJwt() throws Exception {
-        Field field = JwtUtil.class.getDeclaredField("jwt");
-        field.setAccessible(true);
-        field.set(jwtUtil, null);
+        setField("jwt", null);
     }
 
     @Test
@@ -89,20 +94,20 @@ class JwtUtilTest {
     }
 
     @Test
-    void getCurrentUserRole_findsAdminInJsonObjectRealmAccess() {
-        JsonObject realmAccess = Json.createObjectBuilder()
-                .add("roles", Json.createArrayBuilder().add("offline_access").add("admin").build())
-                .build();
-        when(jwt.getClaim("realm_access")).thenReturn(realmAccess);
+    void getCurrentUserRole_returnsAdminForAdminDbRow() {
+        when(jwt.getSubject()).thenReturn("kc-subject-1");
+        when(userRepository.findByKeycloakId("kc-subject-1"))
+                .thenReturn(Optional.of(new User("kc-subject-1", "a@b.com", "Admin", UserRole.ADMIN)));
 
         assertThat(jwtUtil.getCurrentUserRole()).contains("admin");
         assertThat(jwtUtil.isCurrentUserAdmin()).isTrue();
     }
 
     @Test
-    void getCurrentUserRole_findsUserInMapRealmAccess() {
-        Map<String, Object> realmAccess = Map.of("roles", List.of("uma_authorization", "user"));
-        when(jwt.getClaim("realm_access")).thenReturn(realmAccess);
+    void getCurrentUserRole_returnsUserForUserDbRow() {
+        when(jwt.getSubject()).thenReturn("kc-subject-1");
+        when(userRepository.findByKeycloakId("kc-subject-1"))
+                .thenReturn(Optional.of(new User("kc-subject-1", "a@b.com", "Alice", UserRole.USER)));
 
         assertThat(jwtUtil.getCurrentUserRole()).contains("user");
         assertThat(jwtUtil.isCurrentUserAdmin()).isFalse();
@@ -110,18 +115,9 @@ class JwtUtilTest {
     }
 
     @Test
-    void getCurrentUserRole_ignoresRolesOutsideKnownApplicationRoles() {
-        JsonObject realmAccess = Json.createObjectBuilder()
-                .add("roles", Json.createArrayBuilder().add("offline_access").add("uma_authorization").build())
-                .build();
-        when(jwt.getClaim("realm_access")).thenReturn(realmAccess);
-
-        assertThat(jwtUtil.getCurrentUserRole()).isEmpty();
-    }
-
-    @Test
-    void getCurrentUserRole_emptyWhenNoRealmAccessClaim() {
-        when(jwt.getClaim("realm_access")).thenReturn(null);
+    void getCurrentUserRole_emptyWhenNoMatchingDbRow() {
+        when(jwt.getSubject()).thenReturn("kc-not-synced-yet");
+        when(userRepository.findByKeycloakId("kc-not-synced-yet")).thenReturn(Optional.empty());
 
         assertThat(jwtUtil.getCurrentUserRole()).isEmpty();
     }
@@ -137,10 +133,8 @@ class JwtUtilTest {
     void getCurrentUserInfo_buildsUserInfoWhenAuthenticated() {
         when(jwt.getSubject()).thenReturn("kc-subject-1");
         lenient().when(jwt.getClaim(Claims.email)).thenReturn("alice@shelfinity.com");
-        JsonObject realmAccess = Json.createObjectBuilder()
-                .add("roles", Json.createArrayBuilder().add("user").build())
-                .build();
-        lenient().when(jwt.getClaim("realm_access")).thenReturn(realmAccess);
+        lenient().when(userRepository.findByKeycloakId("kc-subject-1"))
+                .thenReturn(Optional.of(new User("kc-subject-1", "alice@shelfinity.com", "Alice", UserRole.USER)));
 
         Optional<JwtUtil.UserInfo> info = jwtUtil.getCurrentUserInfo();
 

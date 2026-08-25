@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext';
 import { RequireAdmin, RequireAuth } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 import DashboardPage from './pages/DashboardPage';
 import BooksPage from './pages/BooksPage';
 import MyActivityPage from './pages/MyActivityPage';
@@ -27,6 +28,7 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
           <Route element={<RequireAuth />}>
             <Route element={<Layout />}>

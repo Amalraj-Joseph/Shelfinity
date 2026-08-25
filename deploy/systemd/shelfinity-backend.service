@@ -1,0 +1,84 @@
+# Copyright (c) 2025 Amalraj Joseph
+#
+# This source code is licensed under the MIT License.
+# See the LICENSE file in the root directory for more information.
+#
+# This is a TEMPLATE, not deployed directly — deploy/vm-setup.sh substitutes
+# the __PLACEHOLDER__ tokens below from its own command-line arguments and
+# writes the result to /etc/systemd/system/shelfinity-backend.service. Don't
+# hand-edit a copy of this file on a VM; re-run vm-setup.sh with the right
+# arguments instead, so the repo stays the source of truth.
+#
+# Everything actually sensitive (Db2 password, App ID config, the email
+# encryption key) comes from OCI Vault via ExecStartPre at every start, never
+# hardcoded here or in the template — only the three Vault secret OCIDs
+# (identifiers, not secrets themselves) get substituted in. See
+# backend/vault-bootstrap and the runbook's Vault section for the secret
+# templates and the dynamic-group/policy this instance needs to read them.
+
+[Unit]
+Description=Shelfinity Backend (Open Liberty, no Docker)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Must match whatever RUN_USER vm-setup.sh actually used (it owns
+# /opt/liberty and /opt/shelfinity) — ubuntu by default, since that's the
+# standard login user on Ubuntu cloud images, this VM included.
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/shelfinity
+
+# Liberty's own bin/server launcher (used by ExecStart below) looks for
+# JAVA_HOME/java-on-PATH itself — vm-setup.sh only exports those inside its
+# own shell while installing things, so without this the launcher falls back
+# to /usr/bin/java, which doesn't exist on this VM (Semeru lives only at
+# /opt/semeru-jdk-21, see vm-setup.sh's SEMERU_HOME). Same class of bug as
+# the ExecStartPre path below — fix it here too, not just there.
+Environment=JAVA_HOME=/opt/semeru-jdk-21
+
+# --- substituted by vm-setup.sh from its --db2-ocid/--appid-ocid/--secrets-ocid/--hostname args ---
+Environment=VAULT_DB2_CREDENTIALS_OCID=__VAULT_DB2_CREDENTIALS_OCID__
+Environment=VAULT_APPID_CONFIG_OCID=__VAULT_APPID_CONFIG_OCID__
+Environment=VAULT_APP_SECRETS_OCID=__VAULT_APP_SECRETS_OCID__
+# Public URL this instance is reachable at, once behind the Cloudflare
+# Tunnel — see the runbook's edge section. Single-level subdomain (not
+# app.shelfinity.<domain>): Cloudflare's automatic Universal SSL only covers
+# the zone apex plus one wildcard level (<domain> and *.<domain>), not a
+# two-level subdomain — confirmed via openssl s_client, the two-level form
+# served no certificate at all.
+Environment=FRONTEND_URL=https://__PUBLIC_HOSTNAME__
+Environment=OPENAPI_SERVER_URL=https://__PUBLIC_HOSTNAME__
+Environment=BORROW_LOAN_DAYS=14
+Environment=RESERVATION_EXPIRY_DAYS=7
+# --- end substitution ---
+
+# Regenerated on every start, not just once at install time: if the
+# instance's IAM policy or a secret's content ever changes, the next
+# restart picks it up automatically rather than serving a stale copy.
+# Semeru (OpenJ9), not /usr/bin/java — vm-setup.sh installs the JDK to
+# /opt/semeru-jdk-21 only (SEMERU_HOME) and never symlinks or registers it
+# via update-alternatives, so /usr/bin/java doesn't exist on this VM at all.
+# Using it here caused systemd to fail the whole unit with status=203/EXEC
+# (execve() on a nonexistent path) before vault-bootstrap ever ran.
+ExecStartPre=/opt/semeru-jdk-21/bin/java -jar /opt/shelfinity/vault-bootstrap.jar /opt/shelfinity/vault.env
+
+# "-" prefix: optional. Mandatory (no "-") would make systemd try to load
+# this file before every exec command in the unit, including ExecStartPre —
+# but ExecStartPre is what creates it, so on a fresh VM that's a chicken-
+# and-egg failure ("Failed to load environment files") before vault-bootstrap
+# ever runs. vault-bootstrap doesn't need this file itself (its OCID inputs
+# come from the Environment= lines above); only ExecStart (Liberty) does,
+# and systemd re-reads EnvironmentFile= fresh for each exec command, so by
+# the time ExecStart runs, ExecStartPre has already written it.
+EnvironmentFile=-/opt/shelfinity/vault.env
+
+ExecStart=/opt/liberty/wlp/bin/server run defaultServer
+ExecStop=/opt/liberty/wlp/bin/server stop defaultServer
+
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

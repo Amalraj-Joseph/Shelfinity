@@ -1,0 +1,59 @@
+version: '3.8'
+
+# Backend + frontend only — no local Postgres/Keycloak/Mailpit. The backend
+# talks to Db2 on Cloud and App ID on IBM Cloud instead; see
+# ../.env.cloud-services.example for the variables this file interpolates
+# and scripts/start-cloud-services.sh for how it's launched. Not the full
+# cloud deployment (deploy/deploy-to-vm.sh puts the app itself in the cloud
+# too) — this runs the app locally against real managed services.
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: shelfinity-backend
+    environment:
+      DB_JDBC_URL: ${DB_JDBC_URL}
+      DB_DRIVER_CLASS: ${DB_DRIVER_CLASS}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      OIDC_ISSUER: ${OIDC_ISSUER}
+      OIDC_JWKS_URI: ${OIDC_JWKS_URI}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE}
+      OIDC_TOKEN_ENDPOINT: ${OIDC_TOKEN_ENDPOINT}
+      OIDC_USERINFO_ENDPOINT: ${OIDC_USERINFO_ENDPOINT}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      FRONTEND_URL: http://localhost:3000
+      OPENAPI_SERVER_URL: http://localhost:9080
+      EMAIL_CONFIG_ENCRYPTION_KEY: ${EMAIL_CONFIG_ENCRYPTION_KEY}
+      BORROW_LOAN_DAYS: ${BORROW_LOAN_DAYS}
+      RESERVATION_EXPIRY_DAYS: ${RESERVATION_EXPIRY_DAYS}
+    ports:
+      - "9080:9080"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          curl -s http://localhost:9080/health | grep -q '"status":"UP"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      # Same CRA bake-time constraint as docker-compose.yml: these must be
+      # build args, not an `environment:` block.
+      args:
+        REACT_APP_CLIENT_ID: ${REACT_APP_CLIENT_ID}
+        REACT_APP_API_BASE_URL: /api
+        REACT_APP_AUTH_FLOW: pkce
+        REACT_APP_OIDC_AUTHORIZATION_ENDPOINT: ${REACT_APP_OIDC_AUTHORIZATION_ENDPOINT}
+    container_name: shelfinity-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy

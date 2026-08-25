@@ -7,8 +7,8 @@
 package com.shelfinity.queues;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.UUID;
 @Transactional
 public class QueueRepository {
     
-    @PersistenceContext
+    @Inject
     private EntityManager entityManager;
     
     /**

@@ -1,0 +1,33 @@
+# Cloud-VM-only JVM tuning — local Docker dev doesn't use this file at all.
+#
+# Explicit, not left to OpenJ9's own auto-sizing: auto-sizing scales relative
+# to whatever memory it sees available, so a value validated on a
+# many-GB dev machine says nothing about what it'll pick on a genuinely 1GB
+# box. Measured directly instead: this app, with this exact -Xmx400m cap,
+# ran stably at ~403MB RSS at startup and ~412MB after real traffic
+# (repeated reads, a full auth flow, an admin report) against live
+# Postgres+Keycloak. Leaves headroom on a 1GB VM for the OS, nginx, and
+# cloudflared, but not much more — revisit this number if the app grows
+# meaningfully, or if OOM kills show up in practice.
+-Xmx400m
+-Xms128m
+
+# Makes OpenJ9 read the container/cgroup memory limit rather than the host's
+# total, relevant if this ever does end up running inside a container again
+# (e.g. reverted to Docker, or Podman) — harmless no-op running bare on the
+# VM directly, so left on rather than toggled per-environment.
+-XX:+UseContainerSupport
+
+# Required on Java 17+ (running here on OpenJDK 21): JEP 403's strong
+# encapsulation blocks the reflective access Weld/CDI needs to define its
+# generated proxy classes, and what Liberty's Aries JNDI activator needs on
+# shutdown. Without these, app startup fails with WELD-001524 ("Unable to
+# load proxy class for bean Built-in Bean [jakarta.transaction.UserTransaction]")
+# and shutdown logs a matching InaccessibleObjectException for
+# com.sun.naming.internal — neither is a missing-feature problem (confirmed
+# the hard way: swapping enterpriseBeansLite-4.0 for full enterpriseBeans-4.0
+# didn't change the error at all, since it's a JVM module restriction, not a
+# server.xml feature gap). See https://github.com/OpenLiberty/open-liberty/issues/19876
+# for the matching upstream report on OpenJDK 17.
+--add-opens=java.base/java.lang=ALL-UNNAMED
+--add-opens=java.naming/com.sun.naming.internal=ALL-UNNAMED

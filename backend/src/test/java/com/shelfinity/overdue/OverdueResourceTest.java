@@ -31,10 +31,9 @@ import java.util.UUID;
 import jakarta.ws.rs.core.Response;
 
 /**
- * Container-managed @RolesAllowed("admin") isn't exercised outside a real
- * deployment; these tests cover the manual isAuthenticated() gate and
- * successful delegation to OverdueService, which is what's actually testable
- * at this layer without a running server.
+ * Admin gating is an explicit isCurrentUserAdmin() check (DB-backed, see
+ * JwtUtil) rather than container-managed @RolesAllowed, specifically so it's
+ * testable here without a running server.
  */
 @ExtendWith(MockitoExtension.class)
 class OverdueResourceTest {
@@ -57,8 +56,19 @@ class OverdueResourceTest {
     }
 
     @Test
+    void getAllOverdueItems_authenticatedNotAdmin_returns403() {
+        when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(false);
+
+        Response response = overdueResource.getAllOverdueItems();
+
+        assertThat(response.getStatus()).isEqualTo(403);
+    }
+
+    @Test
     void getAllOverdueItems_authenticated_delegatesToService() {
         when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
         when(overdueService.getOverdueItems()).thenReturn(List.of());
 
         Response response = overdueResource.getAllOverdueItems();
@@ -72,6 +82,7 @@ class OverdueResourceTest {
     @Test
     void getAllOverdueItems_resolvesBookAndUserForDisplay() {
         when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
         UUID bookId = UUID.randomUUID();
         QueueItem item = new QueueItem(QueueType.BOOK_BORROW, "kc-1", bookId, "desc");
         when(overdueService.getOverdueItems()).thenReturn(List.of(item));
@@ -122,8 +133,19 @@ class OverdueResourceTest {
     }
 
     @Test
+    void getOverdueStats_authenticatedNotAdmin_returns403() {
+        when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(false);
+
+        Response response = overdueResource.getOverdueStats();
+
+        assertThat(response.getStatus()).isEqualTo(403);
+    }
+
+    @Test
     void getOverdueStats_authenticated_returnsStats() {
         when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
         when(overdueService.getOverdueStats()).thenReturn(new OverdueService.OverdueStats(0, 0, 0));
 
         Response response = overdueResource.getOverdueStats();

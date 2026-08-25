@@ -7,36 +7,149 @@
                   httpPort="9080"
                   httpsPort="9443" />
 
-    <!-- Database configuration -->
-    <dataSource id="shelfinityDS" jndiName="jdbc/shelfinityDS">
-        <jdbcDriver libraryRef="PostgreSQLLib" />
-        <properties.postgresql serverName="${env.DB_HOST}"
-                              portNumber="${env.DB_PORT}"
-                              databaseName="${env.DB_NAME}"
-                              user="${env.DB_USER}"
-                              password="${env.DB_PASSWORD}" />
+    <!-- Database configuration. Vendor-neutral on purpose: targets the plain
+         java.sql.Driver SPI (class given via DB_DRIVER_CLASS) rather than a
+         vendor's javax.sql.DataSource/XADataSource bean. That choice isn't
+         cosmetic — two things were tried and failed first:
+           1. No jdbcDriver class specified at all: with both the Postgres
+              and Db2 driver jars on JdbcLib's shared classpath (so either
+              vendor works without a rebuild), Liberty does NOT pick the
+              DataSource matching DB_JDBC_URL's scheme on its own — it
+              silently bound to Postgres's DataSource class even when
+              DB_JDBC_URL was a jdbc:db2:... URL, and every query failed
+              trying to reach localhost:5432.
+           2. javax.sql.XADataSource="com.ibm.db2.jcc.DB2XADataSource": Db2's
+              XA DataSource bean (unlike Postgres's) has no setURL() at all —
+              it's driven by discrete serverName/portNumber/databaseName/
+              driverType properties instead, so the URL property Postgres
+              needs was simply rejected.
+         java.sql.Driver.connect(url, props) is the one part of the JDBC SPI
+         that's genuinely uniform across vendors — both org.postgresql.Driver
+         and com.ibm.db2.jcc.DB2Driver take a plain JDBC URL — so a single
+         "URL" property works for both, and swapping database vendors is
+         just a different DB_JDBC_URL/DB_DRIVER_CLASS pair, not a different
+         server.xml. The tradeoff: this is a one-phase (non-XA) connection,
+         relying on Liberty's last-participant support for JTA — fine here
+         since the app only ever has this one resource manager per
+         transaction, never a distributed 2PC across multiple databases.
+
+         type="java.sql.Driver" on the dataSource itself is required, not
+         just the java.sql.Driver attribute below on jdbcDriver: without it
+         Liberty ignores which interface we asked for and falls back to its
+         own auto-detection (JDBCDriverService.createAnyPreferXADataSource),
+         which is exactly what kept silently picking Postgres's DataSource
+         even when jdbcDriver named the Db2 driver class explicitly. -->
+    <dataSource id="shelfinityDS" jndiName="jdbc/shelfinityDS" type="java.sql.Driver">
+        <jdbcDriver java.sql.Driver="${env.DB_DRIVER_CLASS}" libraryRef="JdbcLib" />
+        <!-- driverType="4" is only meaningful to IBM's Db2 JCC driver (Type 4
+             network driver — the only mode relevant here) and is ignored as
+             an unrecognized property by every other vendor's driver, so it's
+             left set unconditionally rather than threaded through another
+             env var. Liberty's Db2-specific connection helper activates
+             whenever it recognizes a Db2 JCC driver class regardless of the
+             generic type="java.sql.Driver" above, and refuses to start
+             without this property declared explicitly in XML — it doesn't
+             parse it back out of a driverType=4 embedded in DB_JDBC_URL. -->
+        <!-- sslConnection/sslTrustStoreLocation/sslTrustStorePassword as
+             discrete properties, not embedded in DB_JDBC_URL's ":key=value;"
+             suffix syntax: the JCC driver rejects that embedded form outright
+             (SQLSTATE 42815, "Invalid database URL syntax: sslConnection")
+             through Liberty's generic type="java.sql.Driver" mechanism, even
+             with the same properties also present as discrete XML properties
+             — confirmed directly, only trimming the URL down to
+             jdbc:db2://host:port/database and moving these here works. The
+             OCI Vault secret's DB_JDBC_URL value still embeds them (a
+             separate, permanent fix — TODO on whoever owns that Vault
+             secret), so ExecStartPre in the systemd unit strips the suffix
+             at runtime as a stopgap until that's corrected. -->
+        <properties URL="${env.DB_JDBC_URL}"
+                    user="${env.DB_USER}"
+                    password="${env.DB_PASSWORD}"
+                    driverType="4"
+                    sslConnection="true"
+                    sslTrustStoreLocation="${shared.resource.dir}/lib/app-truststore.jks"
+                    sslTrustStorePassword="changeit" />
     </dataSource>
 
-    <!-- PostgreSQL JDBC driver library -->
-    <library id="PostgreSQLLib">
-        <fileset dir="${shared.resource.dir}/lib" includes="postgresql-*.jar" />
+    <!-- JDBC driver library: every driver jar copied into shared.resource.dir/lib
+         is on this classpath; DB_JDBC_URL decides at runtime which one binds. -->
+    <library id="JdbcLib">
+        <fileset dir="${shared.resource.dir}/lib" includes="*.jar" />
     </library>
 
     <!-- Feature manager - using Jakarta EE 10 Web Profile with MicroProfile -->
+    <!-- Named individually rather than the webProfile-10.0 umbrella: the
+         Dockerfile now builds on Liberty's kernel-slim base, which has no
+         bundled profile to fall back on and installs exactly what's listed
+         here at build time (see Dockerfile's features.sh step).
+
+         This list is genuinely what the app uses, not a guess — every entry
+         was confirmed by grepping for actual usage, which caught a real
+         mistake the first pass got wrong: enterpriseBeansLite-4.0 looked
+         like a safe drop (nothing in this REST/JPA app *reads* like it uses
+         EJBs), but EmailService (@Stateless, @Asynchronous) and
+         OverdueService (@Singleton, @Schedule — the EJB Timer service
+         driving the daily overdue check) both genuinely are EJBs. Dropping
+         the feature didn't fail loudly at startup either — it surfaced as
+         CDI "Unsatisfied dependencies" errors for those two classes, since
+         Weld couldn't resolve their bean-defining annotations without it.
+         JSF/Faces and WebSocket, by contrast, really are unused (verified
+         the same way — no jakarta.websocket or jakarta.faces import
+         anywhere in the codebase) and stay dropped. -->
     <featureManager>
-        <feature>webProfile-10.0</feature>
+        <feature>restfulWS-3.1</feature>
+        <feature>persistence-3.1</feature>
+        <feature>cdi-4.0</feature>
+        <feature>beanValidation-3.0</feature>
+        <feature>jsonb-3.0</feature>
         <feature>jdbc-4.3</feature>
+        <!-- Explicit, not left to auto-inclusion: jdbc-4.3/persistence-3.1
+             already pull jndi-1.0 in transitively (it shows in the server's
+             "installed features" audit log either way), but that alone isn't
+             enough for the container's own JNDI lookup of jdbc/shelfinityDS
+             to actually work for JPA's container-managed persistence unit —
+             hit CWWKE0800W ("no JNDI feature is configured") on every
+             request until declared explicitly here, matching IBM's
+             documented fix for this exact message. -->
+        <feature>jndi-1.0</feature>
         <feature>mpJwt-2.1</feature>
         <feature>mpOpenAPI-3.1</feature>
         <feature>mpHealth-4.0</feature>
+        <feature>enterpriseBeansLite-4.0</feature>
     </featureManager>
 
+    <!-- Default outbound TLS trust — needed for mpJwt's JWKS fetch (and any
+         other outbound HTTPS call, e.g. the OIDC exchange endpoint) to trust
+         a real external host's certificate. Not redundant with the JDBC
+         truststore Dockerfile comment: this is a genuinely separate use —
+         Liberty's own default trust, versus a property on one specific
+         dataSource connection — that happens to reuse the same file because
+         it's built from a complete JDK to begin with (see Dockerfile). Found
+         necessary the hard way: the runtime image's own bundled cacerts
+         rejected a normal, publicly-CA-signed host (App ID) with
+         CWWKS6051E "PKIX path building failed". Only trustStoreRef is set —
+         Liberty keeps auto-provisioning its own generated keystore for
+         inbound (server identity) TLS. -->
+    <keyStore id="defaultTrustStore"
+              location="${shared.resource.dir}/lib/app-truststore.jks"
+              type="JKS"
+              password="changeit" />
+    <ssl id="defaultSSLConfig" trustStoreRef="defaultTrustStore" />
+
     <!-- MicroProfile JWT Configuration.
-         userNameAttribute must be set to a claim Keycloak actually issues:
-         Keycloak access tokens carry "preferred_username", not the "upn"
-         claim Liberty looks for by default, so without this every request
+         userNameAttribute="sub" rather than Liberty's default "upn", or the
+         "preferred_username" this used to hardcode: Liberty needs *some*
+         claim present to build its security Principal, or every request
          fails authentication with CWWKS5506E regardless of the token's
-         validity.
+         validity — but nothing in this app actually reads that Principal's
+         name (JwtUtil deliberately reads the injected JsonWebToken directly,
+         never SecurityContext#getUserPrincipal(), specifically because the
+         latter isn't reliably populated — see JwtUtil.isAuthenticated's
+         comment). So the only real requirement is a claim every provider
+         this app targets actually issues: "preferred_username" doesn't
+         exist on IBM Cloud App ID's tokens at all (confirmed via its
+         discovery document — CWWKS5519E), while "sub" is a required OIDC
+         claim both Keycloak and App ID always carry.
 
          issuer and jwksUri are deliberately two separate variables, not one
          derived from the other: the browser can only ever reach Keycloak via
@@ -52,7 +165,7 @@
     <mpJwt id="jwt"
             issuer="${env.OIDC_ISSUER}"
             jwksUri="${env.OIDC_JWKS_URI}"
-            userNameAttribute="preferred_username" />
+            userNameAttribute="sub" />
 
     <!-- OpenAPI Configuration -->
     <mpOpenAPI />

@@ -10,9 +10,26 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
              version="3.0">
 
+    <!-- No <jta-data-source> here — deliberately. Declaring one is what makes
+         Liberty auto-bootstrap this persistence unit itself the moment
+         anything injects @PersistenceContext, resolving the datasource via a
+         bare `new InitialContext().lookup(...)` inside Liberty's own JPA
+         container code. That call intermittently loses a one-shot
+         javax.naming.spi.NamingManager builder registration race at kernel
+         startup — a confirmed Liberty-level bug (CWWKE0800W / CWWJP0013E; 14
+         other causes ruled out — feature list, JVM flags, Liberty version,
+         distribution type, JNDI name scoping, and more — see
+         deploy/JNDI_RACE_DEBUGGING_SUMMARY.md for the full investigation),
+         not a config mistake here. Nothing in this app uses
+         @PersistenceContext/@PersistenceUnit any more — every repository
+         gets its EntityManager from
+         com.shelfinity.persistence.EntityManagerProducer instead, which
+         builds the EntityManagerFactory programmatically from a
+         @Resource-injected DataSource (a different, unaffected Liberty
+         subsystem) — so Liberty's own container-managed bootstrap for this
+         unit is never triggered at all, making the race structurally
+         unreachable rather than just less likely. -->
     <persistence-unit name="shelfinityPU" transaction-type="JTA">
-        <jta-data-source>jdbc/shelfinityDS</jta-data-source>
-        
         <!-- Entity classes -->
         <class>com.shelfinity.users.User</class>
         <class>com.shelfinity.books.Book</class>
@@ -21,13 +38,42 @@
         <class>com.shelfinity.email.EncryptedStringConverter</class>
         <class>com.shelfinity.persistence.UuidStringConverter</class>
         <class>com.shelfinity.reservations.Reservation</class>
-        
+
         <!-- Properties -->
         <properties>
-            <!-- Jakarta EE 10 JPA properties -->
+            <!-- EntityManagerProducer passes jakarta.persistence.jtaDataSource
+                 (the resolved DataSource object) and this at
+                 EntityManagerFactory-creation time, not here — persistence.xml
+                 properties are static strings, but the DataSource instance
+                 and this target-server string both need to travel together
+                 as Java values through Persistence.createEntityManagerFactory,
+                 so they're set programmatically instead of listed here.
+                 eclipselink.target-server=WebSphere_Liberty is what makes
+                 EclipseLink still enlist connections in the ambient JTA
+                 transaction via Liberty's transaction manager, exactly as a
+                 container-managed persistence unit would — without it,
+                 EclipseLink would have no way to know it's running inside
+                 Liberty's JTA at all. -->
             <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
-            <property name="jakarta.persistence.schema-generation.create-source" value="metadata"/>
-            <property name="jakarta.persistence.schema-generation.drop-source" value="metadata"/>
+
+            <!-- EclipseLink's shared L2 cache is ON by default (JPA leaves
+                 sharedCache.mode's default up to the provider), which means
+                 any row changed outside JPA — a raw SQL UPDATE, a migration
+                 script, an ops fix — stays invisible to a running server
+                 indefinitely, since nothing ever tells the cache to forget
+                 it. Found the hard way bootstrapping the first admin: a
+                 direct `UPDATE users SET role='ADMIN'...` didn't take effect
+                 even across a full sign-out/sign-in, because that's a fresh
+                 JWT, not a fresh cache — restarting the server was what
+                 actually picked it up. Bootstrapping the very first admin
+                 this way isn't a one-off debugging shortcut, it's the
+                 documented, permanent procedure (there's no other user who
+                 could grant that role yet — see QueueApprovalService/
+                 UsersResource's admin-approval flow), including on every
+                 real deployment. Disabling the cache trades a small amount
+                 of read performance for the DB always being the actual
+                 source of truth, appropriate at this app's scale. -->
+            <property name="jakarta.persistence.sharedCache.mode" value="NONE"/>
         </properties>
     </persistence-unit>
 

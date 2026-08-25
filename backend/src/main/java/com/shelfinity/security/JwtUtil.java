@@ -8,23 +8,24 @@ package com.shelfinity.security;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonString;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
+
+import com.shelfinity.users.UserRepository;
 
 /**
  * Utility class for JWT token operations using MicroProfile JWT.
  */
 @ApplicationScoped
 public class JwtUtil {
-    
+
     @Inject
     private JsonWebToken jwt;
+
+    @Inject
+    private UserRepository userRepository;
 
     /**
      * Get the current authenticated user's email from JWT token.
@@ -47,39 +48,21 @@ public class JwtUtil {
     }
     
     /**
-     * Get the current authenticated user's role from JWT token.
-     * Keycloak puts realm roles under the nested "realm_access.roles" claim
-     * rather than the flat "groups" claim JsonWebToken#getGroups() reads, so
-     * that claim has to be unpacked directly.
+     * Get the current authenticated user's role.
+     * Deliberately a DB lookup (User.role, keyed by the JWT's subject) rather
+     * than parsing a role/groups claim off the token itself: the two OIDC
+     * providers this app targets (Keycloak locally, IBM Cloud App ID in the
+     * cloud) don't share a token role-claim shape, and getting App ID to
+     * emit one at all needs a separate custom-claims-mapping setup step of
+     * unconfirmed availability on its free Lite plan. The DB is already the
+     * source of truth for role either way (see the admin-approval queue
+     * flow in QueueApprovalService), so this makes authorization identical
+     * for both providers instead of forking on IDP-specific claim parsing.
      */
     public Optional<String> getCurrentUserRole() {
-        if (jwt == null) {
-            return Optional.empty();
-        }
-        Object realmAccess = jwt.getClaim("realm_access");
-        Collection<?> roles = null;
-        if (realmAccess instanceof JsonObject) {
-            roles = ((JsonObject) realmAccess).getJsonArray("roles");
-        } else if (realmAccess instanceof Map) {
-            Object rolesClaim = ((Map<?, ?>) realmAccess).get("roles");
-            if (rolesClaim instanceof Collection) {
-                roles = (Collection<?>) rolesClaim;
-            }
-        }
-        if (roles != null) {
-            // Keycloak may include other realm roles (e.g. offline_access,
-            // uma_authorization) alongside ours, so look for a known
-            // application role rather than assuming array order/position.
-            for (Object roleValue : roles) {
-                String role = roleValue instanceof JsonString
-                        ? ((JsonString) roleValue).getString()
-                        : String.valueOf(roleValue);
-                if ("admin".equals(role) || "user".equals(role)) {
-                    return Optional.of(role);
-                }
-            }
-        }
-        return Optional.empty();
+        return getCurrentUserKeycloakId()
+                .flatMap(userRepository::findByKeycloakId)
+                .map(user -> user.getRole().name().toLowerCase());
     }
     
     /**

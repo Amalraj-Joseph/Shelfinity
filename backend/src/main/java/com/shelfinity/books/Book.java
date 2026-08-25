@@ -59,7 +59,12 @@ public class Book {
     @Column(nullable = false)
     private String author;
     
-    @Column(unique = true)
+    // No @Column(unique = true) here: Db2 rejects a unique constraint on a
+    // nullable column outright (SQLCODE=-542), unlike Postgres, which treats
+    // multiple NULLs as distinct under one. Uniqueness is already enforced
+    // at the application layer — see BooksResource#createBook's findByIsbn
+    // check — so the DB-level constraint was only redundant defense-in-depth,
+    // not load-bearing.
     private String isbn;
     
     @Column(length = 1000)

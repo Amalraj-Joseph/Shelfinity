@@ -11,8 +11,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
@@ -20,15 +20,15 @@ import jakarta.transaction.Transactional;
  * Repository for EmailConfig entity operations.
  */
 @ApplicationScoped
+@Transactional
 public class EmailConfigRepository {
-    
-    @PersistenceContext(unitName = "shelfinityPU")
+
+    @Inject
     private EntityManager entityManager;
-    
+
     /**
      * Save a new email configuration.
      */
-    @Transactional
     public EmailConfig save(EmailConfig config) {
         // Deactivate all other configs when saving a new active one
         if (config.isActive()) {
@@ -41,7 +41,6 @@ public class EmailConfigRepository {
     /**
      * Update an existing email configuration.
      */
-    @Transactional
     public EmailConfig update(EmailConfig config) {
         // Deactivate all other configs when updating to active
         if (config.isActive()) {
@@ -81,7 +80,6 @@ public class EmailConfigRepository {
     /**
      * Delete email configuration by ID.
      */
-    @Transactional
     public void deleteById(UUID id) {
         EmailConfig config = entityManager.find(EmailConfig.class, id);
         if (config != null) {
@@ -92,7 +90,6 @@ public class EmailConfigRepository {
     /**
      * Deactivate all email configurations.
      */
-    @Transactional
     public void deactivateAll() {
         entityManager.createQuery("UPDATE EmailConfig e SET e.active = false")
                 .executeUpdate();
@@ -101,7 +98,6 @@ public class EmailConfigRepository {
     /**
      * Activate a specific email configuration.
      */
-    @Transactional
     public void activate(UUID id) {
         deactivateAll();
         EmailConfig config = entityManager.find(EmailConfig.class, id);

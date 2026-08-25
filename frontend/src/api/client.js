@@ -73,6 +73,11 @@ export const auth = {
   login: () => request('/auth/login', { method: 'POST' }),
   validate: () => request('/auth/validate'),
   me: () => request('/auth/me'),
+  // pkce mode only — see AuthContext.js's AUTH_FLOW comment. Routed through
+  // our own backend rather than called directly from the browser because
+  // App ID's token endpoint doesn't send CORS headers.
+  oidcExchange: (code, codeVerifier, redirectUri) =>
+    request('/auth/oidc-exchange', { method: 'POST', body: { code, codeVerifier, redirectUri } }),
 };
 
 export const users = {

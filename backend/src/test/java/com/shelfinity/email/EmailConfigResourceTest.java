@@ -134,6 +134,31 @@ class EmailConfigResourceTest {
     }
 
     @Test
+    void updateConfig_requestOmitsCreatedAt_preservesExistingValue() {
+        // Regression test: createdAt is server-set and NOT NULL in the
+        // schema. A mocked repository won't reject a null createdAt the way
+        // a real one does, so this only guards the resource's own
+        // preserve-from-existing logic — EmailConfigApiIT (mvn verify -Pe2e)
+        // is what actually proves the DB constraint is satisfied.
+        UUID id = UUID.randomUUID();
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
+        EmailConfig existing = configWithPassword("existing-encrypted-value");
+        existing.setId(id);
+        existing.setCreatedAt(java.time.LocalDateTime.of(2026, 1, 1, 0, 0));
+        when(emailConfigRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(emailConfigRepository.update(any(EmailConfig.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        EmailConfig updateRequest = new EmailConfig("smtp.newhost.com", 465, "noreply@shelfinity.com");
+        updateRequest.setPassword("existing-encrypted-value");
+
+        emailConfigResource.updateConfig(id.toString(), updateRequest);
+
+        ArgumentCaptor<EmailConfig> captor = ArgumentCaptor.forClass(EmailConfig.class);
+        verify(emailConfigRepository).update(captor.capture());
+        assertThat(captor.getValue().getCreatedAt()).isEqualTo(java.time.LocalDateTime.of(2026, 1, 1, 0, 0));
+    }
+
+    @Test
     void updateConfig_notFound_returns404() {
         UUID id = UUID.randomUUID();
         when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);

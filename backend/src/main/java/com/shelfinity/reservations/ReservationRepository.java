@@ -12,8 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
@@ -21,24 +21,23 @@ import jakarta.transaction.Transactional;
  * Repository for Reservation entity operations.
  */
 @ApplicationScoped
+@Transactional
 public class ReservationRepository {
-    
-    @PersistenceContext(unitName = "shelfinityPU")
+
+    @Inject
     private EntityManager entityManager;
-    
+
     /**
      * Save a new reservation.
      */
-    @Transactional
     public Reservation save(Reservation reservation) {
         entityManager.persist(reservation);
         return reservation;
     }
-    
+
     /**
      * Update an existing reservation.
      */
-    @Transactional
     public Reservation update(Reservation reservation) {
         return entityManager.merge(reservation);
     }
@@ -130,7 +129,6 @@ public class ReservationRepository {
     /**
      * Delete reservation by ID.
      */
-    @Transactional
     public void deleteById(UUID id) {
         Reservation reservation = entityManager.find(Reservation.class, id);
         if (reservation != null) {
@@ -141,7 +139,6 @@ public class ReservationRepository {
     /**
      * Cancel reservation.
      */
-    @Transactional
     public void cancel(UUID id) {
         Reservation reservation = entityManager.find(Reservation.class, id);
         if (reservation != null) {
@@ -156,7 +153,6 @@ public class ReservationRepository {
      * notification, using the same configurable reservation.expiry.days
      * the caller used to compute newExpiresAt.
      */
-    @Transactional
     public void markAsNotified(UUID id, LocalDateTime newExpiresAt) {
         Reservation reservation = entityManager.find(Reservation.class, id);
         if (reservation != null) {
@@ -170,7 +166,6 @@ public class ReservationRepository {
     /**
      * Mark reservation as fulfilled.
      */
-    @Transactional
     public void markAsFulfilled(UUID id) {
         Reservation reservation = entityManager.find(Reservation.class, id);
         if (reservation != null) {
@@ -182,7 +177,6 @@ public class ReservationRepository {
     /**
      * Mark expired reservations.
      */
-    @Transactional
     public int markExpiredReservations() {
         return entityManager.createQuery(
             "UPDATE Reservation r SET r.status = :expiredStatus " +
