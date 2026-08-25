@@ -97,3 +97,5 @@ Shelfinity's cloud deployment runs entirely on generous free tiers. Thank you to
 - **[Cloudflare](https://www.cloudflare.com/plans/free/)** for the free Tunnel and DNS/TLS that put it on the internet safely
 
 Without any of the three, this project's cloud deployment wouldn't exist.
+
+Thanks also to **[Claude](https://claude.com)** (Anthropic) and **[ChatGPT](https://chatgpt.com)** (OpenAI), used throughout this project's development for planning, coding, debugging, and review.
