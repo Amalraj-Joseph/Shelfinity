@@ -71,7 +71,9 @@ Cloudflare.
   carry all public traffic to the VM without opening an inbound port on it.
 - **Oracle Cloud Infrastructure** — the VM runs `nginx` (serving the React
   production build and proxying `/api`) and Open Liberty natively under
-  systemd, not in Docker on this one path. At boot, a small standalone
+  systemd, not in Docker on this one path — the free-tier Always Free VM's
+  1GB of RAM doesn't leave room for a Docker daemon and duplicated image
+  layers on top of the app itself. At boot, a small standalone
   module (`backend/vault-bootstrap`) authenticates as the VM itself via
   Instance Principals and pulls every secret — the Db2 password, App ID
   config, the email encryption key — from **OCI Vault**, so nothing
