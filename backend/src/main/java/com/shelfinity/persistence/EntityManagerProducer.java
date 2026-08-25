@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +21,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Produces;
 import jakarta.persistence.EntityManager;
@@ -87,12 +91,104 @@ public class EntityManagerProducer {
 
     private EntityManagerFactory entityManagerFactory;
 
+    /**
+     * Forces this {@code @ApplicationScoped} bean to actually instantiate
+     * (running {@code @PostConstruct}) at application startup, rather than
+     * lazily on first CDI proxy use like a normal-scoped bean otherwise
+     * would. That laziness was the real bug behind every previous schema-
+     * generation failure here: the first thing that ever touches this
+     * producer is a repository's {@code @Inject EntityManager} field,
+     * dereferenced from inside a {@code @Transactional} method — so the
+     * JTA global transaction the interceptor started is already active by
+     * the time {@link #init()} used to run, and Liberty flatly refuses
+     * {@code Connection.setAutoCommit(...)} on any connection from this
+     * pool while one is ("DSRA9350E: Operation setAutoCommit is not
+     * allowed during a global transaction"). Worse, any connection this
+     * class opened from the same JTA-associated DataSource during that
+     * window was itself silently enlisted in that same ambient
+     * transaction, so a schema-generation probe failure poisoned it — and
+     * every subsequent statement on it, including the real runtime query
+     * that triggered this producer's instantiation in the first place —
+     * with Postgres's "current transaction is aborted". Observing
+     * {@code @Initialized(ApplicationScoped.class)} — fired once, when the
+     * application scope itself starts up — is the standard CDI idiom for
+     * an eager singleton: resolving this observer method requires an
+     * instance of the bean that declares it, so Weld creates one right
+     * then, well before any request (and so any transaction) exists.
+     */
+    void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {
+        // Intentionally empty — see Javadoc above.
+    }
+
     @PostConstruct
     void init() {
+        runSchemaGeneration();
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("jakarta.persistence.jtaDataSource", dataSource);
         properties.put("eclipselink.target-server", "WebSphere_Liberty");
-        entityManagerFactory = Persistence.createEntityManagerFactory("shelfinityPU", properties);
+        properties.put("jakarta.persistence.schema-generation.database.action", "none");
+        // eclipselink.target-server=WebSphere_Liberty tells EclipseLink every
+        // connection's transaction is externally (container) managed, so DDL
+        // execution always routes through a JTA-transaction-bound accessor —
+        // confirmed by testing: it does this even when a schema-generation
+        // connection is explicitly supplied, and even with onStartup() below
+        // guaranteeing this runs before any transaction exists (so there's no
+        // transaction for that accessor to be bound to, and every CREATE
+        // TABLE fails "DatabaseAccessor not connected"). So schema generation
+        // itself happens separately, in runSchemaGeneration() below, without
+        // this flag at all. A short-lived connection here just covers this
+        // EMF's own database-platform detection at creation time.
+        try (Connection loginConnection = dataSource.getConnection()) {
+            loginConnection.setAutoCommit(true);
+            properties.put("jakarta.persistence.schema-generation.connection", loginConnection);
+            entityManagerFactory = Persistence.createEntityManagerFactory("shelfinityPU", properties);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to initialize EntityManagerFactory", e);
+        }
+    }
+
+    /**
+     * Runs schema generation as its own separate, throwaway, RESOURCE_LOCAL
+     * EntityManagerFactory — deliberately without the real EMF's {@code
+     * jtaDataSource}/{@code eclipselink.target-server} pair, since that
+     * combination routes DDL execution through a JTA-transaction-bound
+     * accessor this producer never has (see the comment in {@link #init()}).
+     * Instead this hands EclipseLink a plain {@code nonJtaDataSource} and
+     * lets it acquire and release its own connections per statement, the
+     * normal RESOURCE_LOCAL way — wrapped so every connection comes back
+     * with autocommit forced on, since Liberty's pool hands out connections
+     * with autocommit <i>off</i> by default and EclipseLink's RESOURCE_LOCAL
+     * DDL execution never calls {@code setAutoCommit} itself. Without that,
+     * the first (expected) probe failure — the table doesn't exist yet —
+     * leaves the connection's transaction aborted, and every following
+     * statement, including the actual CREATE TABLEs, is rejected by Postgres
+     * with "current transaction is aborted". Forcing autocommit here only
+     * works at all because {@link #onStartup} guarantees this runs before
+     * any JTA global transaction exists — Liberty otherwise rejects
+     * {@code setAutoCommit} outright ("DSRA9350E: Operation setAutoCommit is
+     * not allowed during a global transaction").
+     */
+    private void runSchemaGeneration() {
+        Map<String, Object> ddlProperties = new HashMap<>();
+        ddlProperties.put("jakarta.persistence.transactionType", "RESOURCE_LOCAL");
+        ddlProperties.put("jakarta.persistence.nonJtaDataSource", autoCommitDataSource(dataSource));
+        ddlProperties.put("jakarta.persistence.schema-generation.database.action", "create");
+        Persistence.createEntityManagerFactory("shelfinityPU", ddlProperties).close();
+    }
+
+    /** Wraps a DataSource so every connection it hands out comes back with autocommit forced on. */
+    private static DataSource autoCommitDataSource(DataSource delegate) {
+        return (DataSource) Proxy.newProxyInstance(
+                EntityManagerProducer.class.getClassLoader(),
+                new Class<?>[] { DataSource.class },
+                (proxy, method, args) -> {
+                    Object result = method.invoke(delegate, args);
+                    if (result instanceof Connection) {
+                        ((Connection) result).setAutoCommit(true);
+                    }
+                    return result;
+                });
     }
 
     @Produces

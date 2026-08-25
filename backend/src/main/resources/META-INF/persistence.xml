@@ -54,7 +54,7 @@
                  container-managed persistence unit would — without it,
                  EclipseLink would have no way to know it's running inside
                  Liberty's JTA at all. -->
-            <property name="jakarta.persistence.schema-generation.database.action" value="none"/>
+            <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
 
             <!-- EclipseLink's shared L2 cache is ON by default (JPA leaves
                  sharedCache.mode's default up to the provider), which means
