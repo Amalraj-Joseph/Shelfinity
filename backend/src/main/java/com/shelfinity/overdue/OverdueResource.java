@@ -26,7 +26,6 @@ import com.shelfinity.security.JwtUtil;
 import com.shelfinity.users.User;
 import com.shelfinity.users.UserRepository;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -69,7 +68,6 @@ public class OverdueResource {
      * Get all overdue items (admin only).
      */
     @GET
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get all overdue items", description = "Retrieve all currently overdue books (admin only)")
     @APIResponses({
@@ -92,6 +90,11 @@ public class OverdueResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
+            if (!jwtUtil.isCurrentUserAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+            }
 
             List<QueueItemResponse> overdueItems = overdueService.getOverdueItems().stream()
                     .map(this::toResponse)
@@ -111,7 +114,6 @@ public class OverdueResource {
      */
     @GET
     @Path("/my")
-    @RolesAllowed({"admin", "user"})
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get my overdue items", description = "Retrieve overdue books for the authenticated user")
     @APIResponses({
@@ -155,7 +157,6 @@ public class OverdueResource {
      */
     @GET
     @Path("/stats")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get overdue statistics", description = "Retrieve statistics about overdue books (admin only)")
     @APIResponses({
@@ -178,7 +179,12 @@ public class OverdueResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
+            if (!jwtUtil.isCurrentUserAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+            }
+
             OverdueStats stats = overdueService.getOverdueStats();
             return Response.ok(stats).build();
             

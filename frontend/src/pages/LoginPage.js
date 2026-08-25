@@ -19,7 +19,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { keycloakRegistrationUrl, useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, loginRedirect, isAuthenticated, authFlow } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUsername] = useState('');
@@ -56,6 +56,19 @@ export default function LoginPage() {
     window.location.href = url;
   };
 
+  // pkce mode: the IDP's own hosted page handles both credential entry and
+  // sign-up, so there's no in-page form here at all — just a redirect.
+  const handleContinueClick = async () => {
+    setError(null);
+    setSubmitting(true);
+    try {
+      await loginRedirect();
+    } catch (err) {
+      setError(err.message || 'Sign in failed');
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Box
       minHeight="100vh"
@@ -88,43 +101,58 @@ export default function LoginPage() {
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <Box component="form" onSubmit={handleSubmit} noValidate>
-          <Stack spacing={2.5}>
-            <TextField
-              label="Username or email"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              fullWidth
-              autoFocus
-              inputProps={{ 'data-testid': 'login-username' }}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              inputProps={{ 'data-testid': 'login-password' }}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              fullWidth
-              disabled={submitting}
-              data-testid="login-submit"
-            >
-              {submitting ? <CircularProgress size={24} color="inherit" /> : 'Sign in'}
-            </Button>
-          </Stack>
-        </Box>
+        {authFlow === 'pkce' ? (
+          <Button
+            variant="contained"
+            size="large"
+            fullWidth
+            disabled={submitting}
+            onClick={handleContinueClick}
+            data-testid="login-continue"
+          >
+            {submitting ? <CircularProgress size={24} color="inherit" /> : 'Continue to sign in'}
+          </Button>
+        ) : (
+          <>
+            <Box component="form" onSubmit={handleSubmit} noValidate>
+              <Stack spacing={2.5}>
+                <TextField
+                  label="Username or email"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  fullWidth
+                  autoFocus
+                  inputProps={{ 'data-testid': 'login-username' }}
+                />
+                <TextField
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  fullWidth
+                  inputProps={{ 'data-testid': 'login-password' }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  disabled={submitting}
+                  data-testid="login-submit"
+                >
+                  {submitting ? <CircularProgress size={24} color="inherit" /> : 'Sign in'}
+                </Button>
+              </Stack>
+            </Box>
 
-        <Typography variant="body2" align="center" sx={{ mt: 3 }} color="text.secondary">
-          Don&apos;t have an account?{' '}
-          <Link href="#" onClick={handleRegisterClick} underline="hover" data-testid="register-link">
-            Register
-          </Link>
-        </Typography>
+            <Typography variant="body2" align="center" sx={{ mt: 3 }} color="text.secondary">
+              Don&apos;t have an account?{' '}
+              <Link href="#" onClick={handleRegisterClick} underline="hover" data-testid="register-link">
+                Register
+              </Link>
+            </Typography>
+          </>
+        )}
       </Paper>
     </Box>
   );

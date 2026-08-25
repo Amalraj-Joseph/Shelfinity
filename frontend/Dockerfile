@@ -21,10 +21,19 @@ ARG REACT_APP_KEYCLOAK_URL=http://localhost:8080
 ARG REACT_APP_REALM=shelfinity
 ARG REACT_APP_CLIENT_ID=shelfinity-frontend
 ARG REACT_APP_API_BASE_URL=/api
+# Defaults to 'ropc' (Keycloak, today's behavior) with an empty endpoint, so
+# a build with no cloud-specific args is unaffected — see AuthContext.js's
+# AUTH_FLOW comment and .env.example for the App ID / 'pkce' values. Only the
+# authorization endpoint is needed client-side (a page redirect, not a
+# fetch); the token exchange itself is backend-side — see backend/.env.example.
+ARG REACT_APP_AUTH_FLOW=ropc
+ARG REACT_APP_OIDC_AUTHORIZATION_ENDPOINT=
 ENV REACT_APP_KEYCLOAK_URL=${REACT_APP_KEYCLOAK_URL} \
     REACT_APP_REALM=${REACT_APP_REALM} \
     REACT_APP_CLIENT_ID=${REACT_APP_CLIENT_ID} \
-    REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
+    REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL} \
+    REACT_APP_AUTH_FLOW=${REACT_APP_AUTH_FLOW} \
+    REACT_APP_OIDC_AUTHORIZATION_ENDPOINT=${REACT_APP_OIDC_AUTHORIZATION_ENDPOINT}
 
 # Build the app
 RUN npm run build

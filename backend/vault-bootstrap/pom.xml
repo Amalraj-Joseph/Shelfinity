@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2025 Amalraj Joseph
+
+  This source code is licensed under the MIT License.
+  See the LICENSE file in the root directory for more information.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.shelfinity</groupId>
+    <artifactId>vault-bootstrap</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Shelfinity Vault Bootstrap</name>
+    <description>
+        Standalone, cloud-only startup helper: fetches Shelfinity's secrets
+        from OCI Vault (via Instance Principals — no credentials stored on
+        the VM) and writes them as a plain KEY=value file for systemd's
+        EnvironmentFile= to load before the backend starts. Deliberately a
+        separate Maven module, not a dependency of the main backend WAR —
+        local Keycloak/Postgres/Docker dev never needs this at all, and the
+        OCI SDK has no business being anywhere near the app's own classpath.
+    </description>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <oci.sdk.version>3.94.2</oci.sdk.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.oracle.oci.sdk</groupId>
+            <artifactId>oci-java-sdk-secrets</artifactId>
+            <version>${oci.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.oci.sdk</groupId>
+            <artifactId>oci-java-sdk-common</artifactId>
+            <version>${oci.sdk.version}</version>
+        </dependency>
+        <!-- The SDK's actual HTTP transport is a separate module as of the
+             modularized SDK line — without it, client calls fail at runtime
+             with no implementation found, not at compile time. -->
+        <dependency>
+            <groupId>com.oracle.oci.sdk</groupId>
+            <artifactId>oci-java-sdk-common-httpclient-jersey3</artifactId>
+            <version>${oci.sdk.version}</version>
+        </dependency>
+        <!-- JSON-P: parsing each secret's small JSON payload. Already a
+             known-good pairing in this codebase (see backend/pom.xml's
+             parsson dependency) — reused here rather than pulling in a
+             different JSON library for the same job. -->
+        <dependency>
+            <groupId>org.eclipse.parsson</groupId>
+            <artifactId>parsson</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
+            <version>2.1.3</version>
+        </dependency>
+        <!-- The OCI SDK logs via SLF4J; without a binding it prints a
+             "no implementation found" warning to stderr on every run,
+             which would otherwise clutter journalctl output for no reason. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>2.0.13</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>vault-bootstrap</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+            <!-- Shaded into a single executable jar: this runs standalone on
+                 the VM via `java -jar`, not inside an app server with a
+                 shared classpath to lean on. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.shelfinity.vaultbootstrap.OciSecretsBootstrap</mainClass>
+                                </transformer>
+                                <!-- Multiple JSON-P provider jars on the shaded
+                                     classpath both register a services file at
+                                     this path; without merging, only one wins
+                                     and the JsonProvider lookup can fail. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

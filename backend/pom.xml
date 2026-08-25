@@ -82,11 +82,21 @@
             <version>2.0.2</version>
         </dependency>
 
-        <!-- PostgreSQL Driver -->
+        <!-- PostgreSQL Driver (local/CI database) -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.5</version>
+        </dependency>
+
+        <!-- IBM Db2 JDBC Driver (cloud database). Both drivers ship together so
+             the vendor-neutral server.xml dataSource (see its comment) can bind
+             to whichever one matches DB_JDBC_URL at runtime, with no rebuild
+             needed to switch database vendors. -->
+        <dependency>
+            <groupId>com.ibm.db2</groupId>
+            <artifactId>jcc</artifactId>
+            <version>12.1.5.0</version>
         </dependency>
 
         <!-- EclipseLink JPA Provider. `provided`, not bundled into the WAR:
@@ -295,7 +305,7 @@
                     <serverXmlFile>${project.basedir}/server.xml</serverXmlFile>
                     <appsDirectory>apps</appsDirectory>
                     <installApps>project</installApps>
-                    <!-- Copy the PostgreSQL driver into Liberty's own default shared.resource.dir
+                    <!-- Copy the JDBC driver jars into Liberty's own default shared.resource.dir
                          (usr/shared/resources/lib) instead of overriding shared.resource.dir via
                          bootstrapProperties: overriding it caused the fileset in server.xml to
                          intermittently resolve to zero jars (DSRA4000E) because the overridden
@@ -309,6 +319,11 @@
                                 <groupId>org.postgresql</groupId>
                                 <artifactId>postgresql</artifactId>
                                 <version>42.7.5</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.ibm.db2</groupId>
+                                <artifactId>jcc</artifactId>
+                                <version>12.1.5.0</version>
                             </dependency>
                         </dependencyGroup>
                     </copyDependencies>

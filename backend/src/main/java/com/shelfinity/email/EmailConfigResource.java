@@ -261,6 +261,17 @@ public class EmailConfigResource {
             if (config.getPassword() == null || config.getPassword().isEmpty()) {
                 config.setPassword(existingConfig.get().getPassword());
             }
+            // createdAt is server-set and NOT NULL in the schema; a client
+            // that doesn't round-trip it (a minimal partial-update payload,
+            // same as the password case above) would otherwise null it out
+            // and fail the update with a DB constraint violation. Found via
+            // EmailConfigApiIT, the first test against a real database this
+            // endpoint ever had — the mocked EmailConfigResourceTest can't
+            // catch a NOT NULL violation since a mock repository has no
+            // constraints to violate.
+            if (config.getCreatedAt() == null) {
+                config.setCreatedAt(existingConfig.get().getCreatedAt());
+            }
             EmailConfig updatedConfig = emailConfigRepository.update(config);
             
             // Refresh email service if this is the active configuration

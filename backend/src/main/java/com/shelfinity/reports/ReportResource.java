@@ -25,7 +25,6 @@ import com.shelfinity.reports.ReportService.LibraryStatistics;
 import com.shelfinity.reports.ReportService.UserActivityReport;
 import com.shelfinity.security.JwtUtil;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -55,7 +54,6 @@ public class ReportResource {
      */
     @GET
     @Path("/book-popularity")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get book popularity report", description = "Get most borrowed books (admin only)")
     @APIResponses({
@@ -80,7 +78,12 @@ public class ReportResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
+            if (!jwtUtil.isCurrentUserAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+            }
+
             List<BookPopularityReport> report = reportService.getBookPopularityReport(limit);
             return Response.ok(report).build();
             
@@ -97,7 +100,6 @@ public class ReportResource {
      */
     @GET
     @Path("/borrowing-trends")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get borrowing trends", description = "Get borrowing trends over a time period (admin only)")
     @APIResponses({
@@ -122,7 +124,12 @@ public class ReportResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
+            if (!jwtUtil.isCurrentUserAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+            }
+
             LocalDateTime endDate = LocalDateTime.now();
             LocalDateTime startDate = endDate.minusDays(days);
             
@@ -142,7 +149,6 @@ public class ReportResource {
      */
     @GET
     @Path("/user-activity")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get user activity report", description = "Get most active users (admin only)")
     @APIResponses({
@@ -167,7 +173,12 @@ public class ReportResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
+            if (!jwtUtil.isCurrentUserAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+            }
+
             List<UserActivityReport> report = reportService.getUserActivityReport(limit);
             return Response.ok(report).build();
             
@@ -184,7 +195,6 @@ public class ReportResource {
      */
     @GET
     @Path("/statistics")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get library statistics", description = "Get overall library statistics (admin only)")
     @APIResponses({
@@ -207,7 +217,12 @@ public class ReportResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
+            if (!jwtUtil.isCurrentUserAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+            }
+
             LibraryStatistics stats = reportService.getLibraryStatistics();
             return Response.ok(stats).build();
             
@@ -224,7 +239,6 @@ public class ReportResource {
      */
     @GET
     @Path("/author-distribution")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Get author distribution", description = "Get distribution of books by author (admin only)")
     @APIResponses({
@@ -247,7 +261,12 @@ public class ReportResource {
                     .entity("{\"error\": \"Not authenticated\"}")
                     .build();
             }
-            
+            if (!jwtUtil.isCurrentUserAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"error\": \"Admin access required\"}")
+                    .build();
+            }
+
             List<AuthorDistribution> distribution = reportService.getAuthorDistribution();
             return Response.ok(distribution).build();
             

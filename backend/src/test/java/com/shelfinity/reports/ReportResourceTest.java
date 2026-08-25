@@ -42,8 +42,19 @@ class ReportResourceTest {
     }
 
     @Test
+    void getBookPopularityReport_authenticatedNotAdmin_returns403() {
+        when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(false);
+
+        Response response = reportResource.getBookPopularityReport(10);
+
+        assertThat(response.getStatus()).isEqualTo(403);
+    }
+
+    @Test
     void getBookPopularityReport_authenticated_passesLimitThrough() {
         when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
         when(reportService.getBookPopularityReport(5)).thenReturn(List.of());
 
         Response response = reportResource.getBookPopularityReport(5);
@@ -55,6 +66,7 @@ class ReportResourceTest {
     @Test
     void getBorrowingTrends_authenticated_computesDateWindow() {
         when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
         when(reportService.getBorrowingTrends(
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(new ReportService.BorrowingTrendsReport(null, null, 0, 0, 0));
@@ -76,6 +88,7 @@ class ReportResourceTest {
     @Test
     void getLibraryStatistics_authenticated_returnsStats() {
         when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
         when(reportService.getLibraryStatistics())
                 .thenReturn(new LibraryStatistics(10, 5, 3, 2, 1, 0));
 
@@ -97,6 +110,7 @@ class ReportResourceTest {
     @Test
     void getAuthorDistribution_authenticated_delegatesToService() {
         when(jwtUtil.isAuthenticated()).thenReturn(true);
+        when(jwtUtil.isCurrentUserAdmin()).thenReturn(true);
         when(reportService.getAuthorDistribution()).thenReturn(List.of());
 
         Response response = reportResource.getAuthorDistribution();
