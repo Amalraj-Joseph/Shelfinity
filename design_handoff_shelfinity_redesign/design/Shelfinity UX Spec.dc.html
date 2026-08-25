@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-d002a679-24fc-4aac-86ac-6584311026d5/styles.css">
+<script src="_ds/modernist-d002a679-24fc-4aac-86ac-6584311026d5/_ds_bundle.js"></script>
+<style>
+body{margin:0}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent)}
+.spec{max-width:1120px;margin:0 auto;padding:0 40px 120px}
+.sec{padding:48px 0 0;border-top:2px solid var(--color-divider);margin-top:48px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.kick{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 8px;font-weight:600}
+.lede{font-size:17px;line-height:1.6;max-width:70ch}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.rule{height:1px;background:var(--color-divider);margin:24px 0}
+.spec table{margin-bottom:8px}
+.spec td .mono{white-space:nowrap}
+.blk{background:var(--color-surface);padding:20px}
+.do{border-top:3px solid var(--color-accent);padding-top:12px}
+.dont{border-top:3px solid var(--color-neutral-400);padding-top:12px}
+ul.tight{margin:0 0 12px;padding-left:18px}
+ul.tight li{margin-bottom:6px;font-size:14px;line-height:1.5}
+ol.tight{margin:0 0 12px;padding-left:20px}
+ol.tight li{margin-bottom:6px;font-size:14px;line-height:1.5}
+@media print{.spec{max-width:none;padding:0 24px}}
+</style>
+</helmet>
+
+<div class="spec">
+
+<header style="padding:72px 0 40px">
+<p class="kick">Shelfinity · UX &amp; UI specification · v1.0 · for implementation</p>
+<h1 style="font-size:76px;line-height:.98;margin:0 0 20px;max-width:22ch">A library that reads as a library, not a database.</h1>
+<p class="lede">Shelfinity works. It does not yet feel like somewhere a person goes looking for a book. This document rewrites the whole experience — every screen, including the ones nobody screenshotted — on one visual system, one layout grammar and one set of state rules, so that any screen built later is already designed.</p>
+<div class="grid4" style="margin-top:40px;border-top:2px solid var(--color-divider);padding-top:20px">
+<div><p class="kick">Audience</p><p style="font-size:14px;margin:0">A coding agent implementing the front end, plus the product owner reviewing direction.</p></div>
+<div><p class="kick">Design system</p><p style="font-size:14px;margin:0">Modernist — Archivo, flat, zero radius, 2px rules, one red accent. Binding.</p></div>
+<div><p class="kick">Companion file</p><p style="font-size:14px;margin:0"><a href="Shelfinity Screens.dc.html">Shelfinity Screens</a> — live web + mobile mockups of every pattern named here.</p></div>
+<div><p class="kick">Status</p><p style="font-size:14px;margin:0">Direction locked. Content and role logic to be confirmed against the codebase.</p></div>
+</div>
+</header>
+
+<section class="sec" id="how-to-use">
+<p class="kick">00</p>
+<h2>How to use this document</h2>
+<div class="grid2">
+<div>
+<p style="font-size:15px">Read §1–§9 once: they are the rules. §10 onward is the screen catalogue, and it is deliberately longer than the set of screens that were screenshotted — the point of the rules is that a screen not drawn here can still be built correctly.</p>
+<p style="font-size:15px">Where a spec and a mockup disagree, the <strong>spec wins</strong>. Where the spec is silent, apply the nearest pattern in §7 rather than inventing one. Never introduce a colour, radius, font or spacing value that is not a Modernist token.</p>
+</div>
+<div class="blk">
+<p class="kick" style="margin-bottom:12px">Definition of done, per screen</p>
+<ol class="tight">
+<li>Uses the app shell and page-header pattern verbatim (§6).</li>
+<li>All four data states designed: loading, empty, populated, error (§9).</li>
+<li>Status words come from the one vocabulary table (§8) — no new colours for status.</li>
+<li>Mobile layout follows the transform rules in §15, not a squashed desktop.</li>
+<li>Keyboard reachable; focus ring is the 2px accent ring; no browser-default blue.</li>
+<li>Every number on screen is legible without a colour cue.</li>
+</ol>
+</div>
+</div>
+</section>
+
+<section class="sec" id="brief">
+<p class="kick">01</p>
+<h2>Brief, assumptions, open questions</h2>
+<div class="grid3">
+<div>
+<p class="kick">What I was given</p>
+<ul class="tight">
+<li>21 screenshots of the live admin account: sign-in, IBM App ID hand-off, dashboard, browse, my activity, users, manage books, reservations, overdue, email config, reports, requests queue with approve/reject dialogs, and two book-tile states.</li>
+<li>A brief to make it attractive, modern and humane, with web and mobile for each screen.</li>
+</ul>
+</div>
+<div>
+<p class="kick">Assumptions I am designing on</p>
+<ul class="tight">
+<li><strong>One account, capability-scoped.</strong> Admin is a role on a normal member account, not a separate app. The member view is this view with the <span class="mono">ADMIN</span> group removed — confirmed by the product owner.</li>
+<li>Catalogue is small-to-mid (hundreds of titles) but must not assume it stays there.</li>
+<li>Borrowing is request-and-approve, not instant checkout: every borrow and every return passes an admin queue.</li>
+<li>Reservations exist for unavailable copies and expire on a date.</li>
+<li>Auth is delegated (IBM App ID); Shelfinity cannot fully restyle that page.</li>
+<li>Staff work at a desk on a laptop; members are mostly on a phone.</li>
+</ul>
+</div>
+<div>
+<p class="kick">Open questions — do not guess in code</p>
+<ul class="tight">
+<li>Are fines/fees in scope? The spec includes a slot (§11.14) but no policy.</li>
+<li>Multi-branch or single library? Shelf location assumes one building.</li>
+<li>Loan length and renewal policy — the UI shows renewals; the rule is unknown.</li>
+<li>Can the App ID login page be themed, or is it wrapped by a Shelfinity-hosted pre-auth screen (§11.1)?</li>
+<li>Is there a notification email queue, or is email fire-and-forget?</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="sec" id="diagnosis">
+<p class="kick">02</p>
+<h2>What is wrong today</h2>
+<p class="lede" style="margin-bottom:28px">Not a taste list. Each finding is a behaviour cost, and each one is fixed by a named rule later in this document.</p>
+<table class="table">
+<thead><tr><th style="width:26%">Finding</th><th style="width:38%">Cost to the person using it</th><th style="width:20%">Fixed by</th></tr></thead>
+<tbody>
+<tr><td><strong>Everything is a card of equal weight</strong></td><td>The dashboard's four counters, the recent-activity list and the page title all shout at the same volume. Nothing tells you where to look, so you read all of it or none of it.</td><td class="mono">§6 grid, §7.3 figure block</td></tr>
+<tr><td><strong>Status is carried by colour alone</strong></td><td>Green/orange/blue pills mean available/pending/active. Colour-blind users and greyscale printouts lose the meaning; the palette also fights the brand.</td><td class="mono">§8 status vocabulary</td></tr>
+<tr><td><strong>Empty states are dead ends</strong></td><td>"No rows", "No reservations yet.", "No email configuration set up yet." — each tells you nothing is there and offers no way forward. Overdue's empty state is the <em>good</em> news and looks like a failure.</td><td class="mono">§9.2</td></tr>
+<tr><td><strong>Member and admin are one flat rail</strong></td><td>An ADMIN divider inside the same list implies the two jobs are peers. They are different modes of attention: my books vs. the library's books.</td><td class="mono">§5 role model, §6.1</td></tr>
+<tr><td><strong>The catalogue has no covers and no scent</strong></td><td>Nine identical text blocks with nine identical red-violet buttons. Nothing to scan, nothing to browse — you can only search for what you already knew you wanted.</td><td class="mono">§11.4, §13 imagery</td></tr>
+<tr><td><strong>Identity records leak into the UI</strong></td><td>Reservations shows <span class="mono">6f160ada-81f9-4ff9-…</span> under the book title. UUIDs are for logs.</td><td class="mono">§7.5 table rules</td></tr>
+<tr><td><strong>Loading is a bare spinner over stale rows</strong></td><td>The requests table dims and floats a spinner; you cannot tell whether your approval landed.</td><td class="mono">§9.1, §9.4 optimistic actions</td></tr>
+<tr><td><strong>Modals for one optional field</strong></td><td>Approve/Reject open a dialog whose only content is an optional remark. Two clicks and a context switch to do nothing.</td><td class="mono">§9.4</td></tr>
+<tr><td><strong>Tables are the answer to every question</strong></td><td>My Activity is a request log. A member does not want a log; they want "what do I have, when is it due, what can I do about it".</td><td class="mono">§11.6</td></tr>
+<tr><td><strong>Sign-in is a gradient with a button that leads to another sign-in</strong></td><td>Two sign-in pages in a row, the second unbranded and warning about default social-login config. First impression is "unfinished".</td><td class="mono">§11.1</td></tr>
+<tr><td><strong>No sense of place</strong></td><td>Nothing in the product knows it is about a library: no shelves, no people, no building, no reading.</td><td class="mono">§13 imagery</td></tr>
+<tr><td><strong>Mobile is unaddressed</strong></td><td>Fixed 240px rail, 6-column tables, 1100px-wide dialogs. On a phone this is a horizontal scroll.</td><td class="mono">§15</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="sec" id="principles">
+<p class="kick">03</p>
+<h2>Design principles</h2>
+<p class="lede" style="margin-bottom:32px">Seven rules. When a decision is genuinely open, these decide it — in order.</p>
+<div class="grid2" style="gap:0 40px">
+<div style="border-top:3px solid var(--color-accent);padding:16px 0 24px">
+<h4>1 · The shelf comes first</h4>
+<p style="font-size:14px;margin:0">The catalogue is the product; administration serves it. Browsing must be the fastest, richest, most photographic surface in the app — spines, covers, faces, shelves. Every other screen can be plainer than you think.</p>
+</div>
+<div style="border-top:3px solid var(--color-accent);padding:16px 0 24px">
+<h4>2 · One question per screen</h4>
+<p style="font-size:14px;margin:0">Each page answers a single question in its first 300 vertical pixels, in words, at display size. "3 books out, 1 due Friday." Numbers on their own are trivia; a number inside a sentence is an answer.</p>
+</div>
+<div style="border-top:3px solid var(--color-accent);padding:16px 0 24px">
+<h4>3 · Structure, not decoration</h4>
+<p style="font-size:14px;margin:0">Hierarchy comes from alignment, type size and 2px rules. Not from shadows, not from rounded floating cards, not from tinted backgrounds. If two things are different, make them a different size — not a different colour.</p>
+</div>
+<div style="border-top:3px solid var(--color-accent);padding:16px 0 24px">
+<h4>4 · Red is a verb</h4>
+<p style="font-size:14px;margin:0">The accent marks the one action that moves the user forward, the current location, and genuine urgency (overdue). It is never used for decoration and never used twice for the same rank on one screen.</p>
+</div>
+<div style="border-top:3px solid var(--color-accent);padding:16px 0 24px">
+<h4>5 · State is always designed</h4>
+<p style="font-size:14px;margin:0">Loading, empty, partial, error and success are first-class layouts, written in advance, in human sentences. A screen without its four states is not finished.</p>
+</div>
+<div style="border-top:3px solid var(--color-accent);padding:16px 0 24px">
+<h4>6 · Act, then confirm — reversibly</h4>
+<p style="font-size:14px;margin:0">Approve, reserve, renew and cancel happen immediately with an inline undo. Dialogs are reserved for the irreversible: deleting a title, deleting a person, revoking a role.</p>
+</div>
+<div style="border-top:3px solid var(--color-accent);padding:16px 0 24px">
+<h4>7 · Say it like a librarian</h4>
+<p style="font-size:14px;margin:0">Plain, warm, specific, and never in system voice. "Ready for you at the front desk until Tuesday" — not "RESERVATION ACTIVE · EXPIRES 01/09/2026".</p>
+</div>
+<div style="border-top:3px solid var(--color-neutral-400);padding:16px 0 24px">
+<h4 class="text-muted">Tie-breaker</h4>
+<p style="font-size:14px;margin:0" class="text-muted">If two principles conflict, the one with the lower number wins. If a principle conflicts with the Modernist system, the system wins and you raise it as a question.</p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="roles">
+<p class="kick">04</p>
+<h2>Role model &amp; information architecture</h2>
+<p class="lede">One account. A role is a set of capabilities layered onto the same person, so the member surfaces never disappear for staff — <strong>a librarian is also a borrower.</strong> The member experience is literally this app with the library-management group removed from the rail.</p>
+<div class="grid3" style="margin-top:32px">
+<div class="blk">
+<p class="kick">MEMBER · everyone</p>
+<ul class="tight">
+<li>Home — my library at a glance</li>
+<li>Browse — catalogue, search, facets</li>
+<li>Book detail</li>
+<li>My Shelf — out, due, requested, reserved, history</li>
+<li>Lists &amp; saved searches</li>
+<li>Notifications</li>
+<li>Profile, card &amp; preferences</li>
+</ul>
+</div>
+<div class="blk">
+<p class="kick">LIBRARIAN · adds</p>
+<ul class="tight">
+<li>Desk — today's queue: requests, returns, holds to pull</li>
+<li>Requests — approve / decline</li>
+<li>Circulation — check out, check in, renew on behalf</li>
+<li>Catalogue admin — add, edit, bulk import</li>
+<li>Reservations &amp; holds</li>
+<li>Overdue &amp; recalls</li>
+<li>Members — look up, edit, note</li>
+</ul>
+</div>
+<div class="blk">
+<p class="kick">ADMIN · adds</p>
+<ul class="tight">
+<li>Reports &amp; exports</li>
+<li>Roles &amp; permissions</li>
+<li>Loan policy — length, limits, renewals, fines</li>
+<li>Email &amp; notification settings</li>
+<li>Integrations &amp; auth</li>
+<li>Audit log</li>
+</ul>
+</div>
+</div>
+<h4 style="margin-top:40px">Navigation rule</h4>
+<p style="font-size:15px;max-width:80ch">The rail is <strong>two groups, never three</strong>: <span class="mono">MY LIBRARY</span> always, then <span class="mono">MANAGE LIBRARY</span> only if the role grants it, separated by a 2px rule and a group label. Admin-only settings sit under a single <span class="mono">Settings</span> entry at the foot of the rail, not as five sibling items. A member's rail therefore has four items and no dividers — it looks like a product, not a truncated CMS.</p>
+<h4 style="margin-top:32px">Route map</h4>
+<table class="table">
+<thead><tr><th>Route</th><th>Screen</th><th>Role</th><th>Spec</th></tr></thead>
+<tbody>
+<tr><td class="mono">/signin</td><td>Sign in (Shelfinity-hosted pre-auth)</td><td>public</td><td class="mono">§11.1</td></tr>
+<tr><td class="mono">/join</td><td>Request a card / register</td><td>public</td><td class="mono">§11.2</td></tr>
+<tr><td class="mono">/</td><td>Home</td><td>member</td><td class="mono">§11.3</td></tr>
+<tr><td class="mono">/books</td><td>Browse the catalogue</td><td>member</td><td class="mono">§11.4</td></tr>
+<tr><td class="mono">/books/:id</td><td>Book detail</td><td>member</td><td class="mono">§11.5</td></tr>
+<tr><td class="mono">/shelf</td><td>My Shelf (replaces My Activity)</td><td>member</td><td class="mono">§11.6</td></tr>
+<tr><td class="mono">/shelf/history</td><td>Reading history</td><td>member</td><td class="mono">§11.6</td></tr>
+<tr><td class="mono">/lists</td><td>Lists &amp; saved searches</td><td>member</td><td class="mono">§11.7</td></tr>
+<tr><td class="mono">/notifications</td><td>Notifications</td><td>member</td><td class="mono">§11.8</td></tr>
+<tr><td class="mono">/account</td><td>Profile, card, preferences</td><td>member</td><td class="mono">§11.9</td></tr>
+<tr><td class="mono">/desk</td><td>Desk — staff home</td><td>librarian</td><td class="mono">§11.10</td></tr>
+<tr><td class="mono">/desk/requests</td><td>Requests queue</td><td>librarian</td><td class="mono">§11.11</td></tr>
+<tr><td class="mono">/desk/circulation</td><td>Check out / check in</td><td>librarian</td><td class="mono">§11.12</td></tr>
+<tr><td class="mono">/desk/catalogue</td><td>Catalogue admin + bulk import</td><td>librarian</td><td class="mono">§11.13</td></tr>
+<tr><td class="mono">/desk/catalogue/:id/edit</td><td>Add / edit a title</td><td>librarian</td><td class="mono">§11.13</td></tr>
+<tr><td class="mono">/desk/holds</td><td>Reservations &amp; holds</td><td>librarian</td><td class="mono">§11.14</td></tr>
+<tr><td class="mono">/desk/overdue</td><td>Overdue &amp; recalls</td><td>librarian</td><td class="mono">§11.15</td></tr>
+<tr><td class="mono">/desk/members</td><td>Members</td><td>librarian</td><td class="mono">§11.16</td></tr>
+<tr><td class="mono">/desk/members/:id</td><td>Member record</td><td>librarian</td><td class="mono">§11.16</td></tr>
+<tr><td class="mono">/reports</td><td>Reports</td><td>admin</td><td class="mono">§11.17</td></tr>
+<tr><td class="mono">/settings/*</td><td>Policy, email, roles, integrations, audit</td><td>admin</td><td class="mono">§11.18</td></tr>
+<tr><td class="mono">/404 /500 /offline</td><td>System pages</td><td>any</td><td class="mono">§11.19</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="sec" id="foundations">
+<p class="kick">05</p>
+<h2>Visual foundations</h2>
+<p class="lede">Take every value from <span class="mono">_ds/modernist-…/styles.css</span>. The table below is a reading of that file, not a second source of truth.</p>
+<div class="grid2" style="margin-top:32px">
+<div>
+<h4>Colour, and what each role means here</h4>
+<table class="table">
+<thead><tr><th>Token</th><th>Use in Shelfinity</th></tr></thead>
+<tbody>
+<tr><td class="mono">--color-bg</td><td>Page ground. Every page. No white cards on it.</td></tr>
+<tr><td class="mono">--color-surface</td><td>Panels, table shells, dialogs, the rail. One step, never stacked two deep.</td></tr>
+<tr><td class="mono">--color-text</td><td>All copy, all numbers, all headings.</td></tr>
+<tr><td class="mono">--color-accent</td><td>Primary action, current nav item, overdue, the poster statement.</td></tr>
+<tr><td class="mono">--color-accent-100/200</td><td>Tinted tag fills (pending, ready).</td></tr>
+<tr><td class="mono">--color-accent-700</td><td>Accent-coloured body text and links (contrast-safe).</td></tr>
+<tr><td class="mono">--color-neutral-100/800</td><td>Neutral tags — closed, returned, archived.</td></tr>
+<tr><td class="mono">--color-divider</td><td>2px section rules, 1px row rules, input borders.</td></tr>
+</tbody>
+</table>
+<p style="font-size:13px" class="text-muted">Retire entirely: indigo <span class="mono">#4f46e5</span>, the blue-violet gradient, success green, warning amber, info blue. Semantics move to the vocabulary in §8.</p>
+</div>
+<div>
+<h4>Type scale &amp; roles</h4>
+<table class="table">
+<thead><tr><th>Role</th><th>Size / weight</th><th>Where</th></tr></thead>
+<tbody>
+<tr><td>Poster</td><td>64–76px / 800</td><td>Sign-in statement, statement panels only</td></tr>
+<tr><td>Page title</td><td>42px / 800</td><td>One per page, flush left, no subtitle unless it earns it</td></tr>
+<tr><td>Answer line</td><td>25–32px / 800</td><td>The sentence that answers the page's question</td></tr>
+<tr><td>Section</td><td>20px / 800</td><td>Panel headings</td></tr>
+<tr><td>Figure</td><td>42px / 800 tabular</td><td>Counters — always with a noun beneath</td></tr>
+<tr><td>Body</td><td>15px / 400</td><td>Prose, descriptions</td></tr>
+<tr><td>UI / table</td><td>14px / 400</td><td>Rows, fields, buttons</td></tr>
+<tr><td>Label</td><td>11px / 600, 0.08em, upper</td><td>Column heads, group labels, kickers</td></tr>
+</tbody>
+</table>
+<h4 style="margin-top:24px">Geometry</h4>
+<ul class="tight">
+<li>Radius <strong>0</strong> everywhere — buttons, inputs, tags, dialogs, avatars, images. No exceptions.</li>
+<li>Spacing from <span class="mono">--space-1…8</span>; page gutters 40px desktop / 20px mobile.</li>
+<li>Section separation is a 2px rule, not whitespace alone.</li>
+<li>Shadows only on things that genuinely float: dialogs, menus, toasts (<span class="mono">--shadow-lg/md</span>). Panels are flat.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="sec" id="shell">
+<p class="kick">06</p>
+<h2>Layout system</h2>
+<h4>6.1 · App shell — web (≥1024px)</h4>
+<div class="grid2">
+<div>
+<ul class="tight">
+<li><strong>Rail</strong>, 240px, <span class="mono">--color-surface</span>, full height, 2px right rule. Brand at top on a 2px bottom rule. Items are 40px tall, flush-left label at 14px with a 16px Lucide icon; the current item gets a 3px accent bar on its left edge, accent label, and no fill — no pill, no rounded highlight.</li>
+<li>Group label (<span class="mono">MY LIBRARY</span> / <span class="mono">MANAGE LIBRARY</span>) at 11px uppercase, above a 2px rule.</li>
+<li>Rail foot: the person — name, card number, role tag, and Settings/Sign out. This is where the avatar menu goes; the top bar loses it.</li>
+<li><strong>Top bar</strong>, 64px, 2px bottom rule, holds only: global search (⌘K), notifications, and a role switcher when the account has more than one mode. If a page has no use for it, it still stays — position is memory.</li>
+<li><strong>Content</strong> on <span class="mono">--color-bg</span>, 40px gutters, max content width 1240px, left-aligned inside a 12-column grid with 24px gutters.</li>
+</ul>
+</div>
+<div class="blk">
+<p class="kick">Page header pattern — mandatory, identical on every page</p>
+<ol class="tight">
+<li>Row of context: breadcrumb or group label (11px upper), and page-level actions pushed right.</li>
+<li><strong>Page title</strong>, 42px.</li>
+<li><strong>Answer line</strong>, 20–25px, one sentence, states the page's finding in plain words. Not a description of the page.</li>
+<li>2px rule.</li>
+<li>Then, and only then, controls (search, tabs, filters) — never above the title.</li>
+</ol>
+<p style="font-size:13px;margin:12px 0 0" class="text-muted">Example, Overdue: title "Overdue", answer line "Nothing is overdue. 4 loans come due this week." — the same slot carries good news and bad.</p>
+</div>
+</div>
+<h4 style="margin-top:32px">6.2 · App shell — mobile (&lt;768px)</h4>
+<ul class="tight">
+<li>Rail becomes a <strong>bottom tab bar</strong>, 56px + safe area, 2px top rule, max <strong>4 tabs</strong>: Home, Browse, Shelf, More. Staff get Desk in place of Shelf, with Shelf inside More.</li>
+<li>Current tab: accent icon + accent label + 2px accent bar along the top edge of the tab. Never a filled pill.</li>
+<li>Top bar collapses to a 52px header: page title at 20px, one action, and back chevron when deep.</li>
+<li>All targets ≥44px. Row actions become a full-width sticky action bar or a bottom sheet — never a 24px icon in a table cell.</li>
+<li>Tablet 768–1023px: rail collapses to a 64px icon rail with tooltips; content keeps desktop layout at 2 columns.</li>
+</ul>
+</section>
+
+<section class="sec" id="components">
+<p class="kick">07</p>
+<h2>Component contracts</h2>
+<p class="lede">Build these once. Every screen in §11 is assembled from this list and nothing else.</p>
+<table class="table" style="margin-top:24px">
+<thead><tr><th style="width:16%">Component</th><th style="width:44%">Anatomy &amp; rules</th><th style="width:20%">States</th><th>Modernist base</th></tr></thead>
+<tbody>
+<tr><td><strong>7.1 NavRail</strong></td><td>Brand · group label · items (icon + label) · rule · group · foot (person block). Accent left-bar marks current. Collapsible to icons at tablet.</td><td>default, current, hover, focus, collapsed, badge count</td><td class="mono">.nav</td></tr>
+<tr><td><strong>7.2 PageHeader</strong></td><td>Context row, title, answer line, 2px rule, optional control row. Actions right-aligned in the context row; max one primary.</td><td>with/without actions, with tabs</td><td>—</td></tr>
+<tr><td><strong>7.3 FigureBlock</strong></td><td>Replaces the stat card. Number 42px tabular, noun beneath at 11px upper, optional delta sentence at 13px. Laid out as equal cells of one panel divided by 1px vertical rules — <em>not</em> four floating cards. Max 4 per row, 3 on tablet, 2 on mobile.</td><td>value, zero (write the zero as good or bad news), loading skeleton, unavailable (—)</td><td class="mono">.card</td></tr>
+<tr><td><strong>7.4 BookTile</strong></td><td>Cover 2:3 in <span class="mono">.grayscale</span>, spine-coloured fallback with title set in Archivo when no cover. Title 17px, author 13px muted, availability sentence 13px ("3 of 3 on the shelf"), genre as a neutral tag, one action. Whole tile is the link; the button is the action.</td><td>available, some out, all out (Reserve), reserved by me, on loan to me, hover, focus, skeleton</td><td class="mono">.card + .tag</td></tr>
+<tr><td><strong>7.5 DataTable</strong></td><td>Surface shell, 11px upper heads on a 2px rule, 1px row rules, 44px rows, first column is the human-readable identity (title, person's name) with secondary info beneath at 12px muted. <strong>No UUIDs</strong> — expose them only in a copy-id affordance on the detail view. Right-most column is actions, revealed on row hover/focus but always present for keyboard and touch.</td><td>loading skeleton rows, empty, error, filtered-empty, row busy, row selected, bulk-selection bar</td><td class="mono">.table</td></tr>
+<tr><td><strong>7.6 StatusTag</strong></td><td>Word + optional 12px Lucide glyph. Three fills only (§8). Sentence case, not SHOUTING CAPS.</td><td>accent, neutral, outline</td><td class="mono">.tag</td></tr>
+<tr><td><strong>7.7 SearchBar</strong></td><td>36px input with leading search glyph, placeholder naming the fields searched ("Title, author, subject, ISBN"), inline clear, live result count beneath at 13px. ⌘K opens the global variant as a centred panel.</td><td>idle, typing, suggesting, no-results, error</td><td class="mono">.input</td></tr>
+<tr><td><strong>7.8 FacetGroup</strong></td><td>Left column on desktop (200px), bottom sheet on mobile. Checkbox lists with counts, "Available now" toggle first. Applied facets appear as removable outline tags above the results with a "Clear all".</td><td>collapsed, expanded, applied, zero-count disabled</td><td class="mono">.field</td></tr>
+<tr><td><strong>7.9 EmptyState</strong></td><td>Left-aligned inside the panel: 20px headline that says what this place is for, one 14px sentence, one action, optional 13px hint. Never centred, never an illustration, never the word "No".</td><td>first-run, cleared-by-filter, all-done (good news)</td><td>—</td></tr>
+<tr><td><strong>7.10 Skeleton</strong></td><td>Solid <span class="mono">--color-neutral-200</span> blocks matching the real geometry, 3–6 rows, 1.4s opacity pulse. Never a spinner over stale content; never a full-page loader after first paint.</td><td>row, tile, figure, text</td><td>—</td></tr>
+<tr><td><strong>7.11 Toast + Undo</strong></td><td>Bottom-left, surface, <span class="mono">--shadow-md</span>, 2px accent left edge, one sentence, "Undo" as a ghost button, 8s. Stacks to 3. The <em>only</em> confirmation most actions need.</td><td>info, success, undoable, error (persists until dismissed)</td><td>—</td></tr>
+<tr><td><strong>7.12 Dialog</strong></td><td>Only for irreversible acts. Title states the consequence ("Delete 1984 and its 3 copies?"), body names what is lost, primary button repeats the verb ("Delete"), Cancel is ghost. Optional-note fields never justify a dialog — they go inline.</td><td>default, busy, error-in-place</td><td class="mono">.dialog</td></tr>
+<tr><td><strong>7.13 FormPanel</strong></td><td>One column, max 560px, labels above fields, help text beneath, errors beneath the field in accent-700 with a glyph. Actions on a 2px rule at the foot, primary left (flush-left rule), destructive far right as ghost.</td><td>pristine, dirty, invalid, saving, saved</td><td class="mono">.field .input .btn</td></tr>
+<tr><td><strong>7.14 Timeline</strong></td><td>Vertical 1px line with 7px accent nodes; each entry has a date at 12px muted, an event sentence at 14px, actor at 12px. Used for loan history, request history, member notes, audit log.</td><td>compact, full, empty</td><td>—</td></tr>
+<tr><td><strong>7.15 DueMeter</strong></td><td>The one piece of information design in the product: a horizontal bar showing loan elapsed vs. remaining, 4px tall, ink fill, accent fill and an accent end-cap once inside 3 days or overdue. Reads without colour because the label spells the days.</td><td>fresh, due soon, due today, overdue, returned</td><td>—</td></tr>
+<tr><td><strong>7.16 Pagination</strong></td><td>Foot of table: "1–10 of 103" at 13px, prev/next icon buttons, rows-per-page select. On mobile, replaced by "Load 10 more" and a count.</td><td>first, middle, last, single-page (hide controls, keep count)</td><td>—</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="sec" id="status">
+<p class="kick">08</p>
+<h2>Status vocabulary — one table for the whole product</h2>
+<p class="lede">Every status word in Shelfinity is in this table. If a new state appears, it must be added here before it appears on a screen, and it must reuse one of the three fills. <strong>Meaning is never carried by colour alone</strong> — the word carries it, the fill only ranks it.</p>
+<table class="table" style="margin-top:24px">
+<thead><tr><th>Domain</th><th>Word shown</th><th>Fill</th><th>Glyph</th><th>Means</th><th>Replaces</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">Copies</td><td>On the shelf</td><td class="mono">tag-neutral</td><td>check</td><td>≥1 copy available</td><td>green "Available"</td></tr>
+<tr><td>Last copy</td><td class="mono">tag-outline</td><td>alert-circle</td><td>exactly 1 left</td><td>—</td></tr>
+<tr><td>All out</td><td class="mono">tag-neutral</td><td>clock</td><td>0 available, reservable</td><td>grey "Unavailable"</td></tr>
+<tr><td rowspan="4">Requests</td><td>Waiting on us</td><td class="mono">tag-accent</td><td>hourglass</td><td>pending, staff must act</td><td>orange "PENDING"</td></tr>
+<tr><td>Approved</td><td class="mono">tag-neutral</td><td>check</td><td>granted</td><td>green "APPROVED"</td></tr>
+<tr><td>Declined</td><td class="mono">tag-outline</td><td>x</td><td>refused, reason required</td><td>red "REJECTED"</td></tr>
+<tr><td>Withdrawn</td><td class="mono">tag-neutral</td><td>—</td><td>cancelled by the member</td><td>—</td></tr>
+<tr><td rowspan="3">Loans</td><td>Due in N days</td><td class="mono">tag-neutral</td><td>calendar</td><td>&gt;3 days remaining</td><td>plain date</td></tr>
+<tr><td>Due Friday</td><td class="mono">tag-accent</td><td>calendar</td><td>≤3 days — name the day, not the count</td><td>—</td></tr>
+<tr><td>N days overdue</td><td class="mono">accent solid</td><td>alert-triangle</td><td>past due; the only solid-accent tag in the product</td><td>red text</td></tr>
+<tr><td rowspan="3">Holds</td><td>Ready for pickup</td><td class="mono">tag-accent</td><td>bookmark</td><td>copy waiting at the desk</td><td>blue "ACTIVE"</td></tr>
+<tr><td>Nth in queue</td><td class="mono">tag-neutral</td><td>users</td><td>waiting</td><td>blue "ACTIVE"</td></tr>
+<tr><td>Expired</td><td class="mono">tag-neutral</td><td>—</td><td>not collected in time</td><td>—</td></tr>
+<tr><td rowspan="3">People</td><td>Active</td><td class="mono">tag-neutral</td><td>—</td><td>can borrow</td><td>green "Active"</td></tr>
+<tr><td>Blocked</td><td class="mono">tag-accent</td><td>ban</td><td>overdue or fines</td><td>—</td></tr>
+<tr><td>Librarian / Admin</td><td class="mono">tag-outline</td><td>—</td><td>role, not status — always outline</td><td>solid indigo "ADMIN"</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="sec" id="patterns">
+<p class="kick">09</p>
+<h2>Cross-cutting patterns</h2>
+<div class="grid2">
+<div>
+<h4>9.1 Loading</h4>
+<ul class="tight">
+<li>First paint of a route: skeletons in the real geometry, page header rendered immediately with the title (it is known).</li>
+<li>Refetch of existing data: keep the data, show a 2px accent progress line under the top bar. Never dim, never spinner-over-table.</li>
+<li>A single row acting: that row's action becomes a 14px inline "Working…" label; the row stays readable.</li>
+<li>Nothing blocks the whole screen after first paint, ever.</li>
+</ul>
+<h4>9.2 Empty</h4>
+<ul class="tight">
+<li>Three flavours, each with its own copy: nothing yet (invite), nothing matched (offer to relax the filter), nothing left (congratulate — Overdue at zero reads "Nothing overdue. The shelves are square.").</li>
+<li>Always name the next action, always left-aligned inside the panel that would have held the data.</li>
+</ul>
+<h4>9.3 Error</h4>
+<ul class="tight">
+<li>Inline where the failure was caused; page-level only when the page cannot render.</li>
+<li>Say what failed, what is intact, what to do. Offer Retry. Never surface a stack, a code or the word "error" alone.</li>
+<li>Field errors: beneath the field, accent-700, with the fix ("Port must be between 1 and 65535").</li>
+</ul>
+</div>
+<div>
+<h4>9.4 Actions — optimistic and reversible</h4>
+<ul class="tight">
+<li><strong>Approve / Decline</strong> act on click. The row restyles at once, a toast offers Undo for 8s. The optional remark moves into the toast ("Add a note") and into the request detail — it never gates the decision. Decline requires a reason, chosen from a 4-item list with an optional note, shown as an inline expansion of the row, not a modal.</li>
+<li><strong>Reserve / Cancel / Renew</strong> act immediately with undo.</li>
+<li><strong>Delete a title, delete a member, revoke a role</strong> use the dialog (§7.12) and require typing nothing — but they name the consequence and cannot be undone by toast.</li>
+<li>Bulk: selecting rows raises a bar with the count and the two or three verbs that apply; bulk approvals are undoable as one batch.</li>
+</ul>
+<h4>9.5 Notifications &amp; email</h4>
+<ul class="tight">
+<li>Every state change that affects a member produces one notification, and email templates share the copy in §14 — the in-app notification and the email say the same sentence.</li>
+<li>Notification list groups by day, unread marked by a 3px accent left bar, "Mark all read" as a ghost action.</li>
+</ul>
+<h4>9.6 Search everywhere</h4>
+<ul class="tight">
+<li>⌘K from anywhere: titles, people (staff only), and page jumps in one list, keyboard-first.</li>
+<li>Every table with more than 20 rows gets its own scoped search; the placeholder names the searched fields.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="sec" id="catalogue">
+<p class="kick">10</p>
+<h2>Screen catalogue</h2>
+<p class="lede">Nineteen screens, of which eight were screenshotted. The rest are derived from the flows those screenshots imply — this is the part of the rewrite that fills the gaps.</p>
+<table class="table" style="margin-top:24px">
+<thead><tr><th style="width:5%">§</th><th style="width:18%">Screen</th><th style="width:24%">The one question it answers</th><th style="width:33%">Layout recipe</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td class="mono">11.1</td><td>Sign in</td><td>Is this a real library, and how do I get in?</td><td>Split poster: statement + photograph left, one action right</td><td>redesign</td></tr>
+<tr><td class="mono">11.2</td><td>Join / request a card</td><td>How do I become a member?</td><td>FormPanel + what-happens-next timeline</td><td class="text-muted">new</td></tr>
+<tr><td class="mono">11.3</td><td>Home</td><td>What do I have, and what needs me today?</td><td>Answer line + DueMeter list + 2 shelves</td><td>redesign</td></tr>
+<tr><td class="mono">11.4</td><td>Browse</td><td>What is worth borrowing?</td><td>Facets + tile grid + saved searches</td><td>redesign</td></tr>
+<tr><td class="mono">11.5</td><td>Book detail</td><td>Should I borrow this, and can I?</td><td>Cover + availability panel + copies table + related</td><td class="text-muted">new</td></tr>
+<tr><td class="mono">11.6</td><td>My Shelf</td><td>What is out, due, requested, waiting?</td><td>Four sections, one list pattern, no tabs</td><td>redesign</td></tr>
+<tr><td class="mono">11.7</td><td>Lists</td><td>What did I mean to read?</td><td>List index + tile grid</td><td class="text-muted">new</td></tr>
+<tr><td class="mono">11.8</td><td>Notifications</td><td>What changed while I was away?</td><td>Day-grouped timeline</td><td class="text-muted">new</td></tr>
+<tr><td class="mono">11.9</td><td>Account &amp; card</td><td>Who am I here, and how do you reach me?</td><td>FormPanel + digital card + preferences</td><td class="text-muted">new</td></tr>
+<tr><td class="mono">11.10</td><td>Desk</td><td>What must the library do today?</td><td>Answer line + 3 queues + FigureBlock row</td><td class="text-muted">new</td></tr>
+<tr><td class="mono">11.11</td><td>Requests</td><td>Who is waiting on a decision?</td><td>Tabs + DataTable, inline decide</td><td>redesign</td></tr>
+<tr><td class="mono">11.12</td><td>Circulation</td><td>Hand over / take back a book, fast</td><td>Scan field + person panel + basket</td><td class="text-muted">new</td></tr>
+<tr><td class="mono">11.13</td><td>Catalogue admin</td><td>Is the catalogue true?</td><td>DataTable + import panel + edit form</td><td>redesign</td></tr>
+<tr><td class="mono">11.14</td><td>Holds</td><td>What must be pulled and shelved?</td><td>Two-section DataTable</td><td>redesign</td></tr>
+<tr><td class="mono">11.15</td><td>Overdue</td><td>What is late and who should we nudge?</td><td>FigureBlock + DataTable + bulk nudge</td><td>redesign</td></tr>
+<tr><td class="mono">11.16</td><td>Members</td><td>Who is this person and what do they have?</td><td>DataTable → member record with timeline</td><td>redesign</td></tr>
+<tr><td class="mono">11.17</td><td>Reports</td><td>How is the library doing?</td><td>Figure band + 3 ranked lists + trend</td><td>redesign</td></tr>
+<tr><td class="mono">11.18</td><td>Settings</td><td>How does the library behave?</td><td>Settings index + per-section FormPanel</td><td>redesign</td></tr>
+<tr><td class="mono">11.19</td><td>System pages</td><td>Something broke; now what?</td><td>Poster + one action</td><td class="text-muted">new</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="sec" id="specs">
+<p class="kick">11</p>
+<h2>Screen specifications</h2>
+
+<div style="margin-top:32px">
+<h3>11.1 · Sign in <span class="mono text-muted" style="font-size:13px">/signin · public</span></h3>
+<div class="grid2">
+<div>
+<p class="kick">Web</p>
+<p style="font-size:14px">Two columns, no gradient. Left 58%: a grayscale photograph of a real reading room, full-bleed, with the wordmark top-left and a poster statement over the lower third — <em>"Every book in this building, from wherever you are."</em> Right 42% on <span class="mono">--color-bg</span>, flush left, 96px gutter: 42px "Sign in", one sentence of what happens next, a primary <strong>Continue</strong>, a secondary "Sign in with your institution", and a ghost "Request a library card". Foot: branch, hours, telephone — three facts that prove the library exists.</p>
+<p style="font-size:14px">The App ID hand-off cannot be fully themed. Mitigation: state it before the jump ("You'll finish signing in on our identity provider") so the change of skin is expected rather than alarming, and pass the return URL so the jump back lands on Home, not the sign-in page. If theming is possible, apply ground, Archivo, zero radius and the accent button, and remove the default-configuration warning before launch.</p>
+</div>
+<div>
+<p class="kick">Mobile</p>
+<p style="font-size:14px">Photograph as a 38vh top band with the statement over it, actions stacked full-width beneath, 44px tall, primary first. Hours and phone collapse to one line. No scroll needed to reach Continue.</p>
+<p class="kick" style="margin-top:16px">States</p>
+<ul class="tight">
+<li>Idle · redirecting ("Taking you to sign in…" with the accent progress line) · returned-with-error ("That link expired. Try again." + Continue) · signed-out-just-now ("You're signed out. Your shelf is safe.")</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.2 · Join / request a card <span class="mono text-muted" style="font-size:13px">/join · public · new</span></h3>
+<p style="font-size:14px;max-width:80ch">The screenshots show <span class="mono">USER REGISTRATION</span> requests arriving in the admin queue, so a registration surface exists but was never designed. Web: FormPanel (§7.13) at 560px — name, email, address, membership type radio — beside a "What happens next" Timeline (§7.14): <em>You send this → a librarian checks it, usually within a day → your card number arrives by email → you can borrow immediately.</em> Mobile: the same form, single column, the timeline moved beneath the submit as reassurance. Success is a page, not a toast: "Sent. We'll email you at amalraj@… when your card is ready." States: pristine, invalid (field-level), submitting, sent, already-a-member (offer sign in).</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.3 · Home <span class="mono text-muted" style="font-size:13px">/ · member</span></h3>
+<div class="grid2">
+<div>
+<p class="kick">Web</p>
+<ul class="tight">
+<li>Page header: context "MY LIBRARY", title <strong>"Good afternoon, Amalraj"</strong>, answer line <strong>"You have 3 books out. 1984 is due Friday."</strong> — the answer line is generated from data and is the whole point of the page.</li>
+<li>Then a <strong>"What you have out"</strong> list: one row per loan, cover thumb 40×60, title, author, DueMeter (§7.15), day-named due date, and Renew / Return actions inline. This replaces the four counters as the top-of-page content.</li>
+<li>Right column, 320px: <strong>Waiting on the library</strong> (requests + holds, each with a plain sentence) and <strong>Your card</strong> (number, member since).</li>
+<li>Below a 2px rule: <strong>"Back on the shelf this week"</strong> — a 6-tile shelf of just-returned titles, and <strong>"Because you borrowed 1984"</strong> — a 6-tile recommendation shelf. Browsing starts on Home.</li>
+<li>Counters, if wanted at all, sit at the very foot as a single FigureBlock band. They are trivia, not the headline.</li>
+</ul>
+</div>
+<div>
+<p class="kick">Mobile</p>
+<ul class="tight">
+<li>Greeting + answer line, then the loans list as full-width rows with the DueMeter under the title; actions in a swipe-free trailing row of two 44px buttons.</li>
+<li>Waiting-on-the-library becomes a single accent-barred strip above the loans when non-empty; hidden when empty.</li>
+<li>Shelves scroll horizontally, 128px-wide tiles, snap. Card lives in More.</li>
+</ul>
+<p class="kick" style="margin-top:16px">States</p>
+<ul class="tight">
+<li><strong>New member, nothing out:</strong> answer line becomes "Your shelf is empty — the catalogue isn't." with a primary Browse and the two shelves promoted up.</li>
+<li>Overdue present: answer line leads with it, in accent. One overdue item outranks everything else on the page.</li>
+<li>Loading: header renders, three skeleton loan rows.</li>
+<li>Staff account: an extra strip at the very top — "12 requests are waiting at the desk" → Desk.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.4 · Browse the catalogue <span class="mono text-muted" style="font-size:13px">/books · member</span></h3>
+<div class="grid2">
+<div>
+<p class="kick">Web</p>
+<ul class="tight">
+<li>Header: title "Browse", answer line "103 titles. 97 on the shelf right now." SearchBar (§7.7) full width beneath the rule, placeholder "Title, author, subject or ISBN".</li>
+<li>Left 200px FacetGroup: Available now (toggle, first), Genre with counts, Author, Language, Year, Format. Applied facets as removable outline tags above the grid.</li>
+<li>Grid of BookTiles (§7.4): 5 columns at 1440px, 4 at 1200, 3 at 1024. Covers are the majority of the tile — this is the one screen that is mostly image.</li>
+<li>Sort control right of the result count: Relevance · Recently added · Title · Most borrowed.</li>
+<li>Above the grid when no search is active: three curated rails — "New this month", "Most borrowed", "Staff picks" — then the full grid under a rule. Browsing beats searching for people who don't know what they want.</li>
+<li>Infinite scroll with a "Load more" fallback and a persistent count; the URL carries facets so a search is shareable and savable ("Save this search").</li>
+</ul>
+</div>
+<div>
+<p class="kick">Mobile</p>
+<ul class="tight">
+<li>Sticky search + a single "Filter" button showing the applied count; facets open as a bottom sheet with Apply/Clear at the foot.</li>
+<li>2-column tile grid, covers 2:3, one 44px action per tile. Rails scroll horizontally.</li>
+</ul>
+<p class="kick" style="margin-top:16px">States</p>
+<ul class="tight">
+<li>Skeleton tiles on first load (12).</li>
+<li><strong>No results:</strong> "Nothing matched <em>dune messiah</em>." + the two nearest suggestions + "Ask us to buy it" + Clear filters. Never a bare centred "No rows".</li>
+<li>Facet returns zero: disable the option and show its count as 0 rather than letting the user reach an empty grid.</li>
+<li>Search error: keep the last results, show an inline retry strip.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.5 · Book detail <span class="mono text-muted" style="font-size:13px">/books/:id · member · new</span></h3>
+<p style="font-size:14px;max-width:88ch">The most conspicuous gap: today a member decides from a 3-line tile. Web: cover 320px wide in <span class="grayscale">grayscale</span> on the left; right column holds title at 42px, author as a link to their other titles, the availability sentence at 25px ("2 of 3 copies on the shelf"), the primary action, then the blurb, then a facts table (ISBN, publisher, year, pages, language, subjects as tags, shelf location — "Floor 2 · Bay 14 · Fiction OR"). Beneath a rule: <strong>Copies</strong> DataTable (copy id, condition, status, due date) for staff and curious members, then a Timeline of the member's own history with this title ("You borrowed this in March 2025"), then "Readers also borrowed" as a tile rail. Mobile: cover as a 200px-tall band, title, availability sentence, sticky bottom action bar carrying the primary verb; facts in a collapsed accordion. States: available → Request to borrow; all out → Reserve, with "3 people ahead of you · about 2 weeks"; already requested → "Waiting on the library since Monday" + Withdraw; on loan to me → DueMeter + Renew/Return; reserved by me and ready → accent strip "Ready at the front desk until Tuesday".</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.6 · My Shelf <span class="mono text-muted" style="font-size:13px">/shelf · member · replaces My Activity</span></h3>
+<div class="grid2">
+<div>
+<p class="kick">Web</p>
+<ul class="tight">
+<li>The request log becomes four titled sections on one page, in order of what needs the member: <strong>Ready for you</strong> (holds to collect, accent) · <strong>Out now</strong> (loans with DueMeter) · <strong>Waiting on the library</strong> (requests) · <strong>Reserved</strong> (queue position).</li>
+<li>Each section uses the same row: cover thumb, title/author, status sentence, one or two inline actions. Empty sections collapse to a single muted line rather than an empty table.</li>
+<li>"Reading history" is a link at the foot, not a fifth section — it is a different question.</li>
+<li>No tabs. Four short sections beat one table with a Type column, because the member's question is never "show me all my rows".</li>
+</ul>
+</div>
+<div>
+<p class="kick">Mobile</p>
+<ul class="tight">
+<li>Same four sections stacked; each row 72px with the action set as a trailing 44px button and a "…" sheet for secondary verbs.</li>
+</ul>
+<p class="kick" style="margin-top:16px">States</p>
+<ul class="tight">
+<li>All four empty: one EmptyState — "Nothing on your shelf yet." + Browse.</li>
+<li>Overdue loan: row takes the solid-accent tag and moves to the top of "Out now".</li>
+<li>Return requested: row shows "Return requested Monday — bring it to the desk" and the action becomes Withdraw.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.7 – 11.9 · Lists · Notifications · Account <span class="mono text-muted" style="font-size:13px">member · new</span></h3>
+<div class="grid3">
+<div>
+<p style="font-size:14px"><strong>Lists</strong> — index of the member's lists (Want to read, plus custom) as rows with a 4-cover stack thumbnail and a count; opening one shows a tile grid with reorder and a "Request all available". Saved searches live here too, each showing its facet tags and new-match count. Empty: "Keep a list of what you mean to read." + a hint that the bookmark on any title starts one.</p>
+</div>
+<div>
+<p style="font-size:14px"><strong>Notifications</strong> — day-grouped Timeline: request approved, hold ready, due-soon, overdue, card renewed. Unread carries a 3px accent left bar. Each entry links to the thing it is about and repeats the email's exact sentence (§14). Preferences link at the top right. Empty: "Nothing new. We'll tell you when a hold is ready or a book is due."</p>
+</div>
+<div>
+<p style="font-size:14px"><strong>Account &amp; card</strong> — FormPanel for name, email, phone, address; a digital <strong>library card</strong> rendered as a flat accent-on-ground block with the number in Archivo 800 and a barcode/QR for the desk; notification preferences as toggles (email, in-app, due-soon lead time); language; and a plainly-worded data section (download my history, delete my account). Mobile: card first — it is the thing people open the app to show.</p>
+</div>
+</div>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.10 · Desk — staff home <span class="mono text-muted" style="font-size:13px">/desk · librarian · new</span></h3>
+<p style="font-size:14px;max-width:88ch">Today an admin lands on the member dashboard and must go hunting. Desk answers "what must the library do today". Header answer line: <strong>"4 requests waiting, 2 holds to pull, nothing overdue."</strong> Then three queues side by side, each a short list with the verb inline: <strong>Decide</strong> (pending requests, Approve/Decline in the row) · <strong>Pull from the shelf</strong> (holds with shelf location, "Marked pulled") · <strong>Coming back today</strong> (returns due, with Check in). Beneath a rule, a FigureBlock band: on loan, overdue, holds waiting, new members this week. Mobile: the three queues as stacked accordions with counts in the header, defaulting to the non-empty ones open; 44px row actions. Empty (all clear): "The desk is clear. 97 titles on the shelf." — good news phrased as good news.</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.11 · Requests <span class="mono text-muted" style="font-size:13px">/desk/requests · librarian</span></h3>
+<div class="grid2">
+<div>
+<p class="kick">Web</p>
+<ul class="tight">
+<li>Header answer line: "4 waiting. The oldest has been waiting 2 days."</li>
+<li>Tabs (Waiting · Decided · All) as the Modernist <span class="mono">.seg</span> control, not underlined MUI tabs. Counts in the labels.</li>
+<li>DataTable columns: <strong>Requester</strong> (name + email beneath, no UUID), <strong>What they want</strong> (type tag + book title, cover thumb 24×36), <strong>Waiting</strong> (relative: "2 days"), <strong>Note</strong>, and actions.</li>
+<li><strong>Approve acts immediately</strong> (§9.4): row restyles to "Approved · due 8 Sep", toast with Undo and "Add a note". <strong>Decline</strong> expands the row inline to a reason chooser (Not a member yet · No copies free · Duplicate request · Other + note) then acts. No modal for either.</li>
+<li>Bulk: select rows → "Approve 4 requests" in the selection bar, undoable as a batch. This is the single biggest time saving for staff.</li>
+<li>Registration requests are the same table with a different type tag and a link to the draft member record.</li>
+</ul>
+</div>
+<div>
+<p class="kick">Mobile</p>
+<ul class="tight">
+<li>Table becomes cards: requester, what they want, waiting time, then two 44px buttons (Approve / Decline). Reason chooser opens as a bottom sheet.</li>
+</ul>
+<p class="kick" style="margin-top:16px">States</p>
+<ul class="tight">
+<li>Loading: 4 skeleton rows (never a spinner over the old table — the current bug).</li>
+<li>Empty: "Nothing waiting. Decisions you make show up under Decided."</li>
+<li>Row busy: action area reads "Approving…", row stays legible.</li>
+<li>Conflict: "This was already decided by Priya 2 minutes ago." — refresh the row in place.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.12 · Circulation <span class="mono text-muted" style="font-size:13px">/desk/circulation · librarian · new</span></h3>
+<p style="font-size:14px;max-width:88ch">The physical act at the counter, absent from today's product. One field owns the screen: a 56px scan/type input, autofocused, that accepts a card number, a copy barcode or a title. Left: the person once identified — name, card, what they have out, anything blocking them. Right: the basket of copies being checked out, with due dates computed and editable by a librarian. Primary action "Check out 3 books · due 8 Sep". A <span class="mono">.seg</span> at the top switches Check out / Check in / Renew; Check in accepts scans continuously and shows each result as a one-line ledger entry ("<em>1984</em> — back in, 2 days late, member notified"). Mobile (a phone at the shelf): the scan field and ledger only, everything else behind a sheet. States: waiting for scan, person found, person blocked (accent strip with the reason and an override for admins), unknown code, offline (queue the scans and say so).</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.13 · Catalogue admin <span class="mono text-muted" style="font-size:13px">/desk/catalogue · librarian</span></h3>
+<div class="grid2">
+<div>
+<p class="kick">Web</p>
+<ul class="tight">
+<li>Header answer line: "103 titles, 214 copies. 6 titles have no cover."  — the answer line does quality control.</li>
+<li>Scoped search + facets as a row of selects; primary action "Add a title" top right.</li>
+<li>DataTable: Title (with 24×36 cover, author beneath), Genre, Copies (available / total as "3 of 4"), Status, Updated. Actions: Edit, Add copy, Delete (dialog).</li>
+<li><strong>Bulk import</strong> becomes a proper flow, not a bare file button: drop zone → column mapping preview table → "12 new, 3 updated, 1 row needs attention" → commit → result summary with a downloadable error file. Today's "Choose CSV file / Download template" strip is step one of four.</li>
+<li>Add/edit is a full page FormPanel, not a modal: identity (title, author, ISBN with a lookup that fills the rest), classification, copies with per-copy condition and shelf location, cover upload.</li>
+</ul>
+</div>
+<div>
+<p class="kick">Mobile</p>
+<ul class="tight">
+<li>Rows become two-line cards with an overflow sheet; import is desktop-only with an explicit note ("Bulk import needs a bigger screen"), which is better than a broken file picker.</li>
+</ul>
+<p class="kick" style="margin-top:16px">States</p>
+<ul class="tight">
+<li>Import: idle, parsing, mapping, validating, partial-success, failed.</li>
+<li>Delete blocked because copies are on loan: dialog explains and offers "Archive instead".</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.14 · Holds &amp; reservations <span class="mono text-muted" style="font-size:13px">/desk/holds · librarian</span></h3>
+<p style="font-size:14px;max-width:88ch">Today: one table with a UUID and an ACTIVE pill. Rewritten as two sections answering two different jobs. <strong>To pull</strong> — a copy came free, someone is waiting: shelf location, member, "Mark pulled" → moves to the next section and notifies. <strong>Waiting for pickup</strong> — held at the desk with a countdown ("expires Tuesday"), actions Check out and Release. A third collapsed section holds Expired/Released for the record. Columns: Book (title + author, no id), Member (name + card), Queue position, Since / Expires. Mobile: two stacked lists, one 44px verb per row. Empty: "No holds to pull. Anything a member reserves shows up here within the hour." Fines, if in scope, attach here and to the member record — the policy is an open question (§1).</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.15 · Overdue &amp; recalls <span class="mono text-muted" style="font-size:13px">/desk/overdue · librarian</span></h3>
+<p style="font-size:14px;max-width:88ch">The zero state is the common case and must read as success: answer line "Nothing overdue. 4 loans come due this week." with the FigureBlock band showing 0 overdue, 0 days owed, 4 due this week — and the table replaced by the due-this-week list, so the page is useful when it has nothing to complain about. When items are late: rows sorted by days late, each with member, book, days overdue as the solid-accent tag, last-nudged date, and actions Send a reminder / Mark lost / Waive. Bulk "Remind 6 members" with a preview of the email. Mobile: cards with one verb. This is the only screen where solid accent appears more than once, and it earns it.</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.16 · Members <span class="mono text-muted" style="font-size:13px">/desk/members · librarian</span></h3>
+<p style="font-size:14px;max-width:88ch">Index: search-first (name, email, card number), DataTable with Name (email beneath), Card, Role as an outline tag, Status, Joined, Out now, Overdue. Row click opens the <strong>member record</strong> — the screen today's Users page lacks entirely: identity panel, what they have out with DueMeters, request history and staff notes as a Timeline (§7.14), and role/permission controls behind a dialog for admins only. Actions: edit, add note, block/unblock with a reason, resend card, delete (dialog naming what is lost). Mobile: search + cards + record as a stacked page. The single-row table with pencil and bin icons at 20px is replaced by named actions.</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.17 · Reports <span class="mono text-muted" style="font-size:13px">/reports · admin</span></h3>
+<p style="font-size:14px;max-width:88ch">Keep the shape, fix the hierarchy. A period control (<span class="mono">.seg</span>: 7 days · 30 days · Year · All) governs the whole page. One FigureBlock band of eight figures in a single divided panel — each figure paired with a change sentence ("14 borrows, up from 9"). Beneath: a borrows-over-time line chart drawn as inline SVG in ink with an accent last-point, and three ranked lists (Most borrowed · Most active members · Authors on the shelf) as compact tables with a bar behind the count rather than a floating tag pill. Every panel has "Export CSV" as a ghost action; the page has "Export all". Zero data: "Nothing borrowed in this period yet." Mobile: figures 2-up, chart full-width, lists stacked, export in the overflow.</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.18 · Settings <span class="mono text-muted" style="font-size:13px">/settings/* · admin</span></h3>
+<p style="font-size:14px;max-width:88ch">Email Config is promoted from a rail item to one section of a Settings index: <strong>Loan policy</strong> (loan length, limits, renewals, grace period, fines) · <strong>Notifications &amp; email</strong> · <strong>Roles &amp; permissions</strong> · <strong>Library profile</strong> (name, branch, hours, address — the facts the sign-in page shows) · <strong>Integrations &amp; sign-in</strong> · <strong>Audit log</strong>. Each is a FormPanel page, never a modal — the current Add Configuration dialog with nine fields becomes a page with grouped fieldsets: Server (host, port, encryption as a 3-option <span class="mono">.seg</span> instead of three ambiguous TLS/SSL/Auth toggles), Sender (name, address), Credentials, then a Verify panel that sends a test message and reports the result inline with the SMTP response in a details disclosure. Templates get a list with a live preview pane. States: unconfigured (EmptyState explaining what breaks without email — "Members won't be told when a hold is ready"), saving, verified with timestamp, verification failed with the actual reason.</p>
+</div>
+
+<hr class="hr">
+<div>
+<h3>11.19 · System pages <span class="mono text-muted" style="font-size:13px">any · new</span></h3>
+<p style="font-size:14px;max-width:88ch">404 · 500 · offline · no-permission · maintenance. One template: poster-size statement flush left, one plain sentence, one primary action, and the library's phone number. "That page isn't on our shelves." / "Something went wrong on our side. The catalogue is fine." / "You're offline. Your shelf is showing what we last knew." / "That's staff-only. Ask at the desk if you need it." No illustrations, no apologies longer than a sentence.</p>
+</div>
+</section>
+
+<section class="sec" id="imagery">
+<p class="kick">12</p>
+<h2>Imagery — the humane part</h2>
+<div class="grid2">
+<div>
+<p style="font-size:15px">Photography is the only thing that will make Shelfinity feel like a place rather than a database, and it is strictly rationed: <strong>five surfaces, one photograph each</strong>, always through <span class="mono">.grayscale</span>, always at zero radius, never tinted, never behind text without a solid ink scrim.</p>
+<table class="table">
+<thead><tr><th>Where</th><th>Subject to shoot or licence</th></tr></thead>
+<tbody>
+<tr><td>Sign in</td><td>The reading room, wide, from the door, with people in it and no faces identifiable.</td></tr>
+<tr><td>Join</td><td>Two hands passing a card across the desk.</td></tr>
+<tr><td>Home, first-run only</td><td>Someone crouched at a low shelf, reading a spine — the moment of looking for a book.</td></tr>
+<tr><td>Browse, "Staff picks" rail</td><td>A librarian's hands on a small stack, on the desk.</td></tr>
+<tr><td>Reports header (print)</td><td>The stacks, empty, early morning.</td></tr>
+</tbody>
+</table>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0">
+<figure><img src="assets/reading-room.png" alt="The main reading room: three tall windows, shelving down both walls, a long table, someone crouched at a low shelf." class="grayscale" style="width:100%;border:1px solid var(--color-divider)"><figcaption>Stand-in artwork for the sign-in surface — flat, architectural, greyscale, drawn on the system rather than photographed. Replace with the library's own photograph.</figcaption></figure>
+<figure><img src="assets/desk-card.png" alt="Two hands passing a library card across the desk." class="grayscale" style="width:100%;border:1px solid var(--color-divider)"><figcaption>Stand-in artwork for Join — the card crossing the desk. The one place the accent appears inside an image.</figcaption></figure>
+</div>
+<p style="font-size:14px">Everywhere else the imagery is <strong>book covers</strong>, which are already photographs of a kind. Covers do more humanising work per pixel than any stock photo.</p>
+</div>
+<div class="blk">
+<p class="kick">Rules</p>
+<ul class="tight">
+<li><strong>Real, or nothing.</strong> Use the library's own building and staff. No stock smiling students, no AI-generated shelves, no illustration set.</li>
+<li>Missing cover → a flat spine block: ground <span class="mono">--color-neutral-200</span>, title in Archivo 800 rotated as on a spine, author beneath. Never a grey box with a broken-image glyph.</li>
+<li>Photographs never carry meaning that isn't also in text. A member on a slow connection loses nothing.</li>
+<li>Alt text describes the room, not the mood: "The main reading room, looking toward the tall windows."</li>
+<li>Covers: 2:3, object-fit cover, grayscale, with a 1px divider edge so pale covers keep an edge on the ground.</li>
+<li>In the mockups these are drop-in placeholders — replace them with the library's photographs before launch.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="sec" id="copy">
+<p class="kick">13</p>
+<h2>Copy deck</h2>
+<p class="lede">Tone: a good librarian — plain, warm, specific, never cute, never system-voice. Use the second person. Name the day, not the timestamp. Sentence case everywhere, including tags and buttons.</p>
+<table class="table" style="margin-top:24px">
+<thead><tr><th style="width:22%">Moment</th><th style="width:32%">Today</th><th>Rewrite</th></tr></thead>
+<tbody>
+<tr><td>Sign-in</td><td>Welcome back · Sign in to Shelfinity · Continue to sign in</td><td>Sign in · <em>You'll finish on our identity provider, then land back here.</em> · Continue</td></tr>
+<tr><td>Dashboard greeting</td><td>Welcome, Amalraj · Here's what's happening in your library.</td><td>Good afternoon, Amalraj · <em>You have 3 books out. 1984 is due Friday.</em></td></tr>
+<tr><td>Availability</td><td>3 of 3 copies available</td><td>All 3 copies on the shelf · 2 of 3 on the shelf · All out — 3 people waiting</td></tr>
+<tr><td>Borrow action</td><td>Request to Borrow</td><td>Borrow this <span class="text-muted">(the request is our problem, not the member's)</span></td></tr>
+<tr><td>Request pending</td><td>PENDING</td><td>Waiting on the library · <em>since Monday</em></td></tr>
+<tr><td>Approved with date</td><td>APPROVED · 8/9/2026</td><td>Yours until Monday 8 September</td></tr>
+<tr><td>Reservation</td><td>ACTIVE · Expires 1/9/2026</td><td>Ready for you at the front desk until Tuesday</td></tr>
+<tr><td>Overdue</td><td>(red text, a date)</td><td>6 days overdue — please bring it back or renew</td></tr>
+<tr><td>Empty reservations</td><td>No reservations yet.</td><td>Nothing reserved. Reserve any title that's all out and we'll hold it for you.</td></tr>
+<tr><td>Empty overdue</td><td>No rows</td><td>Nothing overdue. The shelves are square.</td></tr>
+<tr><td>No email config</td><td>No email configuration set up yet.</td><td>Email isn't set up, so members aren't being told when a hold is ready. Set it up →</td></tr>
+<tr><td>Approve dialog</td><td>Approve request · Admin remark (optional) · Confirm</td><td><em>(no dialog)</em> Approved · due 8 Sep · Undo · Add a note</td></tr>
+<tr><td>Decline reason</td><td>Reject request · Admin remark (optional)</td><td>Why are you declining? Not a member yet · No copies free · Duplicate · Other — the member sees this.</td></tr>
+<tr><td>Sign out</td><td>Sign out</td><td>Sign out · <em>toast:</em> You're signed out. Your shelf is safe.</td></tr>
+</tbody>
+</table>
+<div class="grid2" style="margin-top:24px">
+<div class="do"><p class="kick">Do</p><ul class="tight"><li>"Due Friday" over "Due 08/09/2026" for anything inside a week.</li><li>Numbers inside sentences.</li><li>Name the consequence in destructive dialogs.</li><li>Same sentence in-app and in the email.</li></ul></div>
+<div class="dont"><p class="kick">Don't</p><ul class="tight"><li>ALL-CAPS status words, exclamation marks, emoji.</li><li>"Success!", "Oops!", "Something went wrong" with no object.</li><li>Domain jargon on member surfaces: circulation, patron, bibliographic record.</li><li>UUIDs, HTTP codes or field names in anything a member reads.</li></ul></div>
+</div>
+</section>
+
+<section class="sec" id="a11y">
+<p class="kick">14</p>
+<h2>Accessibility &amp; interaction states</h2>
+<div class="grid3">
+<div>
+<p class="kick">Non-negotiable</p>
+<ul class="tight">
+<li>Body copy on ground ≥ 4.5:1 — use <span class="mono">--color-accent-700</span> for accent-coloured text, never <span class="mono">--color-accent</span> at 14px.</li>
+<li>Status is word-first; colour is redundant everywhere.</li>
+<li>Focus: 2px accent ring, 2px offset. Visible on every interactive element including table rows and tiles.</li>
+<li>Targets ≥ 44px on touch, ≥ 32px on pointer.</li>
+<li>Tables get real <span class="mono">&lt;th scope&gt;</span>, captions, and row-level action labels that name the row ("Approve Amalraj's request for 1984").</li>
+<li>Dialogs trap focus, restore it on close, and are labelled by their title.</li>
+<li>Toasts announce via <span class="mono">aria-live="polite"</span>; errors via <span class="mono">assertive</span>.</li>
+<li>Respect <span class="mono">prefers-reduced-motion</span>: skeleton pulse and any transition drop to none.</li>
+</ul>
+</div>
+<div>
+<p class="kick">Motion budget</p>
+<ul class="tight">
+<li>120ms for state changes on the element you touched (tag swap, row restyle).</li>
+<li>180ms for entering surfaces (sheet, dialog, toast), ease-out, translate only.</li>
+<li>No page transitions, no parallax, no animated numbers. Modernist doesn't move much.</li>
+<li>The only looping animation in the product is the skeleton pulse and the 2px accent refetch line.</li>
+</ul>
+</div>
+<div>
+<p class="kick">Keyboard</p>
+<ul class="tight">
+<li><span class="mono">⌘K</span> global search · <span class="mono">/</span> focuses the page's search · <span class="mono">g</span> then <span class="mono">h/b/s/d</span> jumps to Home/Browse/Shelf/Desk.</li>
+<li>In the requests queue: <span class="mono">j/k</span> move, <span class="mono">a</span> approve, <span class="mono">d</span> decline, <span class="mono">u</span> undo. Staff live in this table.</li>
+<li>Escape closes the topmost surface only.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="sec" id="mobile">
+<p class="kick">15</p>
+<h2>Mobile transform rules</h2>
+<p class="lede">Six rules that turn any desktop screen in this document into its phone version without a new design.</p>
+<table class="table" style="margin-top:24px">
+<thead><tr><th style="width:22%">Desktop</th><th style="width:34%">Becomes on mobile</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>240px nav rail</td><td>4-tab bottom bar; the rest of the rail inside "More"</td><td>Thumb reach; four is the honest limit</td></tr>
+<tr><td>DataTable</td><td>Cards: identity line, two facts, one primary verb, overflow sheet</td><td>Six columns never fit; a card can prioritise</td></tr>
+<tr><td>FigureBlock row of 4</td><td>2 × 2 grid, same divided panel</td><td>Keeps the comparison, halves the width</td></tr>
+<tr><td>Facet column</td><td>"Filter (2)" button → bottom sheet with Apply / Clear</td><td>Filtering is a task, not a permanent frame</td></tr>
+<tr><td>Right-hand secondary column</td><td>Moves below the primary content, or into More if it is reference</td><td>One column, priority order</td></tr>
+<tr><td>Dialog</td><td>Bottom sheet, full-width buttons, 44px, primary last for thumb</td><td>Sheets don't fight the keyboard</td></tr>
+</tbody>
+</table>
+<p style="font-size:14px;margin-top:16px">Breakpoints: <span class="mono">&lt;768</span> phone · <span class="mono">768–1023</span> tablet (icon rail, 2-column content) · <span class="mono">1024–1439</span> desktop · <span class="mono">≥1440</span> wide (5-column browse grid, content capped at 1240px). Test the requests queue and browse grid at every one — they are the two screens that break.</p>
+</section>
+
+<section class="sec" id="build">
+<p class="kick">16</p>
+<h2>Notes for the implementing agent</h2>
+<div class="grid2">
+<div>
+<h4>Order of work</h4>
+<ol class="tight">
+<li><strong>Tokens first.</strong> Replace the current theme with Modernist's <span class="mono">styles.css</span> variables. Delete every hard-coded hex, every border-radius, and the gradient. Nothing else starts until this lands.</li>
+<li><strong>Shell.</strong> NavRail with the two-group role rule, top bar, PageHeader. Every route adopts it before any route is redesigned.</li>
+<li><strong>Primitives.</strong> §7.1–7.16 as components with all listed states, including skeletons and empty states, built in from the start.</li>
+<li><strong>Status vocabulary.</strong> One module exporting the §8 mapping; no component invents a status label or colour.</li>
+<li><strong>Member path:</strong> Home → Browse → Book detail → My Shelf. This is where the product is judged.</li>
+<li><strong>Staff path:</strong> Desk → Requests (with optimistic actions and bulk) → Circulation → Catalogue.</li>
+<li><strong>Admin path:</strong> Reports → Settings sections.</li>
+<li><strong>System pages, notifications, email templates</strong> last — but before launch, not after.</li>
+</ol>
+</div>
+<div>
+<h4>Rules that are easy to break by accident</h4>
+<ul class="tight">
+<li>No <span class="mono">border-radius</span>. Anywhere. Including avatars and images.</li>
+<li>No new colour. If you reach for green or amber, you have missed §8.</li>
+<li>No spinner over existing content.</li>
+<li>No modal for anything reversible.</li>
+<li>No UUID, HTTP code or field name in user-facing copy.</li>
+<li>No centred text — headings, empty states and button labels are flush left.</li>
+<li>No dashboard whose first row is four counters.</li>
+<li>Every table needs its filtered-empty state written, not just its empty state.</li>
+</ul>
+<h4 style="margin-top:20px">Acceptance checklist per route</h4>
+<p style="font-size:14px;margin:0">Shell ✓ · PageHeader with an answer line ✓ · four data states ✓ · statuses from §8 ✓ · mobile per §15 ✓ · keyboard + focus ✓ · copy passes §13 tone ✓ · no token violations ✓.</p>
+</div>
+</div>
+</section>
+
+<footer style="margin-top:64px;border-top:2px solid var(--color-divider);padding-top:24px;display:flex;gap:32px;flex-wrap:wrap">
+<p style="font-size:13px;margin:0" class="text-muted">Shelfinity UX &amp; UI specification · v1.0 · Modernist design system · companion mockups in <a href="Shelfinity Screens.dc.html">Shelfinity Screens</a></p>
+</footer>
+
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -16,18 +16,14 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import Chip from '@mui/material/Chip';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import UploadFileIcon from '@mui/icons-material/UploadFileOutlined';
-import DownloadIcon from '@mui/icons-material/DownloadOutlined';
 import { DataGrid } from '@mui/x-data-grid';
+import { Plus, Pencil, Trash2, Upload, Download } from 'lucide-react';
 import { books as booksApi, ApiError } from '../../api/client';
+import PageHeader from '../../components/PageHeader';
+import StatusTag from '../../components/StatusTag';
+import Toast from '../../components/Toast';
+import { dataGridSx } from '../../components/DataTableShell';
+import { colors } from '../../theme/tokens';
 
 const EMPTY_FORM = { title: '', author: '', isbn: '', description: '', genre: '', publicationYear: '', totalCopies: 1 };
 
@@ -78,15 +74,15 @@ export default function AdminBooksPage() {
     try {
       if (editingId) {
         await booksApi.update(editingId, payload);
-        setToast({ severity: 'success', message: 'Book updated' });
+        setToast({ severity: 'success', message: 'Book updated.' });
       } else {
         await booksApi.create(payload);
-        setToast({ severity: 'success', message: 'Book added' });
+        setToast({ severity: 'success', message: 'Book added.' });
       }
       setFormOpen(false);
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Failed to save book';
+      const message = err instanceof ApiError ? err.message : 'Failed to save book.';
       setToast({ severity: 'error', message });
     }
   };
@@ -94,11 +90,11 @@ export default function AdminBooksPage() {
   const confirmDelete = async () => {
     try {
       await booksApi.remove(deleteTarget.id);
-      setToast({ severity: 'success', message: 'Book deleted' });
+      setToast({ severity: 'success', message: 'Book deleted.' });
       setDeleteTarget(null);
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Failed to delete book';
+      const message = err instanceof ApiError ? err.message : 'Failed to delete book.';
       setToast({ severity: 'error', message });
     }
   };
@@ -109,32 +105,38 @@ export default function AdminBooksPage() {
     try {
       const result = await booksApi.bulkUpload(file);
       setUploadResult(result);
-      setToast({ severity: 'success', message: `${result.successCount} books uploaded, ${result.errorCount} errors` });
+      setToast({ severity: 'success', message: `${result.successCount} books uploaded, ${result.errorCount} errors.` });
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Bulk upload failed';
+      const message = err instanceof ApiError ? err.message : 'Bulk upload failed.';
       setToast({ severity: 'error', message });
     } finally {
       e.target.value = '';
     }
   };
 
+  const onShelfCount = rows.filter((b) => b.available).length;
+
   const columns = [
-    { field: 'title', headerName: 'Title', flex: 1, minWidth: 180 },
+    { field: 'title', headerName: 'Title', flex: 1, minWidth: 180, renderCell: (p) => <span style={{ fontWeight: 600 }}>{p.value}</span> },
     { field: 'author', headerName: 'Author', width: 180 },
     { field: 'genre', headerName: 'Genre', width: 150 },
     {
-      field: 'available', headerName: 'Status', width: 130,
-      renderCell: (p) => <Chip size="small" label={p.value ? 'Available' : 'Unavailable'} color={p.value ? 'success' : 'default'} />,
+      field: 'available', headerName: 'Status', width: 140,
+      renderCell: (p) => <StatusTag label={p.value ? 'On the shelf' : 'All out'} variant={p.value ? 'neutral' : 'outline'} />,
     },
     { field: 'availableCopies', headerName: 'Available', width: 100 },
     { field: 'totalCopies', headerName: 'Total', width: 90 },
     {
-      field: 'actions', headerName: '', width: 120, sortable: false, filterable: false,
+      field: 'actions', headerName: '', width: 100, sortable: false, filterable: false,
       renderCell: (p) => (
         <>
-          <IconButton size="small" onClick={() => openEdit(p.row)}><EditIcon fontSize="small" /></IconButton>
-          <IconButton size="small" color="error" onClick={() => setDeleteTarget(p.row)}><DeleteIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={() => openEdit(p.row)} aria-label={`Edit ${p.row.title}`}>
+            <Pencil size={16} />
+          </IconButton>
+          <IconButton size="small" onClick={() => setDeleteTarget(p.row)} aria-label={`Delete ${p.row.title}`}>
+            <Trash2 size={16} />
+          </IconButton>
         </>
       ),
     },
@@ -142,46 +144,42 @@ export default function AdminBooksPage() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Box>
-          <Typography variant="h4" fontWeight={700}>Manage Books</Typography>
-          <Typography variant="body1" color="text.secondary">Add, edit, remove, or bulk-upload the catalog.</Typography>
-        </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>Add Book</Button>
-      </Stack>
+      <PageHeader
+        title="Catalogue"
+        answer={loading ? '' : `${rows.length} title${rows.length === 1 ? '' : 's'} in the catalogue, ${onShelfCount} on the shelf right now.`}
+        actions={
+          <Button variant="contained" startIcon={<Plus size={16} />} onClick={openCreate}>Add a title</Button>
+        }
+      />
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
-            <Typography variant="subtitle2" fontWeight={700}>Bulk Upload (CSV)</Typography>
-            <Button
-              variant="outlined"
-              startIcon={<UploadFileIcon />}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              Choose CSV file
-            </Button>
-            <input ref={fileInputRef} type="file" accept=".csv" hidden onChange={handleFileSelected} />
-            <Button
-              variant="text"
-              startIcon={<DownloadIcon />}
-              href={booksApi.bulkUploadTemplateUrl()}
-              target="_blank"
-              rel="noopener"
-            >
-              Download template
-            </Button>
-          </Stack>
-          {uploadResult && (
-            <Typography variant="body2" color="text.secondary" mt={1}>
-              Last upload: {uploadResult.successCount} succeeded, {uploadResult.errorCount} failed.
-              {uploadResult.errorMessages?.length > 0 && ` (${uploadResult.errorMessages[0]})`}
-            </Typography>
-          )}
-        </CardContent>
-      </Card>
+      <Box sx={{ border: `1px solid ${colors.divider}`, bgcolor: colors.surface, p: 2.5, mb: 3 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Bulk import (CSV)
+          </Typography>
+          <Button variant="outlined" startIcon={<Upload size={16} />} onClick={() => fileInputRef.current?.click()}>
+            Choose CSV file
+          </Button>
+          <input ref={fileInputRef} type="file" accept=".csv" hidden onChange={handleFileSelected} />
+          <Button
+            variant="text"
+            startIcon={<Download size={16} />}
+            href={booksApi.bulkUploadTemplateUrl()}
+            target="_blank"
+            rel="noopener"
+          >
+            Download template
+          </Button>
+        </Stack>
+        {uploadResult && (
+          <Typography sx={{ fontSize: 13, color: colors.textMuted, mt: 1.5 }}>
+            Last import: {uploadResult.successCount} succeeded, {uploadResult.errorCount} failed.
+            {uploadResult.errorMessages?.length > 0 && ` (${uploadResult.errorMessages[0]})`}
+          </Typography>
+        )}
+      </Box>
 
-      <Box sx={{ height: 560, bgcolor: 'background.paper', borderRadius: 2 }}>
+      <Box sx={{ height: 560 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -189,11 +187,12 @@ export default function AdminBooksPage() {
           disableRowSelectionOnClick
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           pageSizeOptions={[10, 25, 50]}
+          sx={dataGridSx}
         />
       </Box>
 
       <Dialog open={formOpen} onClose={() => setFormOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{editingId ? 'Edit Book' : 'Add Book'}</DialogTitle>
+        <DialogTitle>{editingId ? 'Edit title' : 'Add a title'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} mt={0.5}>
             <Grid item xs={12}>
@@ -209,10 +208,10 @@ export default function AdminBooksPage() {
               <TextField label="Genre" fullWidth value={form.genre} onChange={(e) => setForm({ ...form, genre: e.target.value })} />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Publication Year" type="number" fullWidth value={form.publicationYear} onChange={(e) => setForm({ ...form, publicationYear: e.target.value })} />
+              <TextField label="Publication year" type="number" fullWidth value={form.publicationYear} onChange={(e) => setForm({ ...form, publicationYear: e.target.value })} />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Total Copies" type="number" fullWidth value={form.totalCopies} onChange={(e) => setForm({ ...form, totalCopies: e.target.value })} />
+              <TextField label="Total copies" type="number" fullWidth value={form.totalCopies} onChange={(e) => setForm({ ...form, totalCopies: e.target.value })} />
             </Grid>
             <Grid item xs={12}>
               <TextField label="Description" fullWidth multiline minRows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
@@ -234,9 +233,7 @@ export default function AdminBooksPage() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={Boolean(toast)} autoHideDuration={4000} onClose={() => setToast(null)}>
-        {toast && <Alert severity={toast.severity} onClose={() => setToast(null)}>{toast.message}</Alert>}
-      </Snackbar>
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </Box>
   );
 }

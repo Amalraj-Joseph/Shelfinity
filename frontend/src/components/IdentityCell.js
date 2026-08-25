@@ -21,7 +21,7 @@ export default function IdentityCell({ primary, secondary, id }) {
   return (
     <Tooltip title={id || ''} placement="top" arrow>
       <Box sx={{ lineHeight: 1.2, py: 0.5, overflow: 'hidden' }}>
-        <Typography variant="body2" noWrap>{label}</Typography>
+        <Typography variant="body2" fontWeight={600} noWrap>{label}</Typography>
         {sub && (
           <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
             {sub}

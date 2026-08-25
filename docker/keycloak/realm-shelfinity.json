@@ -1,6 +1,9 @@
 {
   "realm": "shelfinity",
   "enabled": true,
+  "loginTheme": "shelfinity",
+  "displayName": "Shelfinity",
+  "displayNameHtml": "Shelfinity",
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
@@ -27,7 +30,9 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
       "redirectUris": [
-        "http://localhost:3000/*"
+        "http://localhost:3000/*",
+        "http://localhost:3001/*",
+        "http://localhost:3002/*"
       ],
       "webOrigins": [
         "*"

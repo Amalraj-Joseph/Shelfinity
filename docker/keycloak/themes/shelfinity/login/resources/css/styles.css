@@ -1,0 +1,126 @@
+/* Shelfinity — Keycloak login theme, layered on keycloak.v2 (PatternFly v5).
+   Tokens mirror design_handoff_shelfinity_redesign/design/_ds/modernist-.../styles.css
+   — see frontend/src/theme/tokens.js for the same values used in the React app. */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap');
+
+/* --- carried over from keycloak.v2's own styles.css, which this file
+   shadows entirely (Keycloak resolves same-named resource files by theme,
+   not by merging parent + child) --- */
+.pf-v5-c-login__container {
+  grid-template-areas: "main";
+  grid-template-columns: 34rem;
+}
+
+#kc-header-wrapper {
+  padding: 62px 10px 20px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* --- Shelfinity tokens --- */
+:root {
+  --sf-bg: #f3f2f2;
+  --sf-surface: #eae9e9;
+  --sf-text: #201e1d;
+  --sf-accent: #ec3013;
+  --sf-accent-600: #dd2b0f;
+  --sf-accent-700: #ae1800;
+  --sf-divider: rgba(32, 30, 29, 0.4);
+  --sf-font: "Archivo", system-ui, sans-serif;
+}
+
+html,
+body#keycloak-bg {
+  background: var(--sf-bg) !important;
+  background-image: none !important;
+  font-family: var(--sf-font) !important;
+  color: var(--sf-text);
+}
+
+/* kcSanitize() strips inline <svg> from displayNameHtml, so the wordmark
+   icon is applied as a background image on a pseudo-element instead — same
+   book-open glyph as the React app's nav rail / sign-in wordmark. */
+#kc-header-wrapper {
+  color: var(--sf-text);
+  font-family: var(--sf-font);
+  font-weight: 800;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#kc-header-wrapper::before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: url("../img/logo.svg") no-repeat center / contain;
+}
+
+.pf-v5-c-login__main-header .pf-v5-c-title {
+  font-family: var(--sf-font) !important;
+  font-weight: 800 !important;
+  color: var(--sf-text) !important;
+  letter-spacing: -0.015em;
+}
+
+.pf-v5-c-login__main-body {
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-divider);
+  border-radius: 0 !important;
+  padding: 32px !important;
+}
+
+.pf-v5-c-form-control {
+  border-radius: 0 !important;
+  border: 1px solid var(--sf-divider) !important;
+  background: #ffffff !important;
+  font-family: var(--sf-font);
+  box-shadow: none !important;
+}
+.pf-v5-c-form-control:focus {
+  border-color: var(--sf-accent) !important;
+  box-shadow: 0 0 0 1px var(--sf-accent) !important;
+}
+
+.pf-v5-c-button {
+  border-radius: 0 !important;
+  font-family: var(--sf-font) !important;
+  font-weight: 800 !important;
+  text-transform: none;
+  box-shadow: none !important;
+}
+.pf-v5-c-button.pf-m-primary {
+  background-color: var(--sf-accent) !important;
+  color: var(--sf-bg) !important;
+  border: none !important;
+}
+.pf-v5-c-button.pf-m-primary:hover {
+  background-color: var(--sf-accent-600) !important;
+}
+.pf-v5-c-button.pf-m-primary:active {
+  background-color: var(--sf-accent-700) !important;
+}
+.pf-v5-c-button.pf-m-link {
+  color: var(--sf-accent) !important;
+}
+
+a {
+  color: var(--sf-accent);
+}
+
+.pf-v5-c-alert {
+  border-radius: 0 !important;
+}
+.pf-v5-c-alert.pf-m-danger {
+  border-left: 3px solid var(--sf-accent-700) !important;
+}
+
+.pf-v5-c-form__label,
+.pf-v5-c-form__label-text {
+  font-weight: 600;
+  color: var(--sf-text);
+  font-family: var(--sf-font);
+}

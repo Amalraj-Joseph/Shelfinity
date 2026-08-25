@@ -32,6 +32,10 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
     volumes:
       - ./keycloak/realm-shelfinity.json:/opt/keycloak/data/import/realm-shelfinity.json:ro
+      # Shelfinity's own login theme (CSS-only, layered on keycloak.v2) —
+      # local-dev-only cosmetic parity with the Modernist redesign. See
+      # docker/keycloak/themes/shelfinity/login/theme.properties.
+      - ./keycloak/themes/shelfinity:/opt/keycloak/themes/shelfinity:ro
     depends_on:
       postgres:
         condition: service_healthy

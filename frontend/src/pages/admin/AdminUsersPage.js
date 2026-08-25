@@ -6,8 +6,6 @@
  */
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -16,12 +14,14 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import EditIcon from '@mui/icons-material/EditOutlined';
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import { DataGrid } from '@mui/x-data-grid';
+import { Pencil, Trash2 } from 'lucide-react';
 import { users as usersApi, ApiError } from '../../api/client';
+import PageHeader from '../../components/PageHeader';
+import StatusTag from '../../components/StatusTag';
+import Toast from '../../components/Toast';
+import { dataGridSx } from '../../components/DataTableShell';
+import { roleInfo, userStatusInfo } from '../../statusVocabulary';
 
 export default function AdminUsersPage() {
   const [rows, setRows] = useState([]);
@@ -55,11 +55,11 @@ export default function AdminUsersPage() {
         name: editTarget.name,
         role: editRole,
       });
-      setToast({ severity: 'success', message: 'Role updated' });
+      setToast({ severity: 'success', message: 'Role updated.' });
       setEditTarget(null);
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Failed to update role';
+      const message = err instanceof ApiError ? err.message : 'Failed to update role.';
       setToast({ severity: 'error', message });
     }
   };
@@ -67,36 +67,48 @@ export default function AdminUsersPage() {
   const confirmDelete = async () => {
     try {
       await usersApi.remove(deleteTarget.id);
-      setToast({ severity: 'success', message: 'User deleted' });
+      setToast({ severity: 'success', message: 'User deleted.' });
       setDeleteTarget(null);
       load();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Failed to delete user';
+      const message = err instanceof ApiError ? err.message : 'Failed to delete user.';
       setToast({ severity: 'error', message });
     }
   };
 
+  const pendingCount = rows.filter((u) => !u.active).length;
+
   const columns = [
-    { field: 'name', headerName: 'Name', width: 200 },
+    { field: 'name', headerName: 'Name', width: 200, renderCell: (p) => <span style={{ fontWeight: 600 }}>{p.value}</span> },
     { field: 'email', headerName: 'Email', width: 260 },
     {
-      field: 'role', headerName: 'Role', width: 130,
-      renderCell: (p) => <Chip size="small" label={p.value} color={p.value === 'ADMIN' ? 'primary' : 'default'} />,
+      field: 'role', headerName: 'Role', width: 110,
+      renderCell: (p) => {
+        const r = roleInfo(p.value);
+        return <StatusTag label={r.label} variant={r.variant} />;
+      },
     },
     {
-      field: 'active', headerName: 'Status', width: 150,
-      renderCell: (p) => <Chip size="small" label={p.value ? 'Active' : 'Pending approval'} color={p.value ? 'success' : 'warning'} />,
+      field: 'active', headerName: 'Status', width: 160,
+      renderCell: (p) => {
+        const s = userStatusInfo(p.value);
+        return <StatusTag label={s.label} variant={s.variant} />;
+      },
     },
     {
-      field: 'createdAt', headerName: 'Joined', width: 180,
+      field: 'createdAt', headerName: 'Joined', width: 140,
       valueFormatter: (p) => new Date(p.value).toLocaleDateString(),
     },
     {
-      field: 'actions', headerName: '', width: 120, sortable: false, filterable: false,
+      field: 'actions', headerName: '', width: 100, sortable: false, filterable: false,
       renderCell: (p) => (
         <>
-          <IconButton size="small" onClick={() => openEdit(p.row)}><EditIcon fontSize="small" /></IconButton>
-          <IconButton size="small" color="error" onClick={() => setDeleteTarget(p.row)}><DeleteIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={() => openEdit(p.row)} aria-label={`Edit ${p.row.name}`}>
+            <Pencil size={16} />
+          </IconButton>
+          <IconButton size="small" onClick={() => setDeleteTarget(p.row)} aria-label={`Delete ${p.row.name}`}>
+            <Trash2 size={16} />
+          </IconButton>
         </>
       ),
     },
@@ -104,12 +116,12 @@ export default function AdminUsersPage() {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight={700} mb={0.5}>Users</Typography>
-      <Typography variant="body1" color="text.secondary" mb={3}>
-        Manage user roles and accounts.
-      </Typography>
+      <PageHeader
+        title="Users"
+        answer={loading ? '' : `${rows.length} member${rows.length === 1 ? '' : 's'}, ${pendingCount} waiting on approval.`}
+      />
 
-      <Box sx={{ height: 560, bgcolor: 'background.paper', borderRadius: 2 }}>
+      <Box sx={{ height: 560 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -117,6 +129,7 @@ export default function AdminUsersPage() {
           disableRowSelectionOnClick
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           pageSizeOptions={[10, 25, 50]}
+          sx={dataGridSx}
         />
       </Box>
 
@@ -131,7 +144,7 @@ export default function AdminUsersPage() {
             fullWidth
             sx={{ mt: 1 }}
           >
-            <MenuItem value="USER">User</MenuItem>
+            <MenuItem value="USER">Member</MenuItem>
             <MenuItem value="ADMIN">Admin</MenuItem>
           </TextField>
         </DialogContent>
@@ -150,9 +163,7 @@ export default function AdminUsersPage() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={Boolean(toast)} autoHideDuration={4000} onClose={() => setToast(null)}>
-        {toast && <Alert severity={toast.severity} onClose={() => setToast(null)}>{toast.message}</Alert>}
-      </Snackbar>
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </Box>
   );
 }

@@ -6,10 +6,8 @@
  */
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Dialog from '@mui/material/Dialog';
@@ -17,13 +15,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import { DataGrid } from '@mui/x-data-grid';
 import { queues as queuesApi, ApiError } from '../../api/client';
 import IdentityCell from '../../components/IdentityCell';
+import PageHeader from '../../components/PageHeader';
+import StatusTag from '../../components/StatusTag';
+import Toast from '../../components/Toast';
+import { dataGridSx } from '../../components/DataTableShell';
+import { queueStatusInfo } from '../../statusVocabulary';
 
-const STATUS_COLOR = { PENDING: 'warning', APPROVED: 'success', REJECTED: 'error' };
 const TABS = ['ALL', 'PENDING', 'APPROVED', 'REJECTED'];
 
 export default function AdminRequestsPage() {
@@ -55,14 +55,16 @@ export default function AdminRequestsPage() {
     const { item, decision } = dialog;
     try {
       await queuesApi.updateStatus(item.id, { status: decision, adminRemark: remark || undefined });
-      setToast({ severity: 'success', message: `Request ${decision.toLowerCase()}` });
+      setToast({ severity: 'success', message: `Request ${decision === 'APPROVED' ? 'approved' : 'declined'}.` });
       setDialog(null);
       load(tab);
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : 'Failed to update request';
+      const message = err instanceof ApiError ? err.message : 'Failed to update request.';
       setToast({ severity: 'error', message });
     }
   };
+
+  const pendingCount = rows.filter((r) => r.status === 'PENDING').length;
 
   const columns = [
     { field: 'type', headerName: 'Type', width: 160, valueFormatter: (p) => p.value.replace('_', ' ') },
@@ -77,8 +79,11 @@ export default function AdminRequestsPage() {
         : '—',
     },
     {
-      field: 'status', headerName: 'Status', width: 130,
-      renderCell: (p) => <Chip size="small" label={p.value} color={STATUS_COLOR[p.value]} />,
+      field: 'status', headerName: 'Status', width: 190,
+      renderCell: (p) => {
+        const status = queueStatusInfo(p.value);
+        return <StatusTag label={status.label} variant={status.variant} />;
+      },
     },
     { field: 'description', headerName: 'Description', flex: 1, minWidth: 200 },
     {
@@ -89,11 +94,11 @@ export default function AdminRequestsPage() {
       field: 'actions', headerName: '', width: 220, sortable: false, filterable: false,
       renderCell: (p) => p.row.status === 'PENDING' && (
         <Stack direction="row" spacing={1}>
-          <Button size="small" variant="contained" color="success" onClick={() => openDecision(p.row, 'APPROVED')}>
+          <Button size="small" variant="contained" onClick={() => openDecision(p.row, 'APPROVED')}>
             Approve
           </Button>
-          <Button size="small" variant="outlined" color="error" onClick={() => openDecision(p.row, 'REJECTED')}>
-            Reject
+          <Button size="small" variant="outlined" onClick={() => openDecision(p.row, 'REJECTED')}>
+            Decline
           </Button>
         </Stack>
       ),
@@ -102,16 +107,17 @@ export default function AdminRequestsPage() {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight={700} mb={0.5}>Requests</Typography>
-      <Typography variant="body1" color="text.secondary" mb={3}>
-        Approve or reject borrow, return, and registration requests.
-      </Typography>
+      <PageHeader
+        title="Requests"
+        answer={loading ? '' : `${pendingCount} request${pendingCount === 1 ? '' : 's'} waiting on the library.`}
+        controls={
+          <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto" allowScrollButtonsMobile>
+            {TABS.map((t) => <Tab key={t} value={t} label={t} />)}
+          </Tabs>
+        }
+      />
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
-        {TABS.map((t) => <Tab key={t} value={t} label={t} />)}
-      </Tabs>
-
-      <Box sx={{ height: 560, bgcolor: 'background.paper', borderRadius: 2 }}>
+      <Box sx={{ height: 560 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -119,14 +125,15 @@ export default function AdminRequestsPage() {
           disableRowSelectionOnClick
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           pageSizeOptions={[10, 25, 50]}
+          sx={dataGridSx}
         />
       </Box>
 
       <Dialog open={Boolean(dialog)} onClose={() => setDialog(null)} fullWidth maxWidth="sm">
-        <DialogTitle>{dialog?.decision === 'APPROVED' ? 'Approve request' : 'Reject request'}</DialogTitle>
+        <DialogTitle>{dialog?.decision === 'APPROVED' ? 'Approve request' : 'Decline request'}</DialogTitle>
         <DialogContent>
           <TextField
-            label="Admin remark (optional)"
+            label="Note (optional)"
             value={remark}
             onChange={(e) => setRemark(e.target.value)}
             fullWidth
@@ -141,9 +148,7 @@ export default function AdminRequestsPage() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={Boolean(toast)} autoHideDuration={4000} onClose={() => setToast(null)}>
-        {toast && <Alert severity={toast.severity} onClose={() => setToast(null)}>{toast.message}</Alert>}
-      </Snackbar>
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </Box>
   );
 }

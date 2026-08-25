@@ -19,12 +19,12 @@ test.describe('Critical path', () => {
     await page.getByTestId('login-submit').click();
 
     await expect(page).toHaveURL('/');
-    await expect(page.getByRole('heading', { name: /welcome/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /good (morning|afternoon|evening)/i })).toBeVisible();
 
     await page.getByRole('link', { name: /browse books/i }).click();
     await expect(page).toHaveURL(/\/books/);
 
-    const borrowButton = page.getByRole('button', { name: /request to borrow/i }).first();
+    const borrowButton = page.getByRole('button', { name: /borrow this/i }).first();
     await expect(borrowButton).toBeVisible();
     await borrowButton.click();
 
@@ -42,7 +42,11 @@ test.describe('Critical path', () => {
     await page.getByTestId('login-submit').click();
 
     await expect(page).toHaveURL('/');
-    await expect(page.getByRole('banner').getByText('Admin')).toBeVisible();
+    // The redesign moved the role indicator out of a top-bar chip into the
+    // nav rail's identity block, and admin-only nav now lives in its own
+    // labelled group — a stronger signal that role-gated UI actually
+    // rendered than hunting for the word "Admin" in a specific landmark.
+    await expect(page.getByText('Manage Library').first()).toBeVisible();
 
     await page.getByRole('link', { name: 'Requests' }).click();
     await expect(page).toHaveURL(/\/admin\/requests/);

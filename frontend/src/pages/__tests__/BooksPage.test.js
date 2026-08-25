@@ -58,26 +58,26 @@ describe('BooksPage', () => {
   test('renders both available and unavailable books with the right actions', async () => {
     renderBooksPage();
 
-    expect(await screen.findByText('Clean Code')).toBeInTheDocument();
-    expect(screen.getByText('Dune')).toBeInTheDocument();
+    expect(await screen.findAllByText('Clean Code')).not.toHaveLength(0);
+    expect(screen.getAllByText('Dune')).not.toHaveLength(0);
     expect(screen.getByTestId(`borrow-${AVAILABLE_BOOK.id}`)).toBeInTheDocument();
     expect(screen.getByTestId(`reserve-${UNAVAILABLE_BOOK.id}`)).toBeInTheDocument();
   });
 
   test('search filters by title or author', async () => {
     renderBooksPage();
-    await screen.findByText('Clean Code');
+    await screen.findByTestId(`borrow-${AVAILABLE_BOOK.id}`);
 
     await userEvent.type(screen.getByTestId('book-search-input'), 'dune');
 
-    expect(screen.queryByText('Clean Code')).not.toBeInTheDocument();
-    expect(screen.getByText('Dune')).toBeInTheDocument();
+    expect(screen.queryByTestId(`borrow-${AVAILABLE_BOOK.id}`)).not.toBeInTheDocument();
+    expect(screen.getAllByText('Dune')).not.toHaveLength(0);
   });
 
   test('borrowing submits a BOOK_BORROW queue request', async () => {
     queues.create.mockResolvedValue({});
     renderBooksPage();
-    await screen.findByText('Clean Code');
+    await screen.findByTestId(`borrow-${AVAILABLE_BOOK.id}`);
 
     await userEvent.click(screen.getByTestId(`borrow-${AVAILABLE_BOOK.id}`));
 
@@ -89,7 +89,7 @@ describe('BooksPage', () => {
   test('reserving an unavailable book submits a reservation', async () => {
     reservations.create.mockResolvedValue({});
     renderBooksPage();
-    await screen.findByText('Dune');
+    await screen.findByTestId(`reserve-${UNAVAILABLE_BOOK.id}`);
 
     await userEvent.click(screen.getByTestId(`reserve-${UNAVAILABLE_BOOK.id}`));
 
@@ -100,7 +100,7 @@ describe('BooksPage', () => {
 
   test('borrow/reserve actions are disabled while the account is pending approval', async () => {
     renderBooksPage({ isPendingApproval: true });
-    await screen.findByText('Clean Code');
+    await screen.findByTestId(`borrow-${AVAILABLE_BOOK.id}`);
 
     expect(screen.getByTestId(`borrow-${AVAILABLE_BOOK.id}`)).toBeDisabled();
     expect(screen.getByTestId(`reserve-${UNAVAILABLE_BOOK.id}`)).toBeDisabled();
