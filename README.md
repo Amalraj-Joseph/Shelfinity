@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Amalraj-Joseph/Shelfinity/actions/workflows/ci.yml/badge.svg)](https://github.com/Amalraj-Joseph/Shelfinity/actions/workflows/ci.yml)
 
-A modern, multi-cloud library management system — Jakarta EE 10 and React 18, running the exact same codebase as a local Docker stack or as a free-tier deployment spanning IBM Cloud, Oracle Cloud Infrastructure, and Cloudflare (see [Multi-cloud deployment architecture](#multi-cloud-deployment-architecture) below).
+A modern, multi-cloud library management system — Jakarta EE 10 and React 18, running the exact same codebase as a local Docker stack or as a free-tier deployment spanning IBM Cloud, Oracle Cloud Infrastructure, and Cloudflare (see [Deployment models](#deployment-models) below).
 
 🚀 **[Live demo](https://shelfinity-app.amalraj.dev)** — the multi-cloud deployment described below, running for real.
 
@@ -64,23 +64,21 @@ cd frontend && npm test -- --watchAll=false # unit/component tests
 cd frontend && npx playwright test          # end-to-end (stack must be running)
 ```
 
-## Multi-cloud deployment architecture
+## Deployment models
 
-Shelfinity runs unmodified on either stack below — switching between them is a matter of environment variables and build args, never a code change. Locally, `docker-compose.yml` wires up Postgres, Keycloak, and the backend/frontend containers on one machine. In the cloud, the same backend WAR and React build run against IBM Cloud's managed services, fronted by Cloudflare, on a single free-tier Oracle Cloud VM:
+Shelfinity runs the exact same backend WAR and React build in all three setups below — nothing but environment variables and build args changes between them:
 
-![Shelfinity multi-cloud deployment topology](docs/images/multicloud-architecture.svg)
-
-- **Cloudflare** — DNS, Universal SSL, and a [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) (`cloudflared`) carry all public traffic to the VM without opening an inbound port on it.
-- **Oracle Cloud Infrastructure (OCI)** — the one Always Free Compute VM that actually runs the app: `nginx` serves the React production build and proxies `/api` to Open Liberty, which runs natively under systemd (no Docker in this path — see `deploy/JNDI_RACE_DEBUGGING_SUMMARY.md` for why). At boot, a small standalone module (`backend/vault-bootstrap`) authenticates as the VM itself via Instance Principals and pulls every secret — the Db2 password, App ID config, the email encryption key — from **OCI Vault**, so nothing sensitive is ever stored on disk or in the systemd unit.
-- **IBM Cloud** — the two managed services the backend talks to: **Db2 on Cloud** for the database (over SSL, via the CA cert in `backend/certs/`) and **App ID** for OIDC identity, using an Authorization Code + PKCE flow suited to a static SPA (see `frontend/src/auth/pkce.js` and `AuthContext.js`).
-
-Swapping stacks is entirely config-driven: `DB_JDBC_URL`/`DB_DRIVER_CLASS` select Postgres vs. Db2, `REACT_APP_AUTH_FLOW` selects Keycloak's ROPC flow vs. App ID's PKCE flow, and `.env.example` documents every variable for both. Three ways to run it, same codebase:
+![Three ways to run Shelfinity: Local, Hybrid, and Multi-cloud](docs/images/deployment-models.svg)
 
 | | Runs on | Database | Identity | Script |
 |---|---|---|---|---|
-| Local | your machine, Docker Compose | Postgres (container) | Keycloak (container) | `./scripts/start.sh` |
-| Local + cloud services | your machine, Docker Compose | Db2 on Cloud | App ID | `./scripts/start-cloud-services.sh` |
-| Full cloud | one OCI VM, systemd | Db2 on Cloud | App ID | `deploy/deploy-to-vm.sh` + `deploy/vm-setup.sh` |
+| **Local** | your machine, Docker Compose | Postgres (container) | Keycloak (container) | `./scripts/start.sh` |
+| **Hybrid** | your machine, Docker Compose | Db2 on Cloud | App ID | `./scripts/start-cloud-services.sh` |
+| **Multi-cloud** | one OCI VM, systemd | Db2 on Cloud | App ID | `deploy/deploy-to-vm.sh` + `deploy/vm-setup.sh` |
+
+Swapping between them is entirely config-driven: `DB_JDBC_URL`/`DB_DRIVER_CLASS` select Postgres vs. Db2, `REACT_APP_AUTH_FLOW` selects Keycloak's ROPC flow vs. App ID's PKCE flow, and `.env.example`/`.env.cloud-services.example` document every variable.
+
+The **multi-cloud** model additionally spans three providers end to end — Cloudflare at the edge (DNS, TLS, tunnel), Oracle Cloud Infrastructure running the VM itself (plus Vault for secrets), and IBM Cloud's Db2/App ID behind it — with the app running natively under systemd rather than in Docker on that one path (see `deploy/JNDI_RACE_DEBUGGING_SUMMARY.md` for why). For the full topology diagram of each model and the technology rationale behind them, see the **[Architecture docs](https://shelfinity.amalraj.dev/architecture/#deployment-models)**.
 
 ## License
 
