@@ -33,6 +33,7 @@ for _ in $(seq 1 60); do
     echo "  Backend API      http://localhost:9080/api"
     echo "  OpenAPI UI       http://localhost:9080/openapi/ui/"
     echo "  Keycloak admin   http://localhost:8080 (admin/admin)"
+    echo "  Mailpit (email)  http://localhost:8025"
     exit 0
   fi
   sleep 5

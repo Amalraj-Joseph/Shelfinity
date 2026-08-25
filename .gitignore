@@ -59,6 +59,7 @@ out/
 # Cloud service credentials (raw secrets — never commit)
 *.local.json
 *credentials*.json
+.env.cloud-services
 
 # Maven shade-plugin build output (backend/vault-bootstrap) — regenerate, don't commit
 dependency-reduced-pom.xml

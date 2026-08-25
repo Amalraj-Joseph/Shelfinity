@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Amalraj-Joseph/Shelfinity/actions/workflows/ci.yml/badge.svg)](https://github.com/Amalraj-Joseph/Shelfinity/actions/workflows/ci.yml)
 
-A full-stack library management system built with Jakarta EE 10, React 18, PostgreSQL, and Keycloak — deployable locally with Docker Compose or to a free-tier multi-cloud stack with only configuration changes (see [Multi-cloud deployment architecture](#multi-cloud-deployment-architecture) below).
+**A modern, multi-cloud library management system.** Jakarta EE 10 and React 18 underneath, running unmodified as a local Docker stack or as a free-tier deployment spanning IBM Cloud, Oracle Cloud Infrastructure, and Cloudflare — see [Multi-cloud deployment architecture](#multi-cloud-deployment-architecture) below for how.
 
 📖 **[Documentation](https://shelfinity.amalraj.dev)** — getting started, architecture, business rules, and the full API reference.
 
@@ -46,6 +46,17 @@ To stop everything: `./scripts/stop.sh` (add `-v` to also drop the database volu
 
 See **[shelfinity.amalraj.dev](https://shelfinity.amalraj.dev)** for architecture, the exact business rules (registration approval, borrow/return, reservations), the full API reference, and the authoritative [`docs/api/SPEC.md`](docs/api/SPEC.md).
 
+### Running locally against IBM Cloud services
+
+To build and run the app locally the same way, but against real **Db2 on Cloud** and **App ID** instances instead of the local Postgres/Keycloak containers:
+
+```bash
+cp .env.cloud-services.example .env.cloud-services   # fill in your Db2/App ID values
+./scripts/start-cloud-services.sh
+```
+
+The script refuses to start until every placeholder in `.env.cloud-services` (git-ignored — it holds real credentials) has been filled in. Stop with `./scripts/stop-cloud-services.sh`. This is separate from the full cloud deployment below — it keeps the app itself on your machine and only the database/identity calls leave it.
+
 ## Running the tests
 
 ```bash
@@ -65,7 +76,13 @@ Shelfinity runs unmodified on either stack below — switching between them is a
 - **Oracle Cloud Infrastructure (OCI)** — the one Always Free Compute VM that actually runs the app: `nginx` serves the React production build and proxies `/api` to Open Liberty, which runs natively under systemd (no Docker in this path — see `deploy/JNDI_RACE_DEBUGGING_SUMMARY.md` for why). At boot, a small standalone module (`backend/vault-bootstrap`) authenticates as the VM itself via Instance Principals and pulls every secret — the Db2 password, App ID config, the email encryption key — from **OCI Vault**, so nothing sensitive is ever stored on disk or in the systemd unit.
 - **IBM Cloud** — the two managed services the backend talks to: **Db2 on Cloud** for the database (over SSL, via the CA cert in `backend/certs/`) and **App ID** for OIDC identity, using an Authorization Code + PKCE flow suited to a static SPA (see `frontend/src/auth/pkce.js` and `AuthContext.js`).
 
-Swapping stacks is entirely config-driven: `DB_JDBC_URL`/`DB_DRIVER_CLASS` select Postgres vs. Db2, `REACT_APP_AUTH_FLOW` selects Keycloak's ROPC flow vs. App ID's PKCE flow, and `.env.example` documents every variable for both. See `deploy/deploy-to-vm.sh` and `deploy/vm-setup.sh` for the two scripts that build and install the cloud stack.
+Swapping stacks is entirely config-driven: `DB_JDBC_URL`/`DB_DRIVER_CLASS` select Postgres vs. Db2, `REACT_APP_AUTH_FLOW` selects Keycloak's ROPC flow vs. App ID's PKCE flow, and `.env.example` documents every variable for both. Three ways to run it, same codebase:
+
+| | Runs on | Database | Identity | Script |
+|---|---|---|---|---|
+| Local | your machine, Docker Compose | Postgres (container) | Keycloak (container) | `./scripts/start.sh` |
+| Local + cloud services | your machine, Docker Compose | Db2 on Cloud | App ID | `./scripts/start-cloud-services.sh` |
+| Full cloud | one OCI VM, systemd | Db2 on Cloud | App ID | `deploy/deploy-to-vm.sh` + `deploy/vm-setup.sh` |
 
 ## License
 
