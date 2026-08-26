@@ -209,6 +209,15 @@ rm -rf /usr/share/nginx/html/*
 mkdir -p /usr/share/nginx/html
 tar -xzf "${STAGE_DIR}/frontend-build.tar.gz" -C /usr/share/nginx/html
 
+# nginx was already started back in step [2/7], before this content existed
+# on disk — a bare content swap on a running nginx doesn't get picked up
+# reliably (confirmed directly: curl kept serving the pre-deploy content,
+# byte-for-byte, until nginx was restarted — reload was never even tried
+# since restart is free here and removes any doubt). Without this, every
+# deploy silently keeps serving whatever nginx had at first start instead
+# of the just-deployed build.
+systemctl restart nginx
+
 id -u "${RUN_USER}" >/dev/null 2>&1 || useradd -r -s /usr/sbin/nologin "${RUN_USER}"
 chown -R "${RUN_USER}:${RUN_USER}" "${LIBERTY_INSTALL_DIR}" "${APP_DIR}"
 
