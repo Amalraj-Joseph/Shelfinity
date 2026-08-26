@@ -1,0 +1,70 @@
+<!--
+  Shelfinity — IBM App ID custom email template ("Sign-up verification").
+  Pasted into the App ID console under Manage Authentication > Email
+  Templates. App ID only exposes %{display.headerColor} and %{display.logo}
+  as configurable branding (set separately in App ID's Appearance settings —
+  left as-is here, not hardcoded); everything else below is re-skinned to
+  the Modernist design tokens — see frontend/src/theme/tokens.js and
+  docker/keycloak/themes/shelfinity/login/resources/css/styles.css for the
+  same values used in the React app and the Keycloak login theme.
+
+  Table-based layout and inline styles throughout: email clients (Outlook
+  in particular) don't reliably support <style> blocks, CSS variables, or
+  border-radius, so tokens are inlined as plain hex rather than referenced
+  as custom properties.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Shelfinity — verify your email</title>
+ </head>
+ <body style="margin:0; padding:0; background-color:#f3f2f2;">
+ <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#f3f2f2">
+ <tbody>
+ <tr>
+ <td align="center" style="padding:32px 16px;">
+ <table width="560" border="0" align="center" cellpadding="0" cellspacing="0" style="max-width:560px; width:100%; background-color:#eae9e9; border:1px solid #d7d3d3;">
+ <tbody>
+ <tr>
+ <td align="center" valign="middle" bgcolor="%{display.headerColor}" style="padding:24px;">
+ <img src="%{display.logo}" style="object-fit:contain; display:block;" height="56" alt="Shelfinity">
+ </td>
+ </tr>
+ <tr>
+ <td align="center" style="padding:40px 32px; font-family:'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:16px; line-height:1.6; color:#201e1d;">
+
+ <p style="margin:0 0 20px; font-weight:800;">Hi %{user.firstName},<br>Thanks for signing up!</p>
+
+ <p style="margin:0 0 28px;">Please verify your email address by clicking the button below.</p>
+
+ <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+ <tbody>
+ <tr>
+ <td align="center" bgcolor="#ec3013" style="padding:0;">
+ <a href="%{verify.link}" style="display:inline-block; padding:14px 32px; font-family:'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:15px; font-weight:800; color:#f3f2f2; text-decoration:none;">Verify</a>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+
+ <p style="margin:0 0 8px; font-size:13px; color:#605d5d;">The link is only active for %{linkExpiration.hours} hours. If the button doesn't work, copy and paste this link into your browser:</p>
+ <p style="margin:0 0 28px; font-size:12px; word-break:break-all;"><a href="%{verify.link}" style="color:#ec3013;">%{verify.link}</a></p>
+
+ <p style="margin:0; font-size:13px; color:#605d5d;">If you didn't sign up with this address, you can ignore this email.</p>
+ <p style="margin:20px 0 0;">Thanks!</p>
+
+ </td>
+ </tr>
+ <tr>
+ <td bgcolor="%{display.headerColor}" style="line-height:6px; font-size:6px;">&nbsp;</td>
+ </tr>
+ </tbody>
+ </table>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ </body>
+</html>
