@@ -69,6 +69,14 @@
                     sslConnection="true"
                     sslTrustStoreLocation="${shared.resource.dir}/lib/app-truststore.jks"
                     sslTrustStorePassword="changeit" />
+        <!-- Without this, Liberty defaults maxPoolSize to 50 — fine for
+             Postgres, but Db2 on Cloud's Lite plan hard-caps the whole
+             instance at 15 concurrent connections (SQLCODE=-438,
+             SQLSTATE=42502 the moment anything crosses it). 8 leaves
+             headroom for the IBM Cloud console / another client also
+             touching the same Lite instance. minPoolSize=1 so this app
+             doesn't itself eagerly claim a chunk of that budget at idle. -->
+        <connectionManager maxPoolSize="8" minPoolSize="1" />
     </dataSource>
 
     <!-- JDBC driver library: every driver jar copied into shared.resource.dir/lib
