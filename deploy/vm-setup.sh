@@ -134,13 +134,16 @@ if ! dpkg -s nginx >/dev/null 2>&1; then
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq
     apt-get install -y -qq nginx
-    # Ubuntu's nginx package ships a default site pre-enabled on port 80,
-    # which would otherwise conflict with shelfinity.conf — both bind :80.
-    rm -f /etc/nginx/sites-enabled/default
     NGINX_JUST_INSTALLED=true
 else
     NGINX_JUST_INSTALLED=false
 fi
+# Ubuntu's nginx package ships a default site pre-enabled on port 80 with
+# default_server, which wins over shelfinity.conf for any request that
+# doesn't match on Host (e.g. a bare curl localhost) — so this has to run
+# every time, not just on a fresh install, or a re-run against a VM where
+# nginx pre-existed leaves the stock welcome page serving :80 instead.
+rm -f /etc/nginx/sites-enabled/default
 cp "${STAGE_DIR}/nginx/shelfinity.conf" /etc/nginx/conf.d/shelfinity.conf
 if [ "${NGINX_JUST_INSTALLED}" = true ]; then
     systemctl enable --now nginx
