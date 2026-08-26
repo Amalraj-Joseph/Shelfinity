@@ -46,6 +46,8 @@ export default function AdminEmailConfigPage() {
     setLoading(true);
     try {
       setConfigs(await emailConfigApi.getAll());
+    } catch (err) {
+      setToast({ severity: 'error', message: err instanceof ApiError ? err.message : 'Failed to load email configurations.' });
     } finally {
       setLoading(false);
     }
